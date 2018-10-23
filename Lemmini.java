@@ -25,8 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.jnlp.ServiceManager;
-import javax.jnlp.UnavailableServiceException;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -99,8 +98,6 @@ public class Lemmini extends JFrame implements KeyListener {
 	final static int MIN_SLEEP = 10;
 	/** threshold for sleep - don't sleep if time to wait is shorter than this as sleep might return too late */
 	final static int THR_SLEEP = 16;
-	/** flag: started as Webstart application */
-	private static boolean isWebstartApp = true;
 
 	private final static long serialVersionUID = 0x01;
 
@@ -145,7 +142,7 @@ public class Lemmini extends JFrame implements KeyListener {
 	 */
 	Lemmini() {
 		try {
-			Core.init(this,isWebstartApp);      // initialize Core object
+			Core.init(this);      // initialize Core object
 			GameController.init();
 			GameController.setLevelMenuUpdateListener(new LevelMenuUpdateListener());
 		} catch (ResourceException ex) {
@@ -737,13 +734,6 @@ public class Lemmini extends JFrame implements KeyListener {
 			JOptionPane.showMessageDialog(null,"You need at least 64MB of heap","Error",JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
-
-		// detect webstart
-		try {
-			ServiceManager.lookup("javax.jnlp.BasicService");
-		} catch (UnavailableServiceException ex) {
-			isWebstartApp = false;
-		};
 
 		// workaround to adjust time base to 1ms under XP
 		// see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6435126

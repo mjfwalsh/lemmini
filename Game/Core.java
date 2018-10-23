@@ -75,36 +75,31 @@ public class Core {
 	/**
 	 * Initialize some core elements.
 	 * @param frame parent frame
-	 * @param isWebstartApp true if this was started via Webstart, false otherwise
 	 * @throws LemmException
 	 */
-	public static void init(final JFrame frame, final boolean isWebstartApp) throws LemmException  {
+	public static void init(final JFrame frame) throws LemmException  {
 		// get ini path
-		if (isWebstartApp) {
-			programPropsFileStr = ToolBox.exchangeSeparators(System.getProperty("user.home"));
-			programPropsFileStr = ToolBox.addSeparator(programPropsFileStr);
-		} else {
-			String s = frame.getClass().getName().replace('.','/') + ".class";
-			URL url = frame.getClass().getClassLoader().getResource(s);
-			int pos;
-			try {
-				programPropsFileStr = URLDecoder.decode(url.getPath(),"UTF-8");
-			} catch (UnsupportedEncodingException ex) {};
-			// special handling for JAR
-			if (( (pos=programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
-				programPropsFileStr = programPropsFileStr.substring(pos+5);
-			if ( (pos=programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
-				programPropsFileStr = programPropsFileStr.substring(0,pos);
+		String s = frame.getClass().getName().replace('.','/') + ".class";
+		URL url = frame.getClass().getClassLoader().getResource(s);
+		int pos;
+		try {
+			programPropsFileStr = URLDecoder.decode(url.getPath(),"UTF-8");
+		} catch (UnsupportedEncodingException ex) {};
+		// special handling for JAR
+		if (( (pos=programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
+			programPropsFileStr = programPropsFileStr.substring(pos+5);
+		if ( (pos=programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
+			programPropsFileStr = programPropsFileStr.substring(0,pos);
 
-			/** @todo doesn't work if JAR is renamed...
-			 *  Maybe it would be a better idea to search only for ".JAR" and then
-			 *  for the first path separator...
-			 */
+		/** @todo doesn't work if JAR is renamed...
+		 *  Maybe it would be a better idea to search only for ".JAR" and then
+		 *  for the first path separator...
+		 */
 
-			s = (frame.getClass().getName().replace('.','/') + ".jar").toLowerCase();
-			if ( (pos=programPropsFileStr.toLowerCase().indexOf(s)) != -1)
-				programPropsFileStr = programPropsFileStr.substring(0,pos);
-		}
+		s = (frame.getClass().getName().replace('.','/') + ".jar").toLowerCase();
+		if ( (pos=programPropsFileStr.toLowerCase().indexOf(s)) != -1)
+			programPropsFileStr = programPropsFileStr.substring(0,pos);
+
 		programPropsFileStr += INI_NAME;
 		// read main ini file
 		programProps = new Props();
