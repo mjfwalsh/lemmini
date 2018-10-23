@@ -108,7 +108,7 @@ public class Core {
 			LegalDialog ld = new LegalDialog(null,true);
 			ld.setVisible(true);
 			if (!ld.isOk())
-				throw new LemmException("User abort");
+				System.exit(0);
 		}
 
 		scale = Core.programProps.get("scale",1.0);

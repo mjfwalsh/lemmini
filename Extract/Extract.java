@@ -416,7 +416,7 @@ public class Extract extends Thread {
 			fDiag.setParameters(sourcePath, destinationPath);
 			fDiag.setVisible(true);
 			if (!fDiag.getSuccess())
-				throw new ExtractException("Extraction cancelled by user");
+				System.exit(0);
 			sourcePath = exchangeSeparators(addSeparator(fDiag.getSource()));
 			destinationPath = exchangeSeparators(addSeparator(fDiag.getTarget()));
 			// check if source path exists
