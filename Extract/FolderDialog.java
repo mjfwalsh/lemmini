@@ -133,7 +133,7 @@ public class FolderDialog extends JDialog {
 	 * Initialize manually generated resources.
 	 */
 	private void initialize() {
-		int h = System.getProperty("os.name").equals("Mac OS X") ? 150 : 208;
+		int h = System.getProperty("os.name").equals("Mac OS X") ? 150 : 200;
 
 		this.setSize(457, h);
 		this.setContentPane(getJContentPane());

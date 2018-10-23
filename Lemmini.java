@@ -1111,7 +1111,7 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 	/** y coordinate of icons in pixels */
 	final static int iconsY = counterY+14;
 	/** x coordinate of minimap in pixels */
-	final static int smallX = 640-16/*-32*/-200;
+	final static int smallX = 800-208-6;
 	/** y coordinate of minimap in pixels */
 	final static int smallY = iconsY;
 
