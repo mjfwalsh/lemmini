@@ -756,14 +756,14 @@ public class Lemmini extends JFrame implements KeyListener {
 	}
 
 	void setScale(double scale) {
-		gp.shutdown();
+		//gp.shutdown();
 		Core.setScale(scale);
-		setSize((int)Math.round(Core.getDrawWidth()*Core.getScale()),(int)Math.round(Core.getDrawHeight()*Core.getScale()));
-		this.setMinimumSize(new Dimension((int)Math.round(Core.getDrawWidth()*Core.getScale()),(int)Math.round(Core.getDrawHeight()*Core.getScale())));
-		this.setMaximumSize(new Dimension((int)Math.round(Core.getDrawWidth()*Core.getScale()),(int)Math.round(Core.getDrawHeight()*Core.getScale())));
-		pack();
-		validate(); // force redraw
-		gp.init();
+		setSize((int)Math.round(Core.getDrawWidth()*scale),(int)Math.round(Core.getDrawHeight()*scale));
+		//this.setMinimumSize(new Dimension((int)Math.round(Core.getDrawWidth()*scale),(int)Math.round(Core.getDrawHeight()*scale)));
+		//this.setMaximumSize(new Dimension((int)Math.round(Core.getDrawWidth()*scale),(int)Math.round(Core.getDrawHeight()*scale)));
+		//pack();
+		//validate(); // force redraw
+		//gp.init();
 	}
 
 	/**
