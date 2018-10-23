@@ -79,28 +79,36 @@ public class Core {
 	 */
 	public static void init(final JFrame frame) throws LemmException  {
 		// get ini path
-		String s = frame.getClass().getName().replace('.','/') + ".class";
-		URL url = frame.getClass().getClassLoader().getResource(s);
-		int pos;
-		try {
-			programPropsFileStr = URLDecoder.decode(url.getPath(),"UTF-8");
-		} catch (UnsupportedEncodingException ex) {};
-		// special handling for JAR
-		if (( (pos=programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
-			programPropsFileStr = programPropsFileStr.substring(pos+5);
-		if ( (pos=programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
-			programPropsFileStr = programPropsFileStr.substring(0,pos);
+		if (System.getProperty("os.name").equals("Mac OS X")) {
+			// resourcePath and programPropsFileStr are in fixed places on Mac
+			resourcePath = System.getProperty("user.home") + "/Library/Application Support/Lemmini/";
 
-		/** @todo doesn't work if JAR is renamed...
-		 *  Maybe it would be a better idea to search only for ".JAR" and then
-		 *  for the first path separator...
-		 */
+			// ini path
+			programPropsFileStr = resourcePath + INI_NAME;
+		} else {
+			String s = frame.getClass().getName().replace('.','/') + ".class";
+			URL url = frame.getClass().getClassLoader().getResource(s);
+			int pos;
+			try {
+				programPropsFileStr = URLDecoder.decode(url.getPath(),"UTF-8");
+			} catch (UnsupportedEncodingException ex) {};
+			// special handling for JAR
+			if (( (pos=programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
+				programPropsFileStr = programPropsFileStr.substring(pos+5);
+			if ( (pos=programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
+				programPropsFileStr = programPropsFileStr.substring(0,pos);
 
-		s = (frame.getClass().getName().replace('.','/') + ".jar").toLowerCase();
-		if ( (pos=programPropsFileStr.toLowerCase().indexOf(s)) != -1)
-			programPropsFileStr = programPropsFileStr.substring(0,pos);
+			/** @todo doesn't work if JAR is renamed...
+			 *  Maybe it would be a better idea to search only for ".JAR" and then
+			 *  for the first path separator...
+			 */
 
-		programPropsFileStr += INI_NAME;
+			s = (frame.getClass().getName().replace('.','/') + ".jar").toLowerCase();
+			if ( (pos=programPropsFileStr.toLowerCase().indexOf(s)) != -1)
+				programPropsFileStr = programPropsFileStr.substring(0,pos);
+			programPropsFileStr += INI_NAME;
+		}
+
 		// read main ini file
 		programProps = new Props();
 
@@ -113,7 +121,10 @@ public class Core {
 
 		scale = Core.programProps.get("scale",1.0);
 
-		resourcePath = programProps.get("resourcePath", "");
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			resourcePath = programProps.get("resourcePath", "");
+		}
+
 		String sourcePath = programProps.get("sourcePath", "");
 		String rev = programProps.get("revision", "");
 		GameController.setMusicOn(programProps.get("music", false));
@@ -125,17 +136,24 @@ public class Core {
 		GameController.setSoundGain(gain);
 		GameController.setAdvancedSelect(programProps.get("advancedSelect", true));
 		GameController.setClassicalCursor(programProps.get("classicalCursor", false));
-		if (resourcePath.length()==0 || !REVISION.equalsIgnoreCase(rev)) {
+		if (sourcePath.length()==0 || resourcePath.length()==0 || !REVISION.equalsIgnoreCase(rev)) {
 			// extract resources
 			try {
 				Extract.extract(null, sourcePath, resourcePath, null, "patch");
-				resourcePath = Extract.getResourcePath();
-				programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
+
+				if(!System.getProperty("os.name").equals("Mac OS X")) {
+					resourcePath = Extract.getResourcePath();
+					programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
+				}
+
 				programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
 				programProps.set("revision", REVISION);
 				programProps.save(programPropsFileStr);
 			} catch (ExtractException ex) {
-				programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
+				if(!System.getProperty("os.name").equals("Mac OS X")) {
+					programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
+				}
+
 				programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
 				programProps.save(programPropsFileStr);
 				throw new LemmException("Ressource extraction failed\n"+ex.getMessage());
@@ -161,7 +179,6 @@ public class Core {
 			Core.playerProps.set("player_0", "default");
 		}
 		player = new Player(defaultPlayer);
-
 
 		cmp = frame;
 	}

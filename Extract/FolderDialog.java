@@ -92,8 +92,11 @@ public class FolderDialog extends JDialog {
 	public void setParameters(final String srcPath, final String trgPath) {
 		jTextFieldSrc.setText( srcPath );
 		sourcePath = srcPath;
-		jTextFieldTrg.setText( trgPath );
-		targetPath = trgPath;
+
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			jTextFieldTrg.setText( trgPath );
+			targetPath = trgPath;
+		}
 	}
 
 	/**
@@ -130,7 +133,9 @@ public class FolderDialog extends JDialog {
 	 * Initialize manually generated resources.
 	 */
 	private void initialize() {
-		this.setSize(457, 208);
+		int h = System.getProperty("os.name").equals("Mac OS X") ? 150 : 208;
+
+		this.setSize(457, h);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Lemmini Resource Extractor");
 	}
@@ -142,24 +147,24 @@ public class FolderDialog extends JDialog {
 	 */
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
+			jContentPane = new javax.swing.JPanel();
+			jContentPane.setLayout(new GridBagLayout());
+
+			jLabelSrc = new JLabel();
+			jLabelSrc.setText("Source Path (\"WINLEMM\" directory)");
+			jLabelSrc.setComponentOrientation(java.awt.ComponentOrientation.UNKNOWN);
+			jContentPane.setComponentOrientation(java.awt.ComponentOrientation.UNKNOWN);
+
 			GridBagConstraints gridBagLabelHeader = new GridBagConstraints();
 			gridBagLabelHeader.gridx = 0;
 			gridBagLabelHeader.gridwidth = 2;
 			gridBagLabelHeader.anchor = GridBagConstraints.NORTHWEST;
 			gridBagLabelHeader.insets = new Insets(10, 10, 10, 0);
 			gridBagLabelHeader.gridy = 0;
+
 			jLabelHeader = new JLabel();
 			jLabelHeader.setText("Extract the resources from Lemmings for Windows");
-			GridBagConstraints gridBagLabelTrg = new GridBagConstraints();
-			gridBagLabelTrg.gridx = 0;
-			gridBagLabelTrg.anchor = GridBagConstraints.WEST;
-			gridBagLabelTrg.insets = new Insets(10, 10, 0, 0);
-			gridBagLabelTrg.gridy = 5;
-			GridBagConstraints gridBagButtonTrg = new GridBagConstraints();
-			gridBagButtonTrg.gridx = 1;
-			gridBagButtonTrg.anchor = GridBagConstraints.EAST;
-			gridBagButtonTrg.insets = new Insets(0, 0, 0, 10);
-			gridBagButtonTrg.gridy = 6;
+
 			GridBagConstraints gridBagButtonSrc = new GridBagConstraints();
 			gridBagButtonSrc.gridx = 1;
 			gridBagButtonSrc.anchor = GridBagConstraints.EAST;
@@ -172,13 +177,6 @@ public class FolderDialog extends JDialog {
 			gridBagTextFieldSrc.anchor = GridBagConstraints.WEST;
 			gridBagTextFieldSrc.insets = new Insets(0, 10, 0, 10);
 			gridBagTextFieldSrc.gridx = 0;
-			GridBagConstraints gridBagTextFieldTrg = new GridBagConstraints();
-			gridBagTextFieldTrg.fill = GridBagConstraints.BOTH;
-			gridBagTextFieldTrg.gridy = 6;
-			gridBagTextFieldTrg.weightx = 1.0;
-			gridBagTextFieldTrg.anchor = GridBagConstraints.WEST;
-			gridBagTextFieldTrg.insets = new Insets(0, 10, 0, 10);
-			gridBagTextFieldTrg.gridx = 0;
 			GridBagConstraints gridBagLabelSrc = new GridBagConstraints();
 			gridBagLabelSrc.gridx = 0;
 			gridBagLabelSrc.anchor = GridBagConstraints.WEST;
@@ -194,20 +192,40 @@ public class FolderDialog extends JDialog {
 			gridBagButtonQuit.anchor = GridBagConstraints.WEST;
 			gridBagButtonQuit.insets = new Insets(20, 10, 0, 0);
 			gridBagButtonQuit.gridy = 7;
-			jLabelSrc = new JLabel();
-			jLabelTrg = new JLabel();
-			jContentPane = new javax.swing.JPanel();
-			jContentPane.setLayout(new GridBagLayout());
-			jLabelTrg.setText("Target Path");
-			jLabelSrc.setText("Source Path (\"WINLEMM\" directory)");
-			jLabelSrc.setComponentOrientation(java.awt.ComponentOrientation.UNKNOWN);
-			jContentPane.setComponentOrientation(java.awt.ComponentOrientation.UNKNOWN);
-			jContentPane.add(jLabelTrg, gridBagLabelTrg);
-			jContentPane.add(getJTextFieldTrg(), gridBagTextFieldTrg);
+
+
 			jContentPane.add(jLabelSrc, gridBagLabelSrc);
 			jContentPane.add(getJTextFieldSrc(), gridBagTextFieldSrc);
 			jContentPane.add(getJButtonSrc(), gridBagButtonSrc);
-			jContentPane.add(getJButtonTrg(), gridBagButtonTrg);
+
+			if(!System.getProperty("os.name").equals("Mac OS X")) {
+				GridBagConstraints gridBagLabelTrg = new GridBagConstraints();
+				gridBagLabelTrg.gridx = 0;
+				gridBagLabelTrg.anchor = GridBagConstraints.WEST;
+				gridBagLabelTrg.insets = new Insets(10, 10, 0, 0);
+				gridBagLabelTrg.gridy = 5;
+				GridBagConstraints gridBagButtonTrg = new GridBagConstraints();
+				gridBagButtonTrg.gridx = 1;
+				gridBagButtonTrg.anchor = GridBagConstraints.EAST;
+				gridBagButtonTrg.insets = new Insets(0, 0, 0, 10);
+				gridBagButtonTrg.gridy = 6;
+
+				GridBagConstraints gridBagTextFieldTrg = new GridBagConstraints();
+				gridBagTextFieldTrg.fill = GridBagConstraints.BOTH;
+				gridBagTextFieldTrg.gridy = 6;
+				gridBagTextFieldTrg.weightx = 1.0;
+				gridBagTextFieldTrg.anchor = GridBagConstraints.WEST;
+				gridBagTextFieldTrg.insets = new Insets(0, 10, 0, 10);
+				gridBagTextFieldTrg.gridx = 0;
+
+				jLabelTrg = new JLabel();
+				jLabelTrg.setText("Target Path");
+				jContentPane.add(jLabelTrg, gridBagLabelTrg);
+				jContentPane.add(getJTextFieldTrg(), gridBagTextFieldTrg);
+
+				jContentPane.add(getJButtonTrg(), gridBagButtonTrg);
+			}
+
 			jContentPane.add(getJButtonQuit(), gridBagButtonQuit);
 			jContentPane.add(getJButtonExtract(), gridBagButtonExtract);
 			jContentPane.add(jLabelHeader, gridBagLabelHeader);
@@ -312,7 +330,11 @@ public class FolderDialog extends JDialog {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					sourcePath = jTextFieldSrc.getText();
-					targetPath = jTextFieldTrg.getText();
+
+					if(!System.getProperty("os.name").equals("Mac OS X")) {
+						targetPath = jTextFieldTrg.getText();
+					}
+
 					dispose();
 				}
 			});
@@ -332,7 +354,9 @@ public class FolderDialog extends JDialog {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					sourcePath = jTextFieldSrc.getText();
-					targetPath = jTextFieldTrg.getText();
+					if(!System.getProperty("os.name").equals("Mac OS X")) {
+						targetPath = jTextFieldTrg.getText();
+					}
 					doExtract = true;
 					dispose();
 				}
