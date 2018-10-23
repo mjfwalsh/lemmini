@@ -1,0 +1,1 @@
+Lemmini is the attempt to combine the playing sensation of the original Amiga version of Lemmings with the improved graphics of the Win95 port to create the best possible Lemmings experience on all platforms that support a Java virtual machine.
