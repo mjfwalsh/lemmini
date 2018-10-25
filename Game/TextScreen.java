@@ -181,47 +181,49 @@ public class TextScreen {
 		int rescuedOfToRescue = GameController.getNumLeft()*100/GameController.getNumToRecue(); // % rescued of no. to rescue
 		textScreen.restore();
 		if (GameController.getTime()==0)
-			textScreen.printCentered("Time is up.", -7, TURQUOISE);
+			textScreen.printCentered("Time is up.", -6, TURQUOISE);
 		else
-			textScreen.printCentered("All lemmings accounted for.", -7, TURQUOISE);
-		textScreen.print("You needed:  "+Integer.toString(toRescue)+"%", -7, -5, VIOLET);
-		textScreen.print("You rescued: "+Integer.toString(rescued)+"%", -7, -4, VIOLET);
+			textScreen.printCentered("All lemmings accounted for.", -6, TURQUOISE);
+		textScreen.print("You needed:  "+Integer.toString(toRescue)+"%", -7, -4, VIOLET);
+		textScreen.print("You rescued: "+Integer.toString(rescued)+"%", -7, -3, VIOLET);
 		if (GameController.wasLost()) {
 			if (rescued == 0) {
-				textScreen.printCentered("ROCK BOTTOM! I hope for your sake", -2, RED);
-				textScreen.printCentered("that you nuked that level", -1, RED);
+				textScreen.printCentered("ROCK BOTTOM! I hope for your sake", -1, RED);
+				textScreen.printCentered("that you nuked that level", 0, RED);
 			} else if (rescuedOfToRescue < 50){
-				textScreen.printCentered("Better rethink your strategy before", -2, RED);
-				textScreen.printCentered("you try this level again!", -1, RED);
+				textScreen.printCentered("Better rethink your strategy before", -1, RED);
+				textScreen.printCentered("you try this level again!", 0, RED);
 			}  else if (rescuedOfToRescue < 95){
-				textScreen.printCentered("A little more practice on this level", -2, RED);
-				textScreen.printCentered("is definitely recommended.", -1, RED);
+				textScreen.printCentered("A little more practice on this level", -1, RED);
+				textScreen.printCentered("is definitely recommended.", 0, RED);
 			} else {
-				textScreen.printCentered("You got pretty close that time.", -2, RED);
-				textScreen.printCentered("Now try again for that few % extra.", -1, RED);
+				textScreen.printCentered("You got pretty close that time.", -1, RED);
+				textScreen.printCentered("Now try again for that few % extra.", 0, RED);
 			}
 			textScreen.addTextButton(-2, 5, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
 		} else {
 			if (rescued == 100) {
-				textScreen.printCentered("Superb! You rescued every lemming on", -2, RED);
-				textScreen.printCentered("that level. Can you do it again....?", -1, RED);
+				textScreen.printCentered("Superb! You rescued every lemming on", -1, RED);
+				textScreen.printCentered("that level. Can you do it again....?", 0, RED);
 			} else if (rescued > toRescue) {
-				textScreen.printCentered("You totally stormed that level!", -2, RED);
-				textScreen.printCentered("Let's see if you can storm the next...", -1, RED);
+				textScreen.printCentered("You totally stormed that level!", -1, RED);
+				textScreen.printCentered("Let's see if you can storm the next...", 0, RED);
 			} else if (rescued == toRescue) {
-				textScreen.printCentered("SPOT ON. You can't get much closer", -2, RED);
-				textScreen.printCentered("than that. Let's try the next....", -1, RED);
+				textScreen.printCentered("SPOT ON. You can't get much closer", -1, RED);
+				textScreen.printCentered("than that. Let's try the next....", 0, RED);
 			} else {
-				textScreen.printCentered("That level seemed no problem to you on", -2, RED);
-				textScreen.printCentered("that attempt. Onto the next....       ", -1, RED);
+				textScreen.printCentered("That level seemed no problem to you on", -1, RED);
+				textScreen.printCentered("that attempt. Onto the next....       ", 0, RED);
 			}
 			LevelPack lp = GameController.getCurLevelPack();
 			int ln = GameController.getCurLevelNumber();
 			if (lp.getLevels(GameController.getCurDiffLevel()).length > ln+1) {
-				textScreen.printCentered("Your access code for level "+(ln+2), 1, BROWN);
 				int absLevel = GameController.absLevelNum(GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(), ln+1);
 				String code = LevelCode.create(lp.getCodeSeed(), absLevel, rescued, 0,lp.getCodeOffset());
-				textScreen.printCentered("is "+code, 2, BROWN);
+
+				textScreen.printCentered("Your access code for level "+(ln+2)+" is "+code, 2, BROWN);
+				//textScreen.printCentered("Your access code for level "+(ln+2), 2, BROWN);
+				//textScreen.printCentered("is "+code, 3, BROWN);
 				textScreen.addTextButton(-4, 5, BUTTON_CONTINUE, "Continue", "Continue", BLUE, BROWN);
 			} else {
 				textScreen.printCentered("Congratulations!", 1, BROWN);

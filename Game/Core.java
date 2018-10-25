@@ -48,9 +48,8 @@ public class Core {
 	public final static String[] LEVEL_EXTENSIONS = {"ini", "lvl"};
 	/** extensions accepted for replay files in file dialog */
 	public final static String[] REPLAY_EXTENSIONS = {"rpl"};
-	/** height of menu (22px or 43px) and icon bar (100px) in pixels */
-	/** On Mac OSX the menu bar is not part of the window */
-	private final static int WIN_OFS = System.getProperty("os.name").equals("Mac OS X") ? 122 : 143;
+	/** height of icon bar in pixels */
+	private final static int WIN_OFS = 100;
 
 	/** program properties */
 	public static Props programProps;

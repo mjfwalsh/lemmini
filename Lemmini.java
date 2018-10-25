@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -110,9 +111,12 @@ public class Lemmini extends JFrame implements KeyListener {
 	private HashMap<String,ArrayList<LvlMenuItem>> diffLevelMenus;
 	/** panel for the game graphics */
 	private GraphicsPane gp;
+	/** size of frame */
+	private int xMargin;
+	private int yMargin;
+
 
 	// Swing stuff
-
 	private JMenuBar jMenuBar = null;
 	private JMenu jMenuLevel = null;
 	private JMenuItem jMenuItemRestart = null;
@@ -136,7 +140,6 @@ public class Lemmini extends JFrame implements KeyListener {
 	private ButtonGroup playerGroup = null;
 	private ButtonGroup zoomGroup = null;
 
-
 	/**
 	 * Constructor of the main frame.
 	 */
@@ -157,34 +160,48 @@ public class Lemmini extends JFrame implements KeyListener {
 			ToolBox.showException(ex);
 			System.exit(1);
 		}
-		// read frame props
-		int posX, posY;
-		this.setSize((int)Math.round(Core.getDrawWidth()*Core.getScale()),(int)Math.round(Core.getDrawHeight()*Core.getScale()));
-		this.setMinimumSize(new Dimension((int)Math.round(Core.getDrawWidth()*Core.getScale()),(int)Math.round(Core.getDrawHeight()*Core.getScale())));
-		this.setMaximumSize(new Dimension((int)Math.round(Core.getDrawWidth()*Core.getScale()),(int)Math.round(Core.getDrawHeight()*Core.getScale())));
-		this.setResizable(false); // at least for the moment: forbid resize
+
+		// set location of window (centred by default)
 		Point p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
 		p.x -= this.getWidth()/2;
 		p.y -= this.getHeight()/2;
-		posX = Core.programProps.get("framePosX", p.x > 0 ? p.x : 0);
-		posY = Core.programProps.get("framePosY", p.y > 0 ? p.y : 0);
+		int posX = Core.programProps.get("framePosX", p.x > 0 ? p.x : 0);
+		int posY = Core.programProps.get("framePosY", p.y > 0 ? p.y : 0);
 		this.setLocation(posX, posY);
-		this.validate(); // force redraw
-		this.setTitle("Lemmini");
 
+		// fetch scale
+		double scale = Core.getScale();
+
+		// Unfortunately JFrame provides very little control here
+		this.setResizable(true);
+
+		// set icon
 		ClassLoader loader = Lemmini.class.getClassLoader();
 		Image img = Toolkit.getDefaultToolkit().getImage(loader.getResource("icon_32.png"));
-		setIconImage(img);
+		this.setIconImage(img);
 
 		// set component pane
 		gp = new GraphicsPane();
 		gp.setDoubleBuffered(false);
-		this.setContentPane(gp);
 
+		// get dimensions and set width and height
+		int drawWidth = Core.getDrawWidth();
+		int drawHeight = Core.getDrawHeight();
+		int width = (int)Math.round((float)drawWidth * scale);
+		int height = (int)Math.round((float)drawHeight * scale);
+		gp.setPreferredSize(new Dimension(width, height));
+
+		// finish window
+		this.setContentPane(gp);
 		this.pack();
 		this.validate(); // force redraw
 		this.setTitle("Lemmini");
 
+		// calculate frame size and set min size
+		Dimension wholeWindow = this.getSize();
+		xMargin = wholeWindow.width - width;
+		yMargin = wholeWindow.height - height;
+		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
 
 		// create Menu
 		jMenuItemExit = new JMenuItem("Exit");
@@ -565,73 +582,8 @@ public class Lemmini extends JFrame implements KeyListener {
 		jMenuBar.add(jMenuOptions);
 
 		zoomGroup = new ButtonGroup();
-		JMenu jMenuZoom = new JMenu("Zoom");
-		jMenuOptions.add(jMenuZoom);
 
-		JRadioButtonMenuItem jMenuRadioItemX1 = new JRadioButtonMenuItem("x1");
-		jMenuRadioItemX1.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX1);
-		zoomGroup.add(jMenuRadioItemX1);
-
-		JRadioButtonMenuItem jMenuRadioItemX1P5 = new JRadioButtonMenuItem("X1.5");
-		jMenuRadioItemX1P5.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1.5);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX1P5);
-		zoomGroup.add(jMenuRadioItemX1P5);
-
-		JRadioButtonMenuItem jMenuRadioItemX2 = new JRadioButtonMenuItem("x2");
-		jMenuRadioItemX2.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(2);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX2);
-		zoomGroup.add(jMenuRadioItemX2);
-
-		JRadioButtonMenuItem jMenuRadioItemX2P5 = new JRadioButtonMenuItem("X2.5");
-		jMenuRadioItemX2P5.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(2.5);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX2P5);
-		zoomGroup.add(jMenuRadioItemX2P5);
-
-		JRadioButtonMenuItem jMenuRadioItemX3 = new JRadioButtonMenuItem("x3");
-		jMenuRadioItemX3.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(3);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX3);
-		zoomGroup.add(jMenuRadioItemX3);
 		this.setJMenuBar(jMenuBar);
-
-		switch ((int)Math.round(Core.getScale()*2)) {
-			case 3:
-				jMenuRadioItemX1P5.setSelected(true);
-				break;
-			case 4:
-				jMenuRadioItemX2.setSelected(true);
-				break;
-			case 6:
-				jMenuRadioItemX3.setSelected(true);
-				break;
-			default:
-				jMenuRadioItemX1.setSelected(true);
-		}
 
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
@@ -644,6 +596,24 @@ public class Lemmini extends JFrame implements KeyListener {
 				exit();
 			}
 		});
+
+		this.addComponentListener(new java.awt.event.ComponentAdapter() {
+			@Override
+			public void componentResized(java.awt.event.ComponentEvent evt) {
+				Dimension cur = getSize();
+				int innerHeight = cur.height - yMargin;
+				int innerWidth = cur.width - xMargin;
+
+				float scale = (float)innerWidth / Core.getDrawWidth();
+				Core.setScale(scale);
+
+				float newHeight = (float)scale * Core.getDrawHeight();
+				int newHeightInt = (int)Math.round(newHeight);
+
+				setSize(new Dimension(innerWidth + xMargin, newHeightInt + yMargin));
+			}
+        });
+
 		this.setVisible(true);
 		gp.init();
 		GameController.setGameState(GameController.State.INTRO);
@@ -753,17 +723,6 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		Toolkit.getDefaultToolkit().setDynamicLayout(true);
 		thisFrame = new Lemmini();
-	}
-
-	void setScale(double scale) {
-		//gp.shutdown();
-		Core.setScale(scale);
-		setSize((int)Math.round(Core.getDrawWidth()*scale),(int)Math.round(Core.getDrawHeight()*scale));
-		//this.setMinimumSize(new Dimension((int)Math.round(Core.getDrawWidth()*scale),(int)Math.round(Core.getDrawHeight()*scale)));
-		//this.setMaximumSize(new Dimension((int)Math.round(Core.getDrawWidth()*scale),(int)Math.round(Core.getDrawHeight()*scale)));
-		//pack();
-		//validate(); // force redraw
-		//gp.init();
 	}
 
 	/**
