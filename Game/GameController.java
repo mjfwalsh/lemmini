@@ -1254,43 +1254,13 @@ public class GameController {
 	 */
 	public static void drawCounters(final Graphics2D g, final int y) {
 		// draw counters
-		int val = 0;
-		for (int i=0; i<10;i++) {
-			switch (i) {
-				case 0:
-					val = level.getReleaseRate();
-					break;
-				case 1:
-					val = releaseRate;
-					break;
-				case 2:
-					val = numClimbers;
-					break;
-				case 3:
-					val = numFloaters;
-					break;
-				case 4:
-					val = numBombers;
-					break;
-				case 5:
-					val = numBlockers;
-					break;
-				case 6:
-					val = numBuilders;
-					break;
-				case 7:
-					val = numBashers;
-					break;
-				case 8:
-					val = numMiners;
-					break;
-				case 9:
-					val = numDiggers;
-					break;
-			}
-			g.drawImage(NumFont.numImage(val),Icons.WIDTH*i+8,y,null);
-		}
+		int[] val = new int[]{level.getReleaseRate(), releaseRate,
+			numClimbers, numFloaters, numBombers, numBlockers, numBuilders,
+			numBashers, numMiners, numDiggers};
 
+		for (int i=0; i<10;i++) {
+			g.drawImage(NumFont.numImage(val[i]),Icons.WIDTH*i+8,y,null);
+		}
 	}
 
 	/**

@@ -85,23 +85,19 @@ public class Mask {
 		byte m[] = mask[maskNum];
 		int sPos = y0*bgImage.getWidth();
 		int pos = 0;
-		int scaleX = bgImage.getWidth()/bgImageSmall.getWidth();
-		int scaleY = bgImage.getHeight()/bgImageSmall.getHeight();
-		int yMax = y0+height;
-		if (yMax >= bgImage.getHeight())
-			yMax = bgImage.getHeight();
-		int xMax = x0+width;
-		if (xMax >= bgImage.getWidth())
-			xMax = bgImage.getWidth();
+		float scaleX = (float)bgImage.getWidth()/bgImageSmall.getWidth();
+		float scaleY = (float)bgImage.getHeight()/bgImageSmall.getHeight();
+		int xMax = Math.min(x0+width, bgImage.getWidth());
+		int yMax = Math.min(y0+height, bgImage.getHeight());
 
 		int bgCol = 0 /*GameController.level.bgCol*/;
 
 		for (int y=y0; y<yMax; y++,pos+=width,sPos+=bgImage.getWidth()) {
 			if (y<0) continue;
-			boolean drawSmallY = (y%scaleY) == 0;
+			boolean drawSmallY = (y%scaleY) <= 0;
 			for (int x=x0; x<xMax; x++) {
 				if (x<0) continue;
-				boolean drawSmallX = (x%scaleX) == 0;
+				boolean drawSmallX = (x%scaleX) <= 0;
 				int s = stencil.get(sPos+x);
 				if (m[pos+x-x0] != 0) {
 					if ((s & checkMask) == 0) {
@@ -115,8 +111,11 @@ public class Mask {
 						// erase pixel
 						stencil.set(sPos+x, s & Stencil.MSK_ERASE); // erase brick in stencil
 						bgImage.setRGB(x,y,bgCol); // erase pixel in bgIMage
-						if (drawSmallX && drawSmallY)
-							bgImageSmall.setRGB(x/scaleX,y/scaleY,0xff000000/*bgCol*/); // erase pixel in bgIMageSmall
+						if (drawSmallX && drawSmallY) {
+							int xCoord = (int)Math.floor(x/scaleX);
+							int yCoord = (int)Math.floor(y/scaleY);
+							bgImageSmall.setRGB(xCoord,yCoord,0xff000000/*bgCol*/); // erase pixel in bgIMageSmall
+						}
 					} else // don't erase pixel
 						ctrIndestructable++;
 				}
@@ -139,21 +138,17 @@ public class Mask {
 		byte m[] = mask[maskNum];
 		int sPos = y0*bgImage.getWidth();
 		int pos = 0;
-		int scaleX = bgImage.getWidth()/bgImageSmall.getWidth();
-		int scaleY = bgImage.getHeight()/bgImageSmall.getHeight();
-		int yMax = y0+height;
-		if (yMax >= bgImage.getHeight())
-			yMax = bgImage.getHeight();
-		int xMax = x0+width;
-		if (xMax >= bgImage.getWidth())
-			xMax = bgImage.getWidth();
+		float scaleX = (float)bgImage.getWidth()/bgImageSmall.getWidth();
+		float scaleY = (float)bgImage.getHeight()/bgImageSmall.getHeight();
+		int xMax = Math.min(x0+width, bgImage.getWidth());
+		int yMax = Math.min(y0+height, bgImage.getHeight());
 
 		for (int y=y0; y<yMax; y++,pos+=width,sPos+=bgImage.getWidth()) {
-			boolean drawSmallY = (y%scaleY) == 0;
+			boolean drawSmallY = (y%scaleY) <= 0;
 			if (y<0) continue;
 			for (int x=x0; x<xMax; x++) {
 				if (x<0) continue;
-				boolean drawSmallX = (x%scaleX) == 0;
+				boolean drawSmallX = (x%scaleX) <= 0;
 				int s = stencil.get(sPos+x);
 				if (m[pos+x-x0] != 0 /*&& (s & Stencil.MSK_WALK_ON) == 0*/) {
 					// mask pixel set
@@ -161,8 +156,11 @@ public class Mask {
 						s |= Stencil.MSK_BRICK;
 					stencil.set(sPos+x, s | Stencil.MSK_STAIR); // set type in stencil
 					bgImage.setRGB(x,y,color);
-					if (drawSmallX && drawSmallY)
-						bgImageSmall.setRGB(x/scaleX,y/scaleY,color & 0xff00ff00); // green pixel in bgIMageSmall
+					if (drawSmallX && drawSmallY) {
+						int xCoord = (int)Math.floor(x/scaleX);
+						int yCoord = (int)Math.floor(y/scaleY);
+						bgImageSmall.setRGB(xCoord,yCoord,color & 0xff00ff00); // green pixel in bgIMageSmall
+					}
 				}
 			}
 		}
@@ -180,12 +178,8 @@ public class Mask {
 		byte m[] = mask[0];
 		int sPos = y0*bgImage.getWidth();
 		int pos = 0;
-		int yMax = y0+height;
-		if (yMax >= bgImage.getHeight())
-			yMax = bgImage.getHeight();
-		int xMax = x0+width;
-		if (xMax >= bgImage.getWidth())
-			xMax = bgImage.getWidth();
+		int xMax = Math.min(x0+width, bgImage.getWidth());
+		int yMax = Math.min(y0+height, bgImage.getHeight());
 
 		for (int y=y0; y<yMax; y++,pos+=width,sPos+=bgImage.getWidth()) {
 			if (y<0) continue;
@@ -216,12 +210,8 @@ public class Mask {
 		byte m[] = mask[maskNum];
 		int sPos = y0*stencil.getWidth();
 		int pos = 0;
-		int yMax = y0+height;
-		if (yMax >= stencil.getHeight())
-			yMax = stencil.getHeight();
-		int xMax = x0+width;
-		if (xMax >= stencil.getWidth())
-			xMax = stencil.getWidth();
+		int xMax = Math.min(x0+width, stencil.getWidth());
+		int yMax = Math.min(y0+height, stencil.getHeight());
 
 		for (int y=y0; y<yMax; y++,pos+=width,sPos+=stencil.getWidth()) {
 			if (y<0) continue;
@@ -250,12 +240,8 @@ public class Mask {
 		byte m[] = mask[maskNum];
 		int sPos = y0*bgImage.getWidth();
 		int pos = 0;
-		int yMax = y0+height;
-		if (yMax >= bgImage.getHeight())
-			yMax = bgImage.getHeight();
-		int xMax = x0+width;
-		if (xMax >= bgImage.getWidth())
-			xMax = bgImage.getWidth();
+		int xMax = Math.min(x0+width, bgImage.getWidth());
+		int yMax = Math.min(y0+height, bgImage.getHeight());
 
 		for (int y=y0; y<yMax; y++,pos+=width,sPos+=bgImage.getWidth()) {
 			if (y<0) continue;
