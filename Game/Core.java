@@ -60,10 +60,6 @@ public class Core {
 
 	/** parent component (main frame) */
 	private static Component cmp;
-	/** name of program properties file */
-	private static String programPropsFileStr;
-	/** name of player properties file */
-	private static String playerPropsFileStr;
 	/** player properties */
 	private static Props playerProps;
 	/** list of all players */
@@ -79,6 +75,8 @@ public class Core {
 	 */
 	public static void init(final JFrame frame) throws LemmException  {
 		// get ini path
+		String programPropsFileStr = "";
+
 		if (System.getProperty("os.name").equals("Mac OS X")) {
 			// resourcePath and programPropsFileStr are in fixed places on Mac
 			resourcePath = System.getProperty("user.home") + "/Library/Application Support/Lemmini/";
@@ -148,23 +146,22 @@ public class Core {
 
 				programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
 				programProps.set("revision", REVISION);
-				programProps.save(programPropsFileStr);
+				programProps.save();
 			} catch (ExtractException ex) {
 				if(!System.getProperty("os.name").equals("Mac OS X")) {
 					programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
 				}
 
 				programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
-				programProps.save(programPropsFileStr);
+				programProps.save();
 				throw new LemmException("Ressource extraction failed\n"+ex.getMessage());
 			}
 		}
 		System.gc(); // force garbage collection here before the game starts
 
 		// read player names
-		playerPropsFileStr = Core.resourcePath+"players.ini";
 		playerProps = new Props();
-		playerProps.load(playerPropsFileStr);
+		playerProps.load(Core.resourcePath+"players.ini");
 		String defaultPlayer = playerProps.get("defaultPlayer", "default");
 		players = new ArrayList<String>();
 		for (int idx=0; true; idx++) {
@@ -201,13 +198,11 @@ public class Core {
 	}
 
 	/**
-	 * Store program properties.
+	 * Store player properties.
 	 */
-	public static void saveProgramProps() {
-		programProps.set("scale",scale);
-		programProps.save(programPropsFileStr);
+	public static void savePlayerProps() {
 		playerProps.set("defaultPlayer", Core.player.getName());
-		playerProps.save(playerPropsFileStr);
+		playerProps.save();
 		player.store();
 	}
 
@@ -221,7 +216,7 @@ public class Core {
 		JOptionPane.showMessageDialog(null,out,"Error",JOptionPane.ERROR_MESSAGE);
 		// invalidate resources
 		programProps.set("revision", "invalid");
-		programProps.save(programPropsFileStr);
+		programProps.save();
 		System.exit(1);
 	}
 
@@ -339,7 +334,6 @@ public class Core {
 	 */
 	public static int getDrawWidth() {
 		return 800;
-
 	}
 
 	/**

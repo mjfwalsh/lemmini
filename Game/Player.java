@@ -31,8 +31,6 @@ public class Player {
 
 	/** property class to store player settings persistently */
 	private Props props;
-	/** name of the INI file used for persistence */
-	private String iniFileStr;
 	/** used to store level progress */
 	private HashMap<String,GroupBitfield> lvlGroup;
 	/** cheat mode enabled? */
@@ -52,9 +50,8 @@ public class Player {
 		// create players directory if it doesn't exist
 		File dest = new File(Core.resourcePath+"players");
 		dest.mkdirs();
-		iniFileStr = Core.resourcePath+"players/"+name+".ini";
 
-		if (props.load(iniFileStr)) {// might exist or not - if not, it's created
+		if (props.load(Core.resourcePath+"players/"+name+".ini")) {// might exist or not - if not, it's created
 			// file existed, now extract entries
 			String sdef[] = { null, null};
 			for (int idx = 0;true;idx++) {
@@ -91,7 +88,7 @@ public class Player {
 			String sout = s+", "+bf.toString();
 			props.set("group"+Integer.toString(idx++), sout);
 		}
-		props.save(iniFileStr);
+		props.save();
 	}
 
 	/**

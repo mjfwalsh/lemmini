@@ -115,7 +115,6 @@ public class Lemmini extends JFrame implements KeyListener {
 	private int xMargin;
 	private int yMargin;
 
-
 	// Swing stuff
 	private JMenuBar jMenuBar = null;
 	private JMenu jMenuLevel = null;
@@ -580,9 +579,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		jMenuBar.add(jMenuLevel);
 		jMenuBar.add(jMenuSound);
 		jMenuBar.add(jMenuOptions);
-
-		zoomGroup = new ButtonGroup();
-
 		this.setJMenuBar(jMenuBar);
 
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -978,22 +974,29 @@ public class Lemmini extends JFrame implements KeyListener {
 	}
 
 	/**
-	 * Common exit method to use in exit events.
+	 * Store program properties.
 	 */
-	private void exit() {
-		// store width and height
-		Dimension d = this.getSize();
-		Core.programProps.set("frameWidth", d.width);
-		Core.programProps.set("frameHeight", d.height);
+	public void saveProgramProps() {
 		// store frame pos
 		Point p = this.getLocation();
 		Core.programProps.set("framePosX", p.x);
 		Core.programProps.set("framePosY", p.y);
-		//
-		Core.saveProgramProps();
-		System.exit(0);
+
+		// scale
+		double s = Core.getScale();
+		Core.programProps.set("scale", s);
+
+		Core.programProps.save();
 	}
 
+	/**
+	 * Common exit method to use in exit events.
+	 */
+	private void exit() {
+		this.saveProgramProps();
+		Core.savePlayerProps();
+		System.exit(0);
+	}
 
 	/**
 	 * Listener to inform the GUI of the player's progress.

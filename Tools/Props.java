@@ -35,6 +35,8 @@ public class Props {
 	private final Properties hash;
 	/** header string */
 	private String header;
+	/** file name */
+	private String propertyFileName;
 
 	/**
 	 * Constructor
@@ -204,15 +206,21 @@ public class Props {
 	 * @param fname File name of property file
 	 * @return True if OK, false if exception occurred
 	 */
-	public boolean save(final String fname) {
-		try {
-			FileOutputStream f = new FileOutputStream(fname);
-			hash.store(f, header);
-			return true;
-		} catch(FileNotFoundException e) {
+	public boolean save() {
+		if(propertyFileName == null) {
+			//throw new Exception("Can't save to a property file created from a URL.");
+			System.out.println("Can't save to a property file created from a URL.");
 			return false;
-		} catch(IOException e) {
-			return false;
+		} else {
+			try {
+				FileOutputStream f = new FileOutputStream(propertyFileName);
+				hash.store(f, header);
+				return true;
+			} catch(FileNotFoundException e) {
+				return false;
+			} catch(IOException e) {
+				return false;
+			}
 		}
 	}
 
@@ -222,6 +230,8 @@ public class Props {
 	 * @return True if OK, false if exception occurred
 	 */
 	public boolean load(final URL file) {
+		propertyFileName = null;
+
 		try {
 			InputStream f = file.openStream();
 			hash.load(f);
@@ -240,6 +250,8 @@ public class Props {
 	 * @return True if OK, false if exception occurred
 	 */
 	public boolean load(final String fname) {
+		propertyFileName = fname;
+
 		try {
 			FileInputStream f = new FileInputStream(fname);
 			hash.load(f);
