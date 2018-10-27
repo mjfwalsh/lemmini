@@ -37,6 +37,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+//if(System.getProperty("os.name").equals("Mac OS X")) {
+	import com.apple.eawt.FullScreenUtilities;
+	import com.apple.eawt.Application;
+	import com.apple.eawt.FullScreenListener;
+	import com.apple.eawt.AppEvent;
+//}
+
 import GUI.GainDialog;
 import GUI.LevelCodeDialog;
 import GUI.PlayerDialog;
@@ -174,6 +181,12 @@ public class Lemmini extends JFrame implements KeyListener {
 		// Unfortunately JFrame provides very little control here
 		this.setResizable(true);
 
+		// this enables the green button on mac
+		if(System.getProperty("os.name").equals("Mac OS X")) {
+			com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
+			com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
+		}
+
 		// set icon
 		ClassLoader loader = Lemmini.class.getClassLoader();
 		Image img = Toolkit.getDefaultToolkit().getImage(loader.getResource("icon_32.png"));
@@ -181,6 +194,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		// set component pane
 		gp = new GraphicsPane();
+		gp.setBackground(Color.BLACK);
 		gp.setDoubleBuffered(false);
 
 		// get dimensions and set width and height
@@ -574,7 +588,12 @@ public class Lemmini extends JFrame implements KeyListener {
 		jMenuOptions.add(jMenuItemClassicalCursor);
 
 		jMenuBar = new JMenuBar();
-		jMenuBar.add(jMenuFile);
+
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			// MacOSX comes with its own exit menu
+			jMenuBar.add(jMenuFile);
+		}
+
 		jMenuBar.add(jMenuPlayer);
 		jMenuBar.add(jMenuLevel);
 		jMenuBar.add(jMenuSound);
@@ -603,12 +622,35 @@ public class Lemmini extends JFrame implements KeyListener {
 				float scale = (float)innerWidth / Core.getDrawWidth();
 				Core.setScale(scale);
 
-				float newHeight = (float)scale * Core.getDrawHeight();
-				int newHeightInt = (int)Math.round(newHeight);
-
-				setSize(new Dimension(innerWidth + xMargin, newHeightInt + yMargin));
+				if(!Core.isFullScreen()) {
+					float newHeight = (float)scale * Core.getDrawHeight();
+					int newHeightInt = (int)Math.round(newHeight);
+					setSize(new Dimension(innerWidth + xMargin, newHeightInt + yMargin));
+				}
 			}
         });
+
+		// all four methods need to be defined even if we're not using them
+		if(System.getProperty("os.name").equals("Mac OS X")) {
+			com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenListener() {
+				@Override
+				public void windowEnteringFullScreen(AppEvent.FullScreenEvent fse) {
+					Lemmini.this.saveProgramProps();
+					Core.setFullScreen(true);
+				}
+
+				@Override
+				public void windowEnteredFullScreen(AppEvent.FullScreenEvent fse) {}
+
+				@Override
+				public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
+
+				@Override
+				public void windowExitedFullScreen(AppEvent.FullScreenEvent fse) {
+					Core.setFullScreen(false);
+				}
+			});
+		}
 
 		this.setVisible(true);
 		gp.init();
@@ -993,7 +1035,10 @@ public class Lemmini extends JFrame implements KeyListener {
 	 * Common exit method to use in exit events.
 	 */
 	private void exit() {
-		this.saveProgramProps();
+		if(!Core.isFullScreen()) {
+			// don't record window position when in full screen
+			this.saveProgramProps();
+		}
 		Core.savePlayerProps();
 		System.exit(0);
 	}

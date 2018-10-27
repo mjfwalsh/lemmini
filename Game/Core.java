@@ -67,6 +67,8 @@ public class Core {
 
 	/** Zoom scale */
 	private static double scale;
+	/** fullscreen boolean */
+	private static boolean fullScreen = false;
 
 	/**
 	 * Initialize some core elements.
@@ -360,4 +362,19 @@ public class Core {
 		scale = s;
 	}
 
+	/**
+	 * Is mac fullscreen
+	 * @return boolean fullScreen
+	 */
+	public static boolean isFullScreen() {
+		return fullScreen;
+	}
+
+	/**
+	 * Record mac fullscreen
+	 * @param b boolean fullScreen
+	 */
+	public static void setFullScreen(boolean b) {
+		fullScreen = b;
+	}
 }
