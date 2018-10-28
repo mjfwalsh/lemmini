@@ -36,6 +36,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.border.MatteBorder;
+import java.awt.GridLayout;
 
 //if(System.getProperty("os.name").equals("Mac OS X")) {
 	import com.apple.eawt.FullScreenUtilities;
@@ -204,8 +206,15 @@ public class Lemmini extends JFrame implements KeyListener {
 		int height = (int)Math.round((float)drawHeight * scale);
 		gp.setPreferredSize(new Dimension(width, height));
 
+		// create an intermediate panel which allow us to add a border
+		final JPanel intermezzo = new JPanel();
+		intermezzo.setDoubleBuffered(false);
+		intermezzo.setBorder(new MatteBorder( 0, 0, 0, 0, Color.BLACK ) );
+		intermezzo.setLayout(new GridLayout(0, 1));
+		intermezzo.add(gp);
+
 		// finish window
-		this.setContentPane(gp);
+		this.setContentPane(intermezzo);
 		this.pack();
 		this.validate(); // force redraw
 		this.setTitle("Lemmini");
@@ -622,9 +631,13 @@ public class Lemmini extends JFrame implements KeyListener {
 				float scale = (float)innerWidth / Core.getDrawWidth();
 				Core.setScale(scale);
 
-				if(!Core.isFullScreen()) {
-					float newHeight = (float)scale * Core.getDrawHeight();
-					int newHeightInt = (int)Math.round(newHeight);
+				float newHeight = (float)scale * Core.getDrawHeight();
+				int newHeightInt = (int)Math.round(newHeight);
+
+				if(Core.isFullScreen()) {
+					int margin = Math.round((innerHeight - newHeightInt) / 2);
+					intermezzo.setBorder(new MatteBorder( margin, 0, margin, 0, Color.black ) );
+				} else {
 					setSize(new Dimension(innerWidth + xMargin, newHeightInt + yMargin));
 				}
 			}
