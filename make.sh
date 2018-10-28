@@ -5,21 +5,12 @@ javac -d ./build Lemmini.java
 
 if [ "$?" = "0" ]
 then
-	cd build
-
-	ln -s ../patch patch
-	ln ../background.gif background.gif
-	ln ../crc.ini crc.ini
-	ln ../disclaimer.htm disclaimer.htm
-	ln ../extract.ini extract.ini
-	ln ../icon_32.png icon_32.png
-	ln ../lemmini.png lemmini.png
-
 	if [ "$1" = "run" ]
 	then
 		java Lemmini
+		java -cp ".:build" Lemmini
 	else
-		jar -cvmf ../Manifest.txt ../Lemmini.jar *
+		jar cvfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini icon_32.png lemmini.png patch
 	fi
 fi
 
