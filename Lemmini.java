@@ -39,12 +39,12 @@ import javax.swing.UIManager;
 import javax.swing.border.MatteBorder;
 import java.awt.GridLayout;
 
-//if(System.getProperty("os.name").equals("Mac OS X")) {
-	import com.apple.eawt.FullScreenUtilities;
-	import com.apple.eawt.Application;
-	import com.apple.eawt.FullScreenListener;
-	import com.apple.eawt.AppEvent;
-//}
+//START-MAC
+import com.apple.eawt.FullScreenUtilities;
+import com.apple.eawt.Application;
+import com.apple.eawt.FullScreenListener;
+import com.apple.eawt.AppEvent;
+//END-MAC
 
 import GUI.GainDialog;
 import GUI.LevelCodeDialog;
@@ -131,6 +131,7 @@ public class Lemmini extends JFrame implements KeyListener {
 	private JMenuItem jMenuItemLevelCode = null;
 	private JMenuItem jMenuSelect = null;
 	private JMenu jMenuFile = null;
+	private JMenuItem jMenuItemFullscreen = null;
 	private JMenu jMenuPlayer = null;
 	private JMenu jMenuSelectPlayer = null;
 	private JMenu jMenuSound = null;
@@ -183,11 +184,10 @@ public class Lemmini extends JFrame implements KeyListener {
 		// Unfortunately JFrame provides very little control here
 		this.setResizable(true);
 
-		// this enables the green button on mac
-		if(System.getProperty("os.name").equals("Mac OS X")) {
-			com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
-			com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
-		}
+		//START-MAC this enables the green button on mac
+		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
+		com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
+		//END-MAC
 
 		// set icon
 		ClassLoader loader = Lemmini.class.getClassLoader();
@@ -225,7 +225,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		yMargin = wholeWindow.height - height;
 		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
 
-		// create Menu
+		// create File Menu
 		jMenuItemExit = new JMenuItem("Exit");
 		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
 			@Override
@@ -234,7 +234,17 @@ public class Lemmini extends JFrame implements KeyListener {
 			}
 		});
 
+		jMenuItemFullscreen = new JMenuItem("Fullscreen");
+		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				setExtendedState(JFrame.MAXIMIZED_BOTH);
+				setUndecorated(true);
+			}
+		});
+
 		jMenuFile = new JMenu("File");
+		jMenuFile.add(jMenuItemFullscreen);
 		jMenuFile.add(jMenuItemExit);
 
 		// Player Menu
@@ -598,8 +608,8 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		jMenuBar = new JMenuBar();
 
+		// MacOSX comes with its own exit menu
 		if(!System.getProperty("os.name").equals("Mac OS X")) {
-			// MacOSX comes with its own exit menu
 			jMenuBar.add(jMenuFile);
 		}
 
@@ -644,26 +654,26 @@ public class Lemmini extends JFrame implements KeyListener {
         });
 
 		// all four methods need to be defined even if we're not using them
-		if(System.getProperty("os.name").equals("Mac OS X")) {
-			com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenListener() {
-				@Override
-				public void windowEnteringFullScreen(AppEvent.FullScreenEvent fse) {
-					Lemmini.this.saveProgramProps();
-					Core.setFullScreen(true);
-				}
+		//START-MAC
+		com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenListener() {
+			@Override
+			public void windowEnteringFullScreen(AppEvent.FullScreenEvent fse) {
+				Lemmini.this.saveProgramProps();
+				Core.setFullScreen(true);
+			}
 
-				@Override
-				public void windowEnteredFullScreen(AppEvent.FullScreenEvent fse) {}
+			@Override
+			public void windowEnteredFullScreen(AppEvent.FullScreenEvent fse) {}
 
-				@Override
-				public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
+			@Override
+			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
 
-				@Override
-				public void windowExitedFullScreen(AppEvent.FullScreenEvent fse) {
-					Core.setFullScreen(false);
-				}
-			});
-		}
+			@Override
+			public void windowExitedFullScreen(AppEvent.FullScreenEvent fse) {
+				Core.setFullScreen(false);
+			}
+		});
+		//END-MAC
 
 		this.setVisible(true);
 		gp.init();
