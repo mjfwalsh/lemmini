@@ -1,18 +1,17 @@
 package Extract;
 
-import javax.swing.JPanel;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 
-import javax.swing.JDialog;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
 import javax.swing.JButton;
-import java.awt.Insets;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /*
  * Copyright 2009 Volker Oth

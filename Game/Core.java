@@ -70,6 +70,9 @@ public class Core {
 	/** fullscreen boolean */
 	private static boolean fullScreen = false;
 
+	/** internal draw width */
+	private static int internalWidth;
+
 	/**
 	 * Initialize some core elements.
 	 * @param frame parent frame
@@ -335,7 +338,15 @@ public class Core {
 	 * @return internal draw width
 	 */
 	public static int getDrawWidth() {
-		return 800;
+		return internalWidth;
+	}
+
+	/**
+	 * Set internal Draw Width
+	 * @param internal draw width
+	 */
+	public static void setDrawWidth(int w) {
+		internalWidth = w;
 	}
 
 	/**

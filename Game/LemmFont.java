@@ -46,7 +46,7 @@ public class LemmFont {
 	}
 
 	/** default width of one character in pixels */
-	private final static int SPACING = 18;
+	private final static int SPACING = 15;
 	/** character map */
 	private final static String CHARS = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_´abcdefghijklmnopqrstuvwxyz{|}~";
 
@@ -62,7 +62,7 @@ public class LemmFont {
 	 * @throws ResourceException
 	 */
 	static public void init() throws ResourceException {
-		BufferedImage sourceImg = ToolBox.ImageToBuffered(Core.loadImage("misc/lemmfont.gif"),Transparency.BITMASK);
+		BufferedImage sourceImg = ToolBox.ImageToBuffered(Core.loadImage("misc/lemmfontscaled.gif"),Transparency.BITMASK);
 
 		width = SPACING; //sourceImg.getWidth(null);
 		height = sourceImg.getHeight(null)/CHARS.length();
@@ -123,6 +123,28 @@ public class LemmFont {
 		}
 		return;
 	}
+
+	/**
+	 * Draw string into graphics object in given color. (Right aligned)
+	 * @param g graphics object to draw to.
+	 * @param s string to draw.
+	 * @param rMargin rightmost x coordinate in pixels
+	 */
+	static public void strImageRight(final Graphics2D g, final String s, final int rMargin) {
+		int alignOffset = g.getClipBounds().width - rMargin - (s.length() * SPACING);
+		strImage(g, s, alignOffset, 0, Color.GREEN);
+	}
+
+	/**
+	 * Draw string into graphics object in given color. (Right aligned)
+	 * @param g graphics object to draw to.
+	 * @param s string to draw.
+	 * @param lMargin leftmost x coordinate in pixels
+	 */
+	static public void strImageLeft(final Graphics2D g, final String s, final int lMargin) {
+		strImage(g, s, lMargin, 0, Color.GREEN);
+	}
+
 
 	/**
 	 * Draw string into graphics object in given color.

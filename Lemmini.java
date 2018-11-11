@@ -2,8 +2,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -40,10 +40,9 @@ import javax.swing.border.MatteBorder;
 import java.awt.GridLayout;
 
 //START-MAC
-import com.apple.eawt.FullScreenUtilities;
-import com.apple.eawt.Application;
 import com.apple.eawt.FullScreenListener;
 import com.apple.eawt.AppEvent;
+import com.apple.eawt.QuitStrategy;
 //END-MAC
 
 import GUI.GainDialog;
@@ -72,7 +71,6 @@ import Game.UpdateListener;
 import GameUtil.Fader;
 import Tools.MicrosecondTimer;
 import Tools.ToolBox;
-import javax.swing.JRadioButtonMenuItem;
 
 /*
  * Copyright 2009 Volker Oth
@@ -120,7 +118,8 @@ public class Lemmini extends JFrame implements KeyListener {
 	private HashMap<String,ArrayList<LvlMenuItem>> diffLevelMenus;
 	/** panel for the game graphics */
 	private GraphicsPane gp;
-	/** size of frame */
+
+	/** size of frame margins */
 	private int xMargin;
 	private int yMargin;
 
@@ -170,16 +169,23 @@ public class Lemmini extends JFrame implements KeyListener {
 			System.exit(1);
 		}
 
-		// set location of window (centred by default)
-		Point p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
-		p.x -= this.getWidth()/2;
-		p.y -= this.getHeight()/2;
-		int posX = Core.programProps.get("framePosX", p.x > 0 ? p.x : 0);
-		int posY = Core.programProps.get("framePosY", p.y > 0 ? p.y : 0);
-		this.setLocation(posX, posY);
-
-		// fetch scale
+		// gather screen dimension, window height and scale
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		int screenWidth = gd.getDisplayMode().getWidth();
+		int screenHeight = gd.getDisplayMode().getHeight();
+		int drawHeight = Core.getDrawHeight();
 		double scale = Core.getScale();
+
+		// adjust game width to fit screen dimensions
+		float hRatio = (float)drawHeight / screenHeight;
+		int drawWidth = (int)Math.round((float)screenWidth * hRatio);
+		if(drawWidth < 672) drawWidth = 672;
+		else if(drawWidth > 850) drawWidth = 850;
+		Core.setDrawWidth(drawWidth);
+
+		// set internal window dimensions
+		int width = (int)Math.round((float)drawWidth * scale);
+		int height = (int)Math.round((float)drawHeight * scale);
 
 		// Unfortunately JFrame provides very little control here
 		this.setResizable(true);
@@ -187,6 +193,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		//START-MAC this enables the green button on mac
 		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
 		com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
+		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		//END-MAC
 
 		// set icon
@@ -200,10 +207,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		gp.setDoubleBuffered(false);
 
 		// get dimensions and set width and height
-		int drawWidth = Core.getDrawWidth();
-		int drawHeight = Core.getDrawHeight();
-		int width = (int)Math.round((float)drawWidth * scale);
-		int height = (int)Math.round((float)drawHeight * scale);
 		gp.setPreferredSize(new Dimension(width, height));
 
 		// create an intermediate panel which allow us to add a border
@@ -225,6 +228,13 @@ public class Lemmini extends JFrame implements KeyListener {
 		yMargin = wholeWindow.height - height;
 		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
 
+		// set coords - default to centre of screen
+		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
+		int posY = Core.programProps.get("framePosY", (screenHeight/2) - (wholeWindow.height/2));
+		posX = Math.max(posX, 0);
+		posY = Math.max(posY, 0);
+		this.setLocation(posX, posY);
+
 		// create File Menu
 		jMenuItemExit = new JMenuItem("Exit");
 		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
@@ -235,7 +245,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 
 		jMenuItemFullscreen = new JMenuItem("Fullscreen");
-		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
+		jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -1062,7 +1072,10 @@ public class Lemmini extends JFrame implements KeyListener {
 			// don't record window position when in full screen
 			this.saveProgramProps();
 		}
+		// remember  player status
 		Core.savePlayerProps();
+
+		// exit
 		System.exit(0);
 	}
 
@@ -1141,7 +1154,7 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 	/** y coordinate of icons in pixels */
 	final static int iconsY = counterY+14;
 	/** x coordinate of minimap in pixels */
-	final static int smallX = 800-208-6;
+	final static int smallX = Core.getDrawWidth() - 208 - 4;
 	/** y coordinate of minimap in pixels */
 	final static int smallY = iconsY;
 
@@ -1266,6 +1279,7 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 			outStrImg = ToolBox.createImage(w, LemmFont.getHeight(), Transparency.BITMASK);
 			outStrGfx = outStrImg.createGraphics();
 			outStrGfx.setBackground(new Color(0,0,0));
+			outStrGfx.setClip(0, 0, w, LemmFont.getHeight());
 
 			TextScreen.init(w, (int)Math.round(this.getHeight()/scale));
 			shiftPressed = false;
@@ -1443,25 +1457,18 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 								sb.append("0");
 							sb.append(s);
 							sb.append("%  TIME ").append(GameController.getTimeString());
-							//BufferedImage iout = LemmFont.strImage(out);
-							String n=null;
+							LemmFont.strImageRight(outStrGfx, sb.toString(), 4);
+
 							if (lemmUnderCursor != null) {
-								n = lemmUnderCursor.getName();
+								String n = lemmUnderCursor.getName();
 								// display also the total number of lemmings under the cursor
 								int num = GameController.getLemmsUnderCursor().size();
 								if (num > 1)
 									n = n + " " + Integer.toString(num);
+								LemmFont.strImageLeft(outStrGfx, n, 4);
 							}
-							if (n!=null) {
-								int ln = n.length();
-								if (ln>14)
-									ln = 14;
-								sb.insert(0,"              ".substring(0, 14-ln));
-								sb.insert(0,n);
-							} else
-								sb.insert(0,"              ");
-							LemmFont.strImage(outStrGfx, sb.toString());
-							offGfx.drawImage(outStrImg,4,Level.HEIGHT+8,null);
+
+							offGfx.drawImage(outStrImg,0,Level.HEIGHT+8,null);
 						}
 						// replay icon
 						BufferedImage replayImage = GameController.getReplayImage();

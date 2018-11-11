@@ -124,7 +124,7 @@ public class LegalDialog extends JDialog {
 	 * Automatically generated init.
 	 */
 	private void initialize() {
-		this.setSize(640, 450);
+		this.setSize(675, 480);
 		this.setTitle("Lemmini - Disclaimer");
 		this.setContentPane(getJContentPane());
 	}

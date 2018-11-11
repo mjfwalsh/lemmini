@@ -113,7 +113,7 @@ public class Props {
 	 */
 	public String get(final String key, final String def) {
 		String s = hash.getProperty(key,def);
-		return removeComment(s);
+		return removeComment(s).trim();
 	}
 
 	/**

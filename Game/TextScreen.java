@@ -155,8 +155,11 @@ public class TextScreen {
 		textScreen.restore();
 		//li = GameController.levelPack[GameController.curLevelPack].getInfo(GameController.curDiffLevel, GameController.curLevelNumber);
 		String rating = GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()];
-		textScreen.drawImage(GameController.getMapPreview(), -200);
-		textScreen.printCentered("Level "+(GameController.getCurLevelNumber()+1)+" "+level.getLevelName(), -2, RED);
+		textScreen.drawImage(GameController.getMapPreview(), -170);
+
+		String levelLabel = "Level " + (GameController.getCurLevelNumber()+1) + " ";
+
+		textScreen.print(levelLabel + level.getLevelName(), (-9 - levelLabel.length()), -2, RED);
 		textScreen.print("Number of Lemmings "+level.getNumLemmings(), -9, 0, BLUE);
 		textScreen.print(""+(level.getNumToRescue()*100/level.getNumLemmings())+"% to be saved", -9, 1, GREEN);
 		textScreen.print("Release Rate "+level.getReleaseRate(), -9, 2, BROWN);
@@ -200,7 +203,7 @@ public class TextScreen {
 				textScreen.printCentered("You got pretty close that time.", -1, RED);
 				textScreen.printCentered("Now try again for that few % extra.", 0, RED);
 			}
-			textScreen.addTextButton(-2, 5, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
+			textScreen.addTextButton(-2, 6, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
 		} else {
 			if (rescued == 100) {
 				textScreen.printCentered("Superb! You rescued every lemming on", -1, RED);
@@ -221,20 +224,19 @@ public class TextScreen {
 				int absLevel = GameController.absLevelNum(GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(), ln+1);
 				String code = LevelCode.create(lp.getCodeSeed(), absLevel, rescued, 0,lp.getCodeOffset());
 
-				textScreen.printCentered("Your access code for level "+(ln+2)+" is "+code, 2, BROWN);
-				//textScreen.printCentered("Your access code for level "+(ln+2), 2, BROWN);
-				//textScreen.printCentered("is "+code, 3, BROWN);
-				textScreen.addTextButton(-4, 5, BUTTON_CONTINUE, "Continue", "Continue", BLUE, BROWN);
+				textScreen.printCentered("Your access code for level "+(ln+2), 2, BROWN);
+				textScreen.printCentered("is "+code, 3, BROWN);
+				textScreen.addTextButton(-1, 6, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
 			} else {
 				textScreen.printCentered("Congratulations!", 1, BROWN);
 				textScreen.printCentered("You finished all the "+lp.getDiffLevels()[GameController.getCurDiffLevel()]+" levels!",2, GREEN);
 			}
 		}
 		textScreen.copyToBackBuffer(); // though not really needed
-		textScreen.addTextButton(-12, 4, BUTTON_REPLAY, "Replay", "Replay", BLUE, BROWN);
+		textScreen.addTextButton(-12, 5, BUTTON_REPLAY, "Replay", "Replay", BLUE, BROWN);
 		if (GameController.getCurLevelPackIdx() != 0) // not for single levels started via "load level"
-			textScreen.addTextButton( -4, 4, BUTTON_SAVEREPLAY, "Save Replay", "Save Replay", BLUE, BROWN);
-		textScreen.addTextButton( 9, 4, BUTTON_MENU, "Menu", "Menu", BLUE, BROWN);
+			textScreen.addTextButton( -4, 5, BUTTON_SAVEREPLAY, "Save Replay", "Save Replay", BLUE, BROWN);
+		textScreen.addTextButton( 9, 5, BUTTON_MENU, "Menu", "Menu", BLUE, BROWN);
 	}
 
 	/**
