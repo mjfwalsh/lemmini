@@ -228,8 +228,8 @@ public class TextScreen {
 				textScreen.printCentered("is "+code, 3, BROWN);
 				textScreen.addTextButton(-1, 6, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
 			} else {
-				textScreen.printCentered("Congratulations!", 1, BROWN);
-				textScreen.printCentered("You finished all the "+lp.getDiffLevels()[GameController.getCurDiffLevel()]+" levels!",2, GREEN);
+				textScreen.printCentered("Congratulations!", 2, BROWN);
+				textScreen.printCentered("You finished all the "+lp.getDiffLevels()[GameController.getCurDiffLevel()]+" levels!", 3, GREEN);
 			}
 		}
 		textScreen.copyToBackBuffer(); // though not really needed
