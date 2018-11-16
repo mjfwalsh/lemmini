@@ -645,20 +645,27 @@ public class Lemmini extends JFrame implements KeyListener {
 			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
 				Dimension cur = getSize();
-				int innerHeight = cur.height - yMargin;
-				int innerWidth = cur.width - xMargin;
-
-				float scale = (float)innerWidth / Core.getDrawWidth();
-				Core.setScale(scale);
-
-				float newHeight = (float)scale * Core.getDrawHeight();
-				int newHeightInt = (int)Math.round(newHeight);
 
 				if(Core.isFullScreen()) {
-					int margin = Math.round((innerHeight - newHeightInt) / 2);
+					float scaleX = (float)cur.width / Core.getDrawWidth();
+					float scaleY = (float)cur.height / Core.getDrawHeight();
+					float scale = Math.min(scaleX, scaleY);
+					Core.setScale(scale);
+
+					int appHeight = (int)Math.round((float)scale * Core.getDrawHeight());
+					int margin = Math.max(cur.height - appHeight, 0);
+
 					intermezzo.setBorder(new MatteBorder( margin, 0, margin, 0, Color.black ) );
 				} else {
-					setSize(new Dimension(innerWidth + xMargin, newHeightInt + yMargin));
+					int innerHeight = cur.height - yMargin;
+					int innerWidth = cur.width - xMargin;
+
+					float scale = (float)innerWidth / Core.getDrawWidth();
+					Core.setScale(scale);
+
+					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
+
+					setSize(new Dimension(innerWidth + xMargin, newHeight + yMargin));
 				}
 			}
         });
@@ -676,7 +683,9 @@ public class Lemmini extends JFrame implements KeyListener {
 			public void windowEnteredFullScreen(AppEvent.FullScreenEvent fse) {}
 
 			@Override
-			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
+			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {
+				intermezzo.setBorder(new MatteBorder( 0, 0, 0, 0, Color.black ) );
+			}
 
 			@Override
 			public void windowExitedFullScreen(AppEvent.FullScreenEvent fse) {
@@ -1454,7 +1463,7 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 							sb.append("  IN ");
 							s = Integer.toString(GameController.getNumLeft()*100/GameController.getNumLemmingsMax());
 							if (s.length()==1)
-								sb.append("0");
+								sb.append(" ");
 							sb.append(s);
 							sb.append("%  TIME ").append(GameController.getTimeString());
 							LemmFont.strImageRight(outStrGfx, sb.toString(), 4);
