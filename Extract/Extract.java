@@ -48,8 +48,6 @@ public class Extract extends Thread {
 	final private static String patchIniName = "patch.ini";
 	/** file name of resource CRCs (WINLEMM) */
 	final private static String crcIniName = "crc.ini";
-	/** allows to use this module for creation of the CRC.ini */
-	final private static boolean doCreateCRC = false;
 
 	/** index for files to be checked - static since multiple runs are possible */
 	private static int checkNo = 0;
@@ -119,30 +117,6 @@ public class Extract extends Thread {
 				throw new ExtractException("File " + iniName + " not found or error while reading");
 
 			ignoreExt = props.get("ignore_ext", ignoreExt);
-
-			// prolog_ check CRC
-			out("\nValidating WINLEMM");
-			URL fncrc = findFile(crcIniName);
-			Props cprops = new Props();
-			if (fncrc==null || !cprops.load(fncrc))
-				throw new ExtractException("File " + crcIniName + " not found or error while reading");
-			for (int i=0; true; i++) {
-				String crcbuf[] = {null,null,null};
-				// 0: name, 1:size, 2: crc
-				crcbuf = cprops.get("crc_"+Integer.toString(i),crcbuf);
-				if (crcbuf[0] == null)
-					break;
-				out(crcbuf[0]);
-				long len = new File(sourcePath+crcbuf[0]).length();
-				if (len != Long.parseLong(crcbuf[1]))
-					throw new ExtractException("CRC error for file "+sourcePath+crcbuf[0]+".\n");
-				byte src[] = readFile(sourcePath+crcbuf[0]);
-				Adler32 crc32 = new Adler32();
-				crc32.update(src);
-				if (Long.toHexString(crc32.getValue()).compareToIgnoreCase(crcbuf[2].substring(2))!=0)
-					throw new ExtractException("CRC error for file "+sourcePath+crcbuf[0]+".\n");
-				checkCancel();
-			}
 
 			// step one: extract the levels
 			out("\nExtracting levels");
@@ -255,31 +229,6 @@ public class Extract extends Thread {
 			}
 
 			if (referencePath != null) {
-				// this is not needed by Lemmini, but to create the DIF files (and CRCs)
-				if (doCreateCRC) {
-					// create crc.ini
-					out("\nCreate CRC ini");
-					FileWriter fCRCList;
-					try {
-						fCRCList = new FileWriter(crcPath+crcIniName);
-					} catch (IOException ex) {
-						throw new ExtractException(crcPath+crcIniName+" coudn't be openend");
-					}
-					for (int i=0; true; i++) {
-						String ppath;
-						ppath = props.get("pcrc_"+Integer.toString(i),"");
-						if (ppath.length() == 0)
-							break;
-						createCRCs(sourcePath, ppath, fCRCList);
-					}
-					try {
-						fCRCList.close();
-					} catch (IOException ex) {
-						throw new ExtractException(crcPath+crcIniName+" coudn't be closed");
-					}
-					checkCancel();
-				}
-
 				// step seven: create patches and patch.ini
 				(new File(patchPath)).mkdirs();
 				out("\nCreate patch ini");
