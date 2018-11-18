@@ -775,10 +775,8 @@ public class Extract extends Thread {
 	 * Return cancel state of output dialog
 	 * @throws ExtractException
 	 */
-	private static void checkCancel() throws ExtractException {
+	private static void checkCancel() {
 		if (outputDiag.isCancelled()) {
-			programProps.set("revision", "invalid");
-			programProps.save();
 			System.exit(0);
 		}
 	}
