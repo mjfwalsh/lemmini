@@ -776,8 +776,11 @@ public class Extract extends Thread {
 	 * @throws ExtractException
 	 */
 	private static void checkCancel() throws ExtractException {
-		if (outputDiag.isCancelled())
-			throw new ExtractException("Extraction cancelled by user");
+		if (outputDiag.isCancelled()) {
+			programProps.set("revision", "invalid");
+			programProps.save();
+			System.exit(0);
+		}
 	}
 }
 
