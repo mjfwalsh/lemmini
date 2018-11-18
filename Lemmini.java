@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -20,6 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +42,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.MatteBorder;
-import java.awt.GridLayout;
+
+import org.apache.commons.io.FileUtils;
 
 //START-MAC
 import com.apple.eawt.FullScreenListener;
@@ -129,7 +135,6 @@ public class Lemmini extends JFrame implements KeyListener {
 	private JMenuItem jMenuItemRestart = null;
 	private JMenuItem jMenuItemLevelCode = null;
 	private JMenuItem jMenuSelect = null;
-	private JMenu jMenuFile = null;
 	private JMenuItem jMenuItemFullscreen = null;
 	private JMenu jMenuPlayer = null;
 	private JMenu jMenuSelectPlayer = null;
@@ -140,13 +145,15 @@ public class Lemmini extends JFrame implements KeyListener {
 	private JMenuItem jMenuItemCursor = null;
 	private JMenuItem jMenuItemClassicalCursor = null;
 	private JMenuItem jMenuItemExit = null;
-	private JMenuItem jMenuItemManagePlayer = null;
 	private JMenuItem jMenuItemLoad = null;
 	private JMenuItem jMenuItemReplay = null;
 	private JCheckBoxMenuItem jMenuItemMusic = null;
 	private JCheckBoxMenuItem jMenuItemSound = null;
 	private ButtonGroup playerGroup = null;
 	private ButtonGroup zoomGroup = null;
+
+	// action listener for levels
+	private java.awt.event.ActionListener lvlListener;
 
 	/**
 	 * Constructor of the main frame.
@@ -235,30 +242,40 @@ public class Lemmini extends JFrame implements KeyListener {
 		posY = Math.max(posY, 0);
 		this.setLocation(posX, posY);
 
-		// create File Menu
-		jMenuItemExit = new JMenuItem("Exit");
-		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				exit();
-			}
-		});
+		// Add menu bar
+		jMenuBar = new JMenuBar();
 
-		jMenuItemFullscreen = new JMenuItem("Fullscreen");
-		jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setExtendedState(JFrame.MAXIMIZED_BOTH);
-				setUndecorated(true);
-			}
-		});
+		// Create File Menu
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			JMenu jMenuFile = new JMenu("File");
 
-		jMenuFile = new JMenu("File");
-		jMenuFile.add(jMenuItemFullscreen);
-		jMenuFile.add(jMenuItemExit);
+			// Exit menu
+			jMenuItemExit = new JMenuItem("Exit");
+			jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					exit();
+				}
+			});
+			jMenuFile.add(jMenuItemExit);
 
-		// Player Menu
-		jMenuItemManagePlayer = new JMenuItem("Manage Players");
+			// Fullscreen
+			jMenuItemFullscreen = new JMenuItem("Fullscreen");
+			jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					setExtendedState(JFrame.MAXIMIZED_BOTH);
+					setUndecorated(true);
+				}
+			});
+			jMenuFile.add(jMenuItemFullscreen);
+
+			jMenuBar.add(jMenuFile);
+		}
+
+		// Create Player Menu
+		jMenuPlayer = new JMenu("Player");
+		JMenuItem jMenuItemManagePlayer = new JMenuItem("Manage Players");
 		jMenuItemManagePlayer.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -307,8 +324,7 @@ public class Lemmini extends JFrame implements KeyListener {
 				}
 			}
 		});
-
-
+		jMenuPlayer.add(jMenuItemManagePlayer);
 		jMenuSelectPlayer = new JMenu("Select Player");
 		playerGroup = new ButtonGroup();
 		for (int idx=0; idx < Core.getPlayerNum(); idx++) {
@@ -316,49 +332,30 @@ public class Lemmini extends JFrame implements KeyListener {
 			if ( Core.player.getName().equals(Core.getPlayer(idx)) )
 				item.setSelected(true);
 		}
-		jMenuPlayer = new JMenu("Player");
-		jMenuPlayer.add(jMenuItemManagePlayer);
 		jMenuPlayer.add(jMenuSelectPlayer);
+		jMenuBar.add(jMenuPlayer);
 
+		// Create Level Menu
+		jMenuLevel = new JMenu("Level");
 
-		// load level packs and create Level menu
-		java.awt.event.ActionListener lvlListener = new java.awt.event.ActionListener() {
+		// Create action listener
+		lvlListener = new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				LvlMenuItem item = (LvlMenuItem)e.getSource();
 				GameController.requestChangeLevel(item.levelPack, item.diffLevel, item.level, false);
 			}
 		};
-		diffLevelMenus = new HashMap<String,ArrayList<LvlMenuItem>>(); // store menus to access them later
-		jMenuSelect = new JMenu("Select Level");
-		for (int lp=1; lp<GameController.getLevelPackNum(); lp++) { // skip dummy level pack
-			LevelPack lPack = GameController.getLevelPack(lp);
-			JMenu jMenuPack = new JMenu(lPack.getName());
-			String difficulties[] = lPack.getDiffLevels();
-			for (int i=0; i<difficulties.length; i++) {
-				// get activated levels for this group
-				GroupBitfield bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
-				String names[] = lPack.getLevels(i);
-				JMenu jMenuDiff = new JMenu(difficulties[i]);
-				// store menus to access them later
-				ArrayList<LvlMenuItem> menuItems = new ArrayList<LvlMenuItem>();
-				for (int n=0; n<names.length; n++) {
-					LvlMenuItem jMenuLvl = new LvlMenuItem(names[n],lp,i,n);
-					jMenuLvl.addActionListener(lvlListener);
-					if (Core.player.isAvailable(bf, n))
-						jMenuLvl.setEnabled(true);
-					else
-						jMenuLvl.setEnabled(false);
-					jMenuDiff.add(jMenuLvl);
-					menuItems.add(jMenuLvl);
-				}
-				jMenuPack.add(jMenuDiff);
-				// store menus to access them later
-				diffLevelMenus.put(LevelPack.getID(lPack.getName(), difficulties[i]), menuItems);
-			}
-			jMenuSelect.add(jMenuPack);
-		}
 
+		// Menu for each item
+		diffLevelMenus = new HashMap<String,ArrayList<LvlMenuItem>>(); // store menus to access them later
+		for (int lp=1; lp<GameController.getLevelPackNum(); lp++) { // skip dummy level pack
+			JMenu jMenuPack = makeLevelPackMenu(lp);
+			jMenuLevel.add(jMenuPack);
+		}
+		jMenuLevel.addSeparator();
+
+		// Restart sub-menu
 		jMenuItemRestart = new JMenuItem();
 		jMenuItemRestart.setText("Restart Level");
 		jMenuItemRestart.addActionListener(new java.awt.event.ActionListener() {
@@ -370,39 +367,17 @@ public class Lemmini extends JFrame implements KeyListener {
 					GameController.requestRestartLevel(false);
 			}
 		});
-
+		jMenuLevel.add(jMenuItemRestart);
 
 		jMenuItemLoad = new JMenuItem();
-		jMenuItemLoad.setText("Load Level");
+		jMenuItemLoad.setText("Add Level Pack");
 		jMenuItemLoad.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-				String p = ToolBox.getFileName(thisFrame,lvlPath,Core.LEVEL_EXTENSIONS,true);
-				if (p != null) {
-					try {
-						if (ToolBox.getExtension(p).equalsIgnoreCase("lvl")) {
-							Extract.ExtractLevel.convertLevel(p, Core.resourcePath+"/temp.ini");
-							p = Core.resourcePath+"/temp.ini";
-						}
-						if (ToolBox.getExtension(p).equalsIgnoreCase("ini")) {
-							String id = new String(ToolBox.getFileID(p,5));
-							if (id.equalsIgnoreCase("# LVL")) {
-								// this is a hack - maybe find a better way
-								GameController.getLevelPack(0).getInfo(0, 0).setFileName(p);
-								GameController.getLevelPack(0).getInfo(0, 0).setMusic(Music.getRandomTrack());
-								GameController.requestChangeLevel(0,0,0,false);
-								lvlPath = p;
-								return;
-							}
-						}
-						JOptionPane.showMessageDialog(Core.getCmp(), "Wrong format!", "Loading level failed", JOptionPane.INFORMATION_MESSAGE);
-					} catch (Exception ex) {
-						ToolBox.showException(ex);
-					}
-
-				}
+				addLevelPack();
 			}
 		});
+		jMenuLevel.add(jMenuItemLoad);
 
 		jMenuItemReplay = new JMenuItem();
 		jMenuItemReplay.setText("Load Replay");
@@ -433,7 +408,7 @@ public class Lemmini extends JFrame implements KeyListener {
 				}
 			}
 		});
-
+		jMenuLevel.add(jMenuItemReplay);
 
 		jMenuItemLevelCode = new JMenuItem("Enter Level Code");
 		jMenuItemLevelCode.addActionListener(new java.awt.event.ActionListener() {
@@ -473,13 +448,15 @@ public class Lemmini extends JFrame implements KeyListener {
 				JOptionPane.showMessageDialog(Core.getCmp(), "Invalid Level Code", "Error", JOptionPane.WARNING_MESSAGE);
 			}
 		});
-
-		jMenuLevel = new JMenu("Level");
-		jMenuLevel.add(jMenuSelect);
-		jMenuLevel.add(jMenuItemRestart);
-		jMenuLevel.add(jMenuItemLoad);
-		jMenuLevel.add(jMenuItemReplay);
 		jMenuLevel.add(jMenuItemLevelCode);
+
+		// Finish level menu
+		jMenuBar.add(jMenuLevel);
+
+		// Create Sound Menu
+		jMenuSound = new JMenu();
+		jMenuSound.setText("Sound");
+
 
 		jMenuItemMusic = new JCheckBoxMenuItem("Music", false);
 		jMenuItemMusic.addActionListener(new java.awt.event.ActionListener() {
@@ -500,6 +477,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			}
 		});
 		jMenuItemMusic.setSelected(GameController.isMusicOn());
+		jMenuSound.add(jMenuItemMusic);
 
 		jMenuItemSound = new JCheckBoxMenuItem("Sound", false);
 		jMenuItemSound.addActionListener(new java.awt.event.ActionListener() {
@@ -514,6 +492,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			}
 		});
 		jMenuItemSound.setSelected(GameController.isSoundOn());
+		jMenuSound.add(jMenuItemSound);
 
 		jMenuSFX = new JMenu("SFX Mixer");
 		String mixerNames[] = GameController.sound.getMixers();
@@ -556,6 +535,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			jMenuSFX.add(item);
 			mixerGroup.add(item);
 		}
+		jMenuSound.add(jMenuSFX);
 
 		jMenuItemVolume = new JMenuItem("Volume Control");
 		jMenuItemVolume.addActionListener(new java.awt.event.ActionListener() {
@@ -565,14 +545,14 @@ public class Lemmini extends JFrame implements KeyListener {
 				v.setVisible(true);
 			}
 		});
-
-
-		jMenuSound = new JMenu();
-		jMenuSound.setText("Sound");
 		jMenuSound.add(jMenuItemVolume);
-		jMenuSound.add(jMenuItemMusic);
-		jMenuSound.add(jMenuItemSound);
-		jMenuSound.add(jMenuSFX);
+
+		// Finished Sound Menu
+		jMenuBar.add(jMenuSound);
+
+		// Create Options Menu
+		jMenuOptions = new JMenu();
+		jMenuOptions.setText("Options");
 
 		jMenuItemCursor = new JCheckBoxMenuItem("Advanced select", false);
 		jMenuItemCursor.addActionListener(new java.awt.event.ActionListener() {
@@ -592,6 +572,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			}
 		});
 		jMenuItemCursor.setSelected(GameController.isAdvancedSelect());
+		jMenuOptions.add(jMenuItemCursor);
 
 		jMenuItemClassicalCursor = new JCheckBoxMenuItem("Classical Cursor", false);
 		jMenuItemClassicalCursor.addActionListener(new java.awt.event.ActionListener() {
@@ -610,23 +591,13 @@ public class Lemmini extends JFrame implements KeyListener {
 			}
 		});
 		jMenuItemClassicalCursor.setSelected(GameController.isClassicalCursor());
-
-		jMenuOptions = new JMenu();
-		jMenuOptions.setText("Options");
-		jMenuOptions.add(jMenuItemCursor);
 		jMenuOptions.add(jMenuItemClassicalCursor);
 
-		jMenuBar = new JMenuBar();
 
-		// MacOSX comes with its own exit menu
-		if(!System.getProperty("os.name").equals("Mac OS X")) {
-			jMenuBar.add(jMenuFile);
-		}
-
-		jMenuBar.add(jMenuPlayer);
-		jMenuBar.add(jMenuLevel);
-		jMenuBar.add(jMenuSound);
+		// Finish Options Menu
 		jMenuBar.add(jMenuOptions);
+
+		// Finalise menu bar
 		this.setJMenuBar(jMenuBar);
 
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -867,6 +838,42 @@ public class Lemmini extends JFrame implements KeyListener {
 		catch (IOException ex) {}
 	}
 
+	/**
+	 * Add a level pack taken from a folder
+	 */
+	private void addLevelPack() {
+		Path sourceDirectory = ToolBox.getFolderName(this);
+		if(sourceDirectory == null) return;
+
+		// Have we added this before?
+		Path name = sourceDirectory.getName(sourceDirectory.getNameCount()-1);
+		Path targetDirectory = Paths.get(Core.resourcePath + "levels/" + name.toString());
+		if(Files.exists(targetDirectory)) {
+			JOptionPane.showMessageDialog(Core.getCmp(), "Error!", "Target directory already exists", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		// Add the level pack to the live application
+		try {
+			GameController.addLevelPack(sourceDirectory.toString());
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(Core.getCmp(), "Error!", "Failed to load level pack. Bad formatting?", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		// Add to menu
+		int lp = GameController.getLevelPackNum() - 1;
+		jMenuLevel.insert(makeLevelPackMenu(lp), lp-1);
+
+		//copy source to target using Files Class
+		try {
+			FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(Core.getCmp(), "Error!", "Failed to copy pack to resource directory", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
 	 */
@@ -1086,6 +1093,37 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		// exit
 		System.exit(0);
+	}
+
+	/**
+	 * Make the Level Pack Menu
+	 */
+	private JMenu makeLevelPackMenu(int lp) {
+		LevelPack lPack = GameController.getLevelPack(lp);
+		JMenu jMenuPack = new JMenu(lPack.getName());
+		String difficulties[] = lPack.getDiffLevels();
+		for (int i=0; i<difficulties.length; i++) {
+			// get activated levels for this group
+			GroupBitfield bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
+			String names[] = lPack.getLevels(i);
+			JMenu jMenuDiff = new JMenu(difficulties[i]);
+			// store menus to access them later
+			ArrayList<LvlMenuItem> menuItems = new ArrayList<LvlMenuItem>();
+			for (int n=0; n<names.length; n++) {
+				LvlMenuItem jMenuLvl = new LvlMenuItem(names[n],lp,i,n);
+				jMenuLvl.addActionListener(lvlListener);
+				if (Core.player.isAvailable(bf, n))
+					jMenuLvl.setEnabled(true);
+				else
+					jMenuLvl.setEnabled(false);
+				jMenuDiff.add(jMenuLvl);
+				menuItems.add(jMenuLvl);
+			}
+			jMenuPack.add(jMenuDiff);
+			// store menus to access them later
+			diffLevelMenus.put(LevelPack.getID(lPack.getName(), difficulties[i]), menuItems);
+		}
+		return jMenuPack;
 	}
 
 	/**

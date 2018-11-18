@@ -14,6 +14,9 @@ import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -271,4 +274,18 @@ public class ToolBox {
 		 }
 		 return null;
 	 }
+
+	 public static Path getFolderName(final Component parent) {
+		 JFileChooser jf = new JFileChooser();
+		 jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		 int returnVal = jf.showDialog(parent,null);
+		 if(returnVal == JFileChooser.APPROVE_OPTION) {
+			 File f = jf.getSelectedFile();
+			 if (f != null)
+				 return f.getAbsoluteFile().toPath();
+		 }
+		 return null;
+	 }
+
 }

@@ -75,7 +75,8 @@ public class LevelPack {
 		// load the descriptor file
 		Props props = new Props();
 		if (!props.load(fname))
-			throw new ResourceException(fname);
+			return;
+
 		// read name
 		name = props.get("name","");
 		// read code seed

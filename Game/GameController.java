@@ -217,8 +217,8 @@ public class GameController {
 	private static LinkedList<Explosion> explosions;
 	/** list of all Lemmings under the mouse cursor */
 	private static ArrayList<Lemming> lemmsUnderCursor;
-	/** array of available level packs */
-	private static LevelPack levelPack[];
+	/** list of available level packs */
+	private static ArrayList<LevelPack> levelPack;
 	/** small preview version of level used in briefing screen */
 	private static BufferedImage mapPreview;
 	/** timer used for nuking */
@@ -326,11 +326,16 @@ public class GameController {
 				dirs.add(files[i].getName());
 		Collections.sort(dirs);
 
-		levelPack = new LevelPack[dirs.size()+1];
-		levelPack[0] = new LevelPack(); // dummy
+		//levelPack = new LevelPack[]; // dirs.size()+1];
+		levelPack = new ArrayList<LevelPack>();
+
+		levelPack.add(new LevelPack()); // dummy
 		for (int i=0; i<dirs.size(); i++) {  // read levels
 			String lvlName = dirs.get(i);
-			levelPack[i+1] = new LevelPack(Core.findResource("levels/"+ToolBox.addSeparator(lvlName)+"levelpack.ini"));
+
+			LevelPack tlp = new LevelPack(Core.findResource("levels/"+ToolBox.addSeparator(lvlName)+"levelpack.ini"));
+
+			if(!tlp.getName().equals("test")) levelPack.add(tlp);
 		}
 		curDiffLevel = 0;
 		curLevelPack = 1; // since 0 is dummy
@@ -355,7 +360,7 @@ public class GameController {
 	 * @return absolute level number (0..127)
 	 */
 	static int absLevelNum(final int lvlPack, final int diffLevel, final int level) {
-		LevelPack lpack = levelPack[lvlPack];
+		LevelPack lpack = levelPack.get(lvlPack);
 		// calculate absolute level number
 		int absLvl = level;
 		for (int i=0; i<diffLevel; i++)
@@ -371,7 +376,7 @@ public class GameController {
 	 */
 	public static int[] relLevelNum(final int lvlPack, final int lvlAbs) {
 		int retval[] = new int[2];
-		LevelPack lpack = levelPack[lvlPack];
+		LevelPack lpack = levelPack.get(lvlPack);
 		int diffLevels = lpack.getDiffLevels().length;
 		int lvl=0;
 		int diffLvl=0;
@@ -399,7 +404,7 @@ public class GameController {
 	public static synchronized boolean nextLevel() {
 		int num = curLevelNumber + 1;
 
-		if ( num < levelPack[curLevelPack].getLevels(curDiffLevel).length ) {
+		if ( num < levelPack.get(curLevelPack).getLevels(curDiffLevel).length ) {
 			curLevelNumber = num;
 			return true;
 		} else
@@ -575,7 +580,7 @@ public class GameController {
 		curDiffLevel = dLevel;
 		curLevelNumber = lNum;
 
-		String lvlPath = levelPack[curLevelPack].getInfo(curDiffLevel, curLevelNumber).getFileName();
+		String lvlPath = levelPack.get(curLevelPack).getInfo(curDiffLevel, curLevelNumber).getFileName();
 		// lemmings need to be reloaded to contain pink color
 		Lemming.loadLemmings(Core.getCmp());
 		// loading the level will patch pink lemmings pixels to correct color
@@ -1175,7 +1180,7 @@ public class GameController {
 				case TO_LEVEL:
 					GameController.sound.play(SND_LETSGO);
 					try {
-						Music.load("music/"+GameController.levelPack[GameController.curLevelPack].getInfo(GameController.curDiffLevel,
+						Music.load("music/"+GameController.levelPack.get(GameController.curLevelPack).getInfo(GameController.curDiffLevel,
 								GameController.curLevelNumber).getMusic());
 					} catch (ResourceException ex) {
 						Core.resourceError(ex.getMessage());
@@ -1276,7 +1281,7 @@ public class GameController {
 	 * @return current level pack
 	 */
 	public static LevelPack getCurLevelPack() {
-		return levelPack[curLevelPack];
+		return levelPack.get(curLevelPack);
 	}
 
 	/**
@@ -1284,7 +1289,7 @@ public class GameController {
 	 * @return number of level packs
 	 */
 	public static int getLevelPackNum() {
-		return levelPack.length;
+		return levelPack.size();
 	}
 
 	/**
@@ -1293,7 +1298,7 @@ public class GameController {
 	 * @return LevelPack
 	 */
 	public static LevelPack getLevelPack(final int i) {
-		return levelPack[i];
+		return levelPack.get(i);
 	}
 
 	/**
@@ -1670,6 +1675,14 @@ public class GameController {
 	 */
 	public static int getTime() {
 		return time;
+	}
+
+	/**
+	 * Add level pack.
+	 * @param absolute path of level pack folder
+	 */
+	public static void addLevelPack(String folder) throws ResourceException {
+		levelPack.add(new LevelPack(folder + "/levelpack.ini"));
 	}
 }
 
