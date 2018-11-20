@@ -162,7 +162,11 @@ public class Core {
 				programProps.save();
 				throw new LemmException("Ressource extraction failed\n"+ex.getMessage());
 			}
+		} else {
+			// A little hacky but this saves user from having to a full extract operation for one new file
+			Extract.extractSingleFile("patch/misc@lemmfontscaled.gif", resourcePath + "misc/lemmfontscaled.gif");
 		}
+
 		System.gc(); // force garbage collection here before the game starts
 
 		// read player names

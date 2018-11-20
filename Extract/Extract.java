@@ -781,6 +781,22 @@ public class Extract extends Thread {
 			System.exit(0);
 		}
 	}
+
+	/**
+	 * Extract a single file from the jar where necessary
+	 */
+	public static void extractSingleFile(String from, String to) {
+		File newFontFile = new File(to);
+		if(newFontFile.exists()) return;
+
+		try {
+			if(loader == null) {
+				loader = Extract.class.getClassLoader();
+			}
+			URL fontFile = findFile(from);
+			copyFile(fontFile, to);
+		}  catch (Exception ex) {}
+	}
 }
 
 /**
