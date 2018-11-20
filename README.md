@@ -4,7 +4,9 @@ Lemmini is the attempt to combine the playing sensation of the original Amiga ve
 
 The Lemmini source code was released under the Apache License 2.0 as are any modifications I make to it.
 
-MicroMod and GifEncoder are both released under the 3-Clause BSD License:
+At the moment it only works on Mac OSX. To compile to a jar just `cd` into the base directory and run `./make.sh`.
+
+MicroMod and GifEncoder are both released under Three-Clause BSD Licenses:
 
 GifEncoder Library: Copyright (C)1996,1998 by Jef Poskanzer <jef@mail.acme.com>. All rights reserved.
 
