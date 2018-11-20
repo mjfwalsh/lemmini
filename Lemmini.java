@@ -615,29 +615,23 @@ public class Lemmini extends JFrame implements KeyListener {
 		this.addComponentListener(new java.awt.event.ComponentAdapter() {
 			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
-				Dimension cur = getSize();
+				Dimension cur = getContentPane().getSize();
 
+				float scale = (float)cur.width / Core.getDrawWidth();
+
+				Core.setScale(scale);
+
+				int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
+
+				int margin = 0;
 				if(Core.isFullScreen()) {
-					float scaleX = (float)cur.width / Core.getDrawWidth();
-					float scaleY = (float)cur.height / Core.getDrawHeight();
-					float scale = Math.min(scaleX, scaleY);
-					Core.setScale(scale);
-
-					int appHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-					int margin = Math.max(cur.height - appHeight, 0);
-
-					intermezzo.setBorder(new MatteBorder( margin, 0, margin, 0, Color.black ) );
+					margin = Math.max(cur.height - newHeight, 0);
+					margin = Math.round(margin / 2);
 				} else {
-					int innerHeight = cur.height - yMargin;
-					int innerWidth = cur.width - xMargin;
-
-					float scale = (float)innerWidth / Core.getDrawWidth();
-					Core.setScale(scale);
-
-					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-
-					setSize(new Dimension(innerWidth + xMargin, newHeight + yMargin));
+					setSize(new Dimension(cur.width + xMargin, newHeight + yMargin));
 				}
+
+				intermezzo.setBorder(new MatteBorder( margin, 0, margin, 0, Color.black ) );
 			}
         });
 
@@ -654,9 +648,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			public void windowEnteredFullScreen(AppEvent.FullScreenEvent fse) {}
 
 			@Override
-			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {
-				intermezzo.setBorder(new MatteBorder( 0, 0, 0, 0, Color.black ) );
-			}
+			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
 
 			@Override
 			public void windowExitedFullScreen(AppEvent.FullScreenEvent fse) {
