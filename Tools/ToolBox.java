@@ -1,6 +1,5 @@
 package Tools;
 
-
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -151,11 +150,7 @@ public class ToolBox {
 	  * @return String with only Unix style path separators
 	  */
 	 public static String exchangeSeparators(final String fName) {
-		 int pos;
-		 StringBuffer sb = new StringBuffer(fName);
-		 while ( (pos = sb.indexOf("\\")) != -1 )
-			 sb.setCharAt(pos,'/');
-		 return sb.toString();
+		 return fName.replaceAll("\\\\", "/");
 	 }
 
 	 /**
@@ -276,6 +271,11 @@ public class ToolBox {
 		 return null;
 	 }
 
+	 /**
+	  * Open folder dialog.
+	  * @param parent parent frame
+	  * @return absolute file path of selected folder or null
+	  */
 	 public static Path getFolderName(final Component parent) {
 		 JFileChooser jf = new JFileChooser();
 		 jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -289,4 +289,32 @@ public class ToolBox {
 		 return null;
 	 }
 
+	 /**
+	  * Copy folder and contents to destination folder.
+	  * @param from an existing folder
+	  * @param to folder to be created
+	  */
+    public static void copyFolder(Path from, Path to)  {
+    	copyFolder(from.toFile(), to);
+    }
+
+    public static void copyFolder(File from, Path to)  {
+		to.toFile().mkdirs();
+
+		File dir[] = from.listFiles();
+		for (int i=0; i<dir.length; i++) {
+			Path f = dir[i].toPath();
+			Path t = to.resolve(dir[i].getName());
+
+			if(dir[i].isFile()) {
+				try {
+					Files.copy(f, t);
+				} catch (Exception ex) {
+					System.out.println("Failed: " + ex);
+				}
+			} else if(dir[i].isDirectory() && !Files.isSymbolicLink(f)) {
+				copyFolder(dir[i], t);
+			}
+		}
+    }
 }

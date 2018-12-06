@@ -43,8 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.MatteBorder;
 
-import org.apache.commons.io.FileUtils;
-
 //START-MAC
 import com.apple.eawt.FullScreenListener;
 import com.apple.eawt.AppEvent;
@@ -730,16 +728,13 @@ public class Lemmini extends JFrame implements KeyListener {
 		 * Check JVM version
 		 */
 		String jreStr = System.getProperty("java.version");
-		String vs[] = jreStr.split("[._]");
-		double vnum;
-		if (vs.length >= 3) {
-			vnum = (getInt(vs[0]))
-			+ (getInt(vs[1])) * 0.1
-			+ (getInt(vs[2])) * 0.01;
-			if (vnum < 1.5) {
-				JOptionPane.showMessageDialog(null,"Run this with JVM >= 1.5","Error",JOptionPane.ERROR_MESSAGE);
-				System.exit(1);
-			}
+		jreStr = jreStr.replaceFirst("^1\\.", "");
+		jreStr = jreStr.replaceFirst("^([0-9]+).*$", "$1");
+		int jreVer = Integer.parseInt(jreStr);
+
+		if(jreVer < 5) {
+			JOptionPane.showMessageDialog(null,"Run this with JVM >= 1.5","Error",JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 
 		// check free memory
@@ -835,6 +830,7 @@ public class Lemmini extends JFrame implements KeyListener {
 	 * Add a level pack taken from a folder
 	 */
 	private void addLevelPack() {
+		// Run a popup for user to give directory
 		Path sourceDirectory = ToolBox.getFolderName(this);
 		if(sourceDirectory == null) return;
 
@@ -860,7 +856,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		//copy source to target using Files Class
 		try {
-			FileUtils.copyDirectory(sourceDirectory.toFile(), targetDirectory.toFile());
+			ToolBox.copyFolder(sourceDirectory, targetDirectory);
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(Core.getCmp(), "Error!", "Failed to copy pack to resource directory", JOptionPane.INFORMATION_MESSAGE);
 			return;
