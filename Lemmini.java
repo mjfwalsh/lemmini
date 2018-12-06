@@ -202,11 +202,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		//END-MAC
 
-		// set icon
-		ClassLoader loader = Lemmini.class.getClassLoader();
-		Image img = Toolkit.getDefaultToolkit().getImage(loader.getResource("icon_32.png"));
-		this.setIconImage(img);
-
 		// set component pane
 		gp = new GraphicsPane();
 		gp.setBackground(Color.BLACK);

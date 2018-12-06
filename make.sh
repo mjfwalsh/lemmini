@@ -116,6 +116,7 @@ make_clean()
 print_usage()
 {
 		cat << EOF
+
 Usage: ./make.sh command [nolook]
 
 All commands complete any required earlier steps, with the effect that a
@@ -128,16 +129,16 @@ directory. To disable this give the second command as nolook, and set the
 JAVA_HOME environmental variable yourself.
 
 Main Commands:
-compile		Compile the java code
-jar			Make a jar file
-app			Make a simple mac app wrapper for the jar
-install		Move the app to the /Applications folder
-clean		Delete the files and folders creeated by this script (if any)
-			Non including the installed application.
+compile     Compile the java code
+jar         Make a jar file
+app         Make a simple mac app wrapper for the jar
+install     Move the app to the /Applications folder
+clean       Delete the files and folders creeated by this script (if any)
+            Non including the installed application.
 
-Debugging commands:
-test - Delete the existing build, compile and run
-run - Compile and run without making a jar
+Other Commands:
+test        Delete the existing build, compile and run
+run         Compile and run without making a jar
 
 To uninstall completely delete to following:
 /Applications/Lemmini.app
