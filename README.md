@@ -1,6 +1,6 @@
 ## Lemmini
 
-This is a fork of Lemmini by Volker Oth ([lemmini.de]: http://lemmini.de). It is released under the Apache License 2.0 and contains source code written by Martin Cameron and Jef Poskanzer.
+This is a fork of Lemmini by Volker Oth (http://lemmini.de). It is released under the Apache License 2.0 and contains source code written by Martin Cameron and Jef Poskanzer.
 
 Lemmini is the attempt to combine the playing sensation of the original Amiga version of Lemmings with the improved graphics of the Win95 port to create the best possible Lemmings experience on all platforms that support a Java virtual machine.
 
@@ -10,7 +10,7 @@ This version expects to find the resource folder at `~/Library/Application Suppo
 
 Lemmini: Copyright (c) Volker Oth 2005-2017. The source code is licensed under the Apache License 2.0 as are any modifications I make to it.
 
-The Lemmini official website, along with Volker Oth's build and links to the original source code are at: [lemmini.de]: http://lemmini.de
+The Lemmini official website, along with Volker Oth's build and links to the original source code are at: http://lemmini.de
 
 MicroMod and GifEncoder are both released under Three-Clause BSD Licenses:
 
