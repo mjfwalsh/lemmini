@@ -126,8 +126,9 @@ public class TextScreen {
 						textScreen.init();
 						textScreen.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_BROWN));
 						textScreen.printCentered("A game engine for Lemmings(tm) in Java", 0, RED);
-						textScreen.printCentered("Release 0.87 08/2017", 1, BLUE);
-						textScreen.printCentered("Coded by Volker Oth 2005-2017", 2, VIOLET);
+						//textScreen.printCentered("Release 0.87 08/2017", 1, BLUE);
+						textScreen.printCentered(Core.getReleaseString(), 1, BLUE);
+						textScreen.printCentered("Coded by Volker Oth", 2, VIOLET);
 						textScreen.printCentered("www.lemmini.de", 3, GREEN);
 						textScreen.copyToBackBuffer();
 						//textScreen.addTextButton(-4, 3, 1, "  Start ", "Let's go", BLUE, RED);

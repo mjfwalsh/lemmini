@@ -17,6 +17,10 @@ import GUI.LegalDialog;
 import Tools.Props;
 import Tools.ToolBox;
 
+import java.net.JarURLConnection;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
 /*
  * Copyright 2009 Volker Oth
  * (Minor changes by Michael J. Walsh Copyright 2018)
@@ -74,12 +78,18 @@ public class Core {
 	/** internal draw width */
 	private static int internalWidth;
 
+	/** ie "Compiled on: 5 December 2018" */
+	private static String releaseString;
+
 	/**
 	 * Initialize some core elements.
 	 * @param frame parent frame
 	 * @throws LemmException
 	 */
 	public static void init(final JFrame frame) throws LemmException  {
+		// alias for object
+		cmp = frame;
+
 		// get ini path
 		String programPropsFileStr = "";
 
@@ -187,7 +197,7 @@ public class Core {
 		}
 		player = new Player(defaultPlayer);
 
-		cmp = frame;
+		releaseString = makeReleaseString();
 	}
 
 	/**
@@ -392,5 +402,36 @@ public class Core {
 	 */
 	public static void setFullScreen(boolean b) {
 		fullScreen = b;
+	}
+
+	/**
+	 * Make a release string for the home screen
+	 * @return @release string
+	 */
+    private static String makeReleaseString() {
+    	Date d;
+    	String w;
+    	try {
+			JarURLConnection j = (JarURLConnection) Extract.class.getClassLoader().getResource("Lemmini.class").openConnection();
+			System.out.println(j.toString());
+			long lastmodified = j.getJarFile().getEntry("Lemmini.class").getTime();
+			d = new Date(lastmodified);
+			w = "Compiled on ";
+    	} catch (Exception e) {
+			d = new Date();
+			w = "Run on ";
+		}
+
+		SimpleDateFormat format = new SimpleDateFormat("d MMMM yyyy");
+		String dateString = format.format(d);
+		return w + dateString;
+    }
+
+	/**
+	 * Get release string
+	 * @return releaseString
+	 */
+	public static String getReleaseString() {
+		return releaseString;
 	}
 }
