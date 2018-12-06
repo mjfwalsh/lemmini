@@ -349,9 +349,11 @@ public class GameController {
 		for (int i=0; i<dirs.size(); i++) {  // read levels
 			String lvlName = dirs.get(i);
 
-			LevelPack tlp = new LevelPack(Core.findResource("levels/"+ToolBox.addSeparator(lvlName)+"levelpack.ini"));
+			LevelPack tlp = new LevelPack(Core.findResource("levels/"+lvlName+"/levelpack.ini"));
 
-			if(!tlp.getName().equals("test")) levelPack.add(tlp);
+			if(tlp != null) {
+				if(!tlp.getName().equals("empty")) levelPack.add(tlp);
+			}
 		}
 		curDiffLevel = 0;
 		curLevelPack = 1; // since 0 is dummy

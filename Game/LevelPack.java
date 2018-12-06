@@ -75,8 +75,10 @@ public class LevelPack {
 		path = ToolBox.getPathName(fname);
 		// load the descriptor file
 		Props props = new Props();
-		if (!props.load(fname))
+		if (!props.load(fname)) {
+			name = "empty";
 			return;
+		}
 
 		// read name
 		name = props.get("name","");
