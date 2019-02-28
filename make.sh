@@ -22,6 +22,9 @@ compile_java()
 		rm -fR build
 	fi
 
+	# Updating Compile Datastamp...
+	./update_compile_time.pl
+
 	echo Running Java Compiler...
 	mkdir -p build && javac -d ./build Lemmini.java
 

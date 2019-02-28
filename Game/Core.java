@@ -78,8 +78,9 @@ public class Core {
 	/** internal draw width */
 	private static int internalWidth;
 
-	/** ie "Compiled on: 5 December 2018" */
-	private static String releaseString;
+	/** releaseString: ie "Compiled on: 5 December 2018" */
+	/** the following line is automatically edited by a perl script  */
+	private static String releaseString = "Compiled on 28 February 2019";
 
 	/**
 	 * Initialize some core elements.
@@ -196,8 +197,6 @@ public class Core {
 			Core.playerProps.set("player_0", "default");
 		}
 		player = new Player(defaultPlayer);
-
-		releaseString = makeReleaseString();
 	}
 
 	/**
@@ -403,29 +402,6 @@ public class Core {
 	public static void setFullScreen(boolean b) {
 		fullScreen = b;
 	}
-
-	/**
-	 * Make a release string for the home screen
-	 * @return @release string
-	 */
-    private static String makeReleaseString() {
-    	Date d;
-    	String w;
-    	try {
-			JarURLConnection j = (JarURLConnection) Extract.class.getClassLoader().getResource("Lemmini.class").openConnection();
-			System.out.println(j.toString());
-			long lastmodified = j.getJarFile().getEntry("Lemmini.class").getTime();
-			d = new Date(lastmodified);
-			w = "Compiled on ";
-    	} catch (Exception e) {
-			d = new Date();
-			w = "Run on ";
-		}
-
-		SimpleDateFormat format = new SimpleDateFormat("d MMMM yyyy");
-		String dateString = format.format(d);
-		return w + dateString;
-    }
 
 	/**
 	 * Get release string
