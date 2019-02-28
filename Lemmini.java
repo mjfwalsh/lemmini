@@ -995,6 +995,13 @@ public class Lemmini extends JFrame implements KeyListener {
 				case KeyEvent.VK_F12:
 					GameController.handleIconButton(Icons.Type.NUKE);
 					break;
+				case KeyEvent.VK_ESCAPE:
+					if (!GameController.getLevel().isReady())
+						GameController.requestChangeLevel(GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(), GameController.getCurLevelNumber(), false);
+					else
+						GameController.requestRestartLevel(false);
+					break;
+
 			}
 			keyevent.consume();
 		}
