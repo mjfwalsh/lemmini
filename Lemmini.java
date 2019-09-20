@@ -1477,7 +1477,9 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 						if (GameController.isCheat()) {
 							Stencil stencil = GameController.getStencil();
 							if (stencil != null) {
-								int stencilVal = stencil.get(xMouse+yMouse*Level.WIDTH);
+								int pos = xMouse+yMouse*Level.WIDTH;
+								pos = (int) (pos/scale);
+								int stencilVal = stencil.get(pos);
 								String test = "x: "+xMouse+", y: "+yMouse+", mask: "+(stencilVal&0xffff)+" "+Stencil.getObjectID(stencilVal);
 								LemmFont.strImage(outStrGfx, test);
 								offGfx.drawImage(outStrImg,4,Level.HEIGHT+8,null);
