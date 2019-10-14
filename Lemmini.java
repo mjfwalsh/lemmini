@@ -42,7 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-//START-MAC
+//IF-MAC
 import com.apple.eawt.FullScreenListener;
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.QuitStrategy;
@@ -183,7 +183,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		// Unfortunately JFrame provides very little control here
 		this.setResizable(true);
 
-		//START-MAC this enables the green button on mac
+		//IF-MAC this enables the green button on mac
 		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
 		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		//END-MAC
@@ -250,8 +250,8 @@ public class Lemmini extends JFrame implements KeyListener {
 			}
         });
 
-		//
-		//START-MAC
+		// Add a listener for Mac Full Screen mode
+		//IF-MAC
 		com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenListener() {
 			@Override
 			public void windowEnteringFullScreen(AppEvent.FullScreenEvent fse) {
@@ -264,7 +264,7 @@ public class Lemmini extends JFrame implements KeyListener {
 				Core.setFullScreen(false);
 			}
 
-			// all four methods need to be defined even if we're not using them
+			// all four methods need to be defined, even if we're not using them
 			@Override
 			public void windowEnteredFullScreen(AppEvent.FullScreenEvent fse) {}
 
