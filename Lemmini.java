@@ -34,6 +34,7 @@ import javax.imageio.ImageIO;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -122,12 +123,17 @@ public class Lemmini extends JFrame implements KeyListener {
 	private HashMap<String,ArrayList<LvlMenuItem>> diffLevelMenus;
 	// panel for the game graphics
 	private GraphicsPane gp;
+	// graphics device
+	final private GraphicsDevice gd;
+	// Content Pane
+	private JPanel intermezzo;
 
-	// size of frame margins
-	private int xMargin;
-	private int yMargin;
+	// store some lengths
+	private int screenWidth;
+	private int screenHeight;
+	private int menuBarHeight;
 
-	// Swing stuff
+	// Menu stuff
 	private JMenuBar jMenuBar;
 	private JMenu jMenuLevel;
 	private JMenu jMenuSelectPlayer;
@@ -137,6 +143,8 @@ public class Lemmini extends JFrame implements KeyListener {
 	private JCheckBoxMenuItem jMenuItemSound;
 	private JCheckBoxMenuItem jMenuItemCursor;
 	private JCheckBoxMenuItem jMenuItemClassicalCursor;
+	private JMenu jMenuZoom;
+	private JMenuItem jMenuItemFullscreen;
 
 	// action listener for levels
 	private java.awt.event.ActionListener lvlListener;
@@ -162,10 +170,17 @@ public class Lemmini extends JFrame implements KeyListener {
 			System.exit(1);
 		}
 
+		// set default menu bar height (doesn't have to be that accurate, for now)
+		//IF-MAC
+		menuBarHeight = 0;
+		/*ELSE-IF-NOT-MAC
+		menuBarHeight = 22;
+		//END-NOT-MAC*/
+
 		// gather screen dimension, window height and scale
-		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		int screenWidth = gd.getDisplayMode().getWidth();
-		int screenHeight = gd.getDisplayMode().getHeight();
+		gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		screenWidth = gd.getDisplayMode().getWidth();
+		screenHeight = gd.getDisplayMode().getHeight() - menuBarHeight;
 		int drawHeight = Core.getDrawHeight();
 		double scale = Core.getScale();
 
@@ -176,53 +191,23 @@ public class Lemmini extends JFrame implements KeyListener {
 		else if(drawWidth > 850) drawWidth = 850;
 		Core.setDrawWidth(drawWidth);
 
-		// set internal window dimensions
-		int width = (int)Math.round((float)drawWidth * scale);
-		int height = (int)Math.round((float)drawHeight * scale);
-
-		// Unfortunately JFrame provides very little control here
-		this.setResizable(true);
-
-		//IF-MAC this enables the green button on mac
-		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
-		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
-		//END-MAC
-
 		// set component pane
 		gp = new GraphicsPane();
 		gp.setBackground(Color.BLACK);
 		gp.setDoubleBuffered(false);
 
-		// get dimensions and set width and height
+		// set graphics pane dimensions
+		int width = (int)Math.round((float)drawWidth * scale);
+		int height = (int)Math.round((float)drawHeight * scale);
 		gp.setPreferredSize(new Dimension(width, height));
 
 		// create content panel
-		final JPanel intermezzo = new JPanel();
+		intermezzo = new JPanel();
 		intermezzo.setDoubleBuffered(false);
 		intermezzo.setLayout(new BorderLayout());
 		intermezzo.setBackground(Color.BLACK);
 		intermezzo.add(gp, BorderLayout.CENTER);
 
-		// finish window
-		this.setContentPane(intermezzo);
-		this.pack();
-		this.validate(); // force redraw
-		this.setTitle("Lemmini");
-
-		// calculate frame size and set min size
-		Dimension wholeWindow = this.getSize();
-		xMargin = wholeWindow.width - width;
-		yMargin = wholeWindow.height - height;
-		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
-
-		// set coords - default to centre of screen
-		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
-		int posY = Core.programProps.get("framePosY", (screenHeight/2) - (wholeWindow.height/2));
-		posX = Math.max(posX, 0);
-		posY = Math.max(posY, 0);
-		this.setLocation(posX, posY);
-		
-		// Attach a menu bar
 		buildMenuBar();
 
 		// Exit the app when the user closes the window
@@ -237,18 +222,32 @@ public class Lemmini extends JFrame implements KeyListener {
 		this.addComponentListener(new java.awt.event.ComponentAdapter() {
 			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
-				Dimension cur = getContentPane().getSize();
+				Dimension cpSize = getContentPane().getSize();
 
-				float scale = (float)cur.width / Core.getDrawWidth();
+				//IF-MAC
+				float scale = (float)cpSize.width / Core.getDrawWidth();
 
 				Core.setScale(scale);
 
 				if(!Core.isFullScreen()) {
+					// calculate dimensions of look and feel
+					Dimension frameSize = getSize();
+					int xm = frameSize.width - cpSize.width;
+					int ym = frameSize.height - cpSize.height;
+
 					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-					setSize(new Dimension(cur.width + xMargin, newHeight + yMargin));
+					setSize(cpSize.width + xm, newHeight + ym);
 				}
+				/*ELSE-IF-NOT-MAC
+				float scaleX = (float)cpSize.width / Core.getDrawWidth();
+				float scaleY = (float)cpSize.height / Core.getDrawHeight();
+
+				float scale = Math.min(scaleX, scaleY);
+
+				Core.setScale(scale);
+				//END-NOT-MAC*/
 			}
-        });
+		});
 
 		// Add a listener for Mac Full Screen mode
 		//IF-MAC
@@ -271,7 +270,39 @@ public class Lemmini extends JFrame implements KeyListener {
 			@Override
 			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
 		});
+
+		// this enables the green button on mac
+		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
+		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		//END-MAC
+
+		// finish window
+		this.setContentPane(intermezzo);
+		//IF-MAC
+		this.setResizable(true);
+		/*ELSE-IF-NOT-MAC
+		this.setResizable(false);
+		//END-NOT-MAC*/
+		this.validate(); // force redraw
+		this.setTitle("Lemmini");
+		this.pack();
+
+		// Now that the window is finished but not yet visible
+		// calculate frame size and set min size
+		Dimension wholeWindow = this.getSize();
+		int xMargin = wholeWindow.width - width;
+		int yMargin = wholeWindow.height - height;
+		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
+
+		// set coords - default to centre of screen
+		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
+		int posY = Core.programProps.get("framePosY", (screenHeight/2) - (wholeWindow.height/2));
+		posX = Math.max(posX, 0);
+		posY = Math.max(posY, 0);
+		this.setLocation(posX, posY);
+
+		// Record menu bar height
+		menuBarHeight = jMenuBar.getHeight();
 
 		this.setVisible(true);
 		gp.init();
@@ -296,32 +327,31 @@ public class Lemmini extends JFrame implements KeyListener {
 		jMenuBar = new JMenuBar();
 
 		// Create File Menu
-		if(!System.getProperty("os.name").equals("Mac OS X")) {
-			JMenu jMenuFile = new JMenu("File");
+		/*IF-NOT-MAC
+		JMenu jMenuFile = new JMenu("File");
 
-			// Exit menu
-			JMenuItem jMenuItemExit = new JMenuItem("Exit");
-			jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					exit();
-				}
-			});
-			jMenuFile.add(jMenuItemExit);
+		// Exit menu
+		JMenuItem jMenuItemExit = new JMenuItem("Exit");
+		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				exit();
+			}
+		});
+		jMenuFile.add(jMenuItemExit);
 
-			// Fullscreen
-			JMenuItem jMenuItemFullscreen = new JMenuItem("Fullscreen");
-			jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					setExtendedState(JFrame.MAXIMIZED_BOTH);
-					setUndecorated(true);
-				}
-			});
-			jMenuFile.add(jMenuItemFullscreen);
+		// Fullscreen
+		jMenuItemFullscreen = new JMenuItem("Fullscreen");
+		jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				toggleFullScreen();
+			}
+		});
+		jMenuFile.add(jMenuItemFullscreen);
 
-			jMenuBar.add(jMenuFile);
-		}
+		jMenuBar.add(jMenuFile);
+		//END-NOT-MAC*/
 
 		// Create Player Menu
 		JMenu jMenuPlayer = new JMenu("Player");
@@ -643,6 +673,84 @@ public class Lemmini extends JFrame implements KeyListener {
 		jMenuItemClassicalCursor.setSelected(GameController.isClassicalCursor());
 		jMenuOptions.add(jMenuItemClassicalCursor);
 
+		// Zoom Menu
+		/*IF-NOT-MAC
+		jMenuZoom = new JMenu("Zoom");
+		zoomGroup = new ButtonGroup();
+
+		JRadioButtonMenuItem jMenuRadioItemX1 = new JRadioButtonMenuItem("x1");
+		jMenuRadioItemX1.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				setScale(1);
+			}
+		});
+		jMenuZoom.add(jMenuRadioItemX1);
+		zoomGroup.add(jMenuRadioItemX1);
+
+		JRadioButtonMenuItem jMenuRadioItemX1P5 = new JRadioButtonMenuItem("x1.5");
+		jMenuRadioItemX1P5.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				setScale(1.224744871391589);
+			}
+		});
+		jMenuZoom.add(jMenuRadioItemX1P5);
+		zoomGroup.add(jMenuRadioItemX1P5);
+
+		JRadioButtonMenuItem jMenuRadioItemX2 = new JRadioButtonMenuItem("x2");
+		jMenuRadioItemX2.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				setScale(1.414213562373095);
+			}
+		});
+		jMenuZoom.add(jMenuRadioItemX2);
+		zoomGroup.add(jMenuRadioItemX2);
+
+		JRadioButtonMenuItem jMenuRadioItemX2P5 = new JRadioButtonMenuItem("x2.5");
+		jMenuRadioItemX2P5.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				setScale(1.58113883008419);
+			}
+		});
+		jMenuZoom.add(jMenuRadioItemX2P5);
+		zoomGroup.add(jMenuRadioItemX2P5);
+
+		JRadioButtonMenuItem jMenuRadioItemX3 = new JRadioButtonMenuItem("x3");
+		jMenuRadioItemX3.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				setScale(1.732050807568877);
+			}
+		});
+		jMenuZoom.add(jMenuRadioItemX3);
+		zoomGroup.add(jMenuRadioItemX3);
+
+		switch ((int)(Math.round(Math.pow(Core.getScale(), 2)) * 2)) {
+			case 2:
+				jMenuRadioItemX1.setSelected(true);
+				break;
+			case 3:
+				jMenuRadioItemX1P5.setSelected(true);
+				break;
+			case 4:
+				jMenuRadioItemX2.setSelected(true);
+				break;
+			case 5:
+				jMenuRadioItemX2P5.setSelected(true);
+				break;
+			case 6:
+				jMenuRadioItemX3.setSelected(true);
+				break;
+			default:
+				zoomGroup.clearSelection();
+				break;
+		}
+
+		jMenuOptions.add(jMenuZoom);
+		//END-NOT-MAC*/
 
 		// Finish Options Menu
 		jMenuBar.add(jMenuOptions);
@@ -702,7 +810,9 @@ public class Lemmini extends JFrame implements KeyListener {
 		/*
 		 * Apple menu bar for MacOS
 		 */
-		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		//IF-MAC
+		System.setProperty("apple.laf.useScreenMenuBar", "true");		
+		//END-MAC
 
 		/*
 		 * Check JVM version
@@ -743,6 +853,27 @@ public class Lemmini extends JFrame implements KeyListener {
 		Toolkit.getDefaultToolkit().setDynamicLayout(true);
 		thisFrame = new Lemmini();
 	}
+
+	/**
+	 * Set scale and window bounds in response to user choice
+	 */
+	/*IF-NOT-MAC
+	void setScale(double scale) {
+		// calculate new heights of graphicsPane
+		int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
+		int newWidth  = (int)Math.round((float)scale * Core.getDrawWidth());
+
+		// calculate dimensions of look and feel
+		Dimension cpSize = getContentPane().getSize();
+		Dimension frameSize = getSize();
+		int xm = frameSize.width - cpSize.width;
+		int ym = frameSize.height - cpSize.height;
+
+		// set scale and window size
+		Core.setScale(scale);
+		setSize(newWidth + xm, newHeight + ym);
+	}
+	//END-NOT-MAC*/
 
 	/**
 	 * Update the level menus according to the progress of the current player.
@@ -849,7 +980,11 @@ public class Lemmini extends JFrame implements KeyListener {
 	@Override
 	public void keyPressed(final KeyEvent keyevent) {
 		int code = keyevent.getKeyCode();
-		if (GameController.getGameState() == GameController.State.LEVEL) {
+		if(code == KeyEvent.VK_ESCAPE) {
+			if(Core.isFullScreen()) {
+				toggleFullScreen();
+			}
+		} else if (GameController.getGameState() == GameController.State.LEVEL) {
 			switch (code) {
 				case KeyEvent.VK_1:
 				case KeyEvent.VK_F3:
@@ -980,7 +1115,7 @@ public class Lemmini extends JFrame implements KeyListener {
 				case KeyEvent.VK_F12:
 					GameController.handleIconButton(Icons.Type.NUKE);
 					break;
-				case KeyEvent.VK_ESCAPE:
+				case KeyEvent.VK_R:
 					if (!GameController.getLevel().isReady())
 						GameController.requestChangeLevel(GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(), GameController.getCurLevelNumber(), false);
 					else
@@ -1037,6 +1172,58 @@ public class Lemmini extends JFrame implements KeyListener {
 	 */
 	@Override
 	public void keyTyped(final KeyEvent keyevent) {
+	}
+
+	/**
+	 * Toggle in and out of fullscreen mode
+	 */
+	public void toggleFullScreen() {
+		//IF-MAC
+		com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
+		/*ELSE-IF-NOT-MAC
+		if(!Core.isFullScreen()) {
+			int menuBarHeight = jMenuBar.getHeight();
+			jMenuZoom.setEnabled(false);
+			Core.setFullScreen(true);
+
+			dispose();
+			setUndecorated(true);
+			setJMenuBar(null);
+
+			gd.setFullScreenWindow(thisFrame);
+
+			intermezzo.setLayout(null);
+			intermezzo.add(jMenuBar);
+
+			gp.setBounds(0, menuBarHeight, screenWidth, screenHeight);
+			jMenuBar.setBounds(0, 0, screenWidth, menuBarHeight);
+			jMenuBar.setVisible(false); // start invisible
+
+			setVisible(true);
+
+			jMenuItemFullscreen.setText("Exit Fullscreen");
+		} else {
+			dispose();
+			setUndecorated(false);
+
+			intermezzo.remove(jMenuBar);
+			intermezzo.remove(gp);
+
+			// start again
+			intermezzo.setLayout(new BorderLayout());
+
+			setJMenuBar(jMenuBar);
+			jMenuBar.setVisible(true);
+			jMenuZoom.setEnabled(true);
+
+			intermezzo.add(gp, BorderLayout.CENTER);
+
+			jMenuItemFullscreen.setText("Fullscreen");
+
+			setVisible(true);
+			Core.setFullScreen(false);
+		}
+		//END-NOT-MAC*/
 	}
 
 	/**
@@ -1845,6 +2032,12 @@ class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotio
 			yMouseScreen = 0;
 		LemmCursor.setX((int)Math.round(xMouseScreen/scale/*-LemmCursor.width/2*/));
 		LemmCursor.setY((int)Math.round(yMouseScreen/scale/*-LemmCursor.height/2*/));
+
+		/*IF-NOT-MAC
+		if(Core.isFullScreen()) {
+			getParent().getComponent(1).setVisible(y < 5);
+		}
+		//END-NOT-MAC*/
 
 		switch (GameController.getGameState()) {
 			case INTRO:
