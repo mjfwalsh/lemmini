@@ -134,11 +134,10 @@ public class FolderDialog extends JDialog {
 	 * Initialize manually generated resources.
 	 */
 	private void initialize() {
-		int h = System.getProperty("os.name").equals("Mac OS X") ? 150 : 200;
-
-		this.setSize(457, h);
 		this.setContentPane(getJContentPane());
 		this.setTitle("Lemmini Resource Extractor");
+		this.setResizable(false);
+		this.pack();
 	}
 
 	/**
@@ -330,13 +329,7 @@ public class FolderDialog extends JDialog {
 			jButtonQuit.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					sourcePath = jTextFieldSrc.getText();
-
-					if(!System.getProperty("os.name").equals("Mac OS X")) {
-						targetPath = jTextFieldTrg.getText();
-					}
-
-					dispose();
+					System.exit(0);
 				}
 			});
 		}
