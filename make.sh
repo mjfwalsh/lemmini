@@ -178,6 +178,8 @@ elif [ "$1" = "jar" ]; then
 	make_jar
 elif [ "$1" = "app" ]; then
 	make_mac_app
+elif [ "$1" = "compile" ]; then
+	compile_java
 elif [ "$1" = "test" ]; then
 	compile_java
 	run_java
