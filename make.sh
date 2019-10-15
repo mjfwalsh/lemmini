@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#  Copyright 2018 Michael J. Walsh
+#  Copyright 2019 Michael J. Walsh
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ compile_java()
 	./update_compile_time.pl
 
 	echo Running Java Compiler...
-	mkdir -p build && javac -d ./build Lemmini.java
+	mkdir -p build && javac -encoding UTF8 -d ./build Lemmini.java
 
 	if [ "$?" != "0" ]; then
 		echo Build Failed
@@ -126,47 +126,42 @@ All commands complete any required earlier steps, with the effect that a
 ./make install will compile the java code, make a jar file, put it in an
 app wrapper and move the app to the Applications folder.
 
-Lemmini can only compile under the Java 1.7 JDK at the moment. By default this
-script will look for the Java 1.7 JDK in the /Library/Java/JavaVirtualMachines/
-directory. To disable this give the second command as nolook, and set the
-JAVA_HOME environmental variable yourself.
+When run on a Mac this script will look for the Java 1.7 JDK in the
+/Library/Java/JavaVirtualMachines/ directory. To disable this give the
+second command as nolook, and set the JAVA_HOME environmental variable yourself.
 
 Main Commands:
 compile     Compile the java code
 jar         Make a jar file
-app         Make a simple mac app wrapper for the jar
-install     Move the app to the /Applications folder
 clean       Delete the files and folders creeated by this script (if any)
             Non including the installed application.
 
+Mac Commands:
+app         Make a simple mac app wrapper for the jar
+install     Move the app to the /Applications folder
+
 Other Commands:
 test        Delete the existing build, compile and run
-run         Compile and run without making a jar
-
-To uninstall completely delete to following:
-/Applications/Lemmini.app
-~/Library/Application Support/Lemmini
+run         Compile (if necessary) and run
 
 EOF
 
 }
 
 # main
+system=`uname`
 
 if [ "$#" = "0" ]; then
 	print_usage
 	exit 0
 fi
 
-# Find the most recent version of the 1.7 JDK.
-# And yes I do know I shouldn't use ls in scripts but
-# it just seems a bit pointless here.
-
-if ! [ "$2" = "nolook" ]; then
+# On Mac find the most recent version of the 1.7 JDK.
+if [ "$system" = "Darwin" ] && ! [ "$2" = "nolook" ]; then
 	export JAVA_HOME=`ls -1d /Library/Java/JavaVirtualMachines/jdk1.7*.jdk/Contents/Home 2> /dev/null | sort -Vr | head -n 1`
 
 	if [ "$JAVA_HOME" = ""  ]; then
-		echo Can\'t find Java 1.7 jdk
+		echo Can\'t find Java 1.7
 		exit
 	fi
 fi
@@ -177,7 +172,11 @@ if [ "$1" = "run" ]; then
 elif [ "$1" = "jar" ]; then
 	make_jar
 elif [ "$1" = "app" ]; then
-	make_mac_app
+	if [ "$system" = "Darwin" ]; then
+		make_mac_app
+	else
+		echo This function is only supported on Mac
+	fi
 elif [ "$1" = "compile" ]; then
 	compile_java
 elif [ "$1" = "test" ]; then
@@ -186,7 +185,11 @@ elif [ "$1" = "test" ]; then
 elif [ "$1" = "clean" ]; then
 	make_clean
 elif [ "$1" = "install" ]; then
-	install_mac_app
+	if [ "$system" = "Darwin" ]; then
+		install_mac_app
+	else
+		echo This function is only supported on Mac
+	fi
 else
 	print_usage
 fi
