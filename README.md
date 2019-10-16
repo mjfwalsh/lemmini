@@ -8,11 +8,11 @@ The main changes in this fork are that it supports:
 * fullscreen mode including native fullscreen on Mac, and
 * granular window resizing (Mac only).
 
-It also also adds the following keyboard shortcuts:
+It also adds the following keyboard shortcuts:
 * `Esc` to exit fullscreen mode
 * `r` to restart a level
 
-### Compelling from source
+### Compiling from source
 
 #### Mac
 
