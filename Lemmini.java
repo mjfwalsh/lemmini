@@ -254,7 +254,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(this, new FullScreenListener() {
 			@Override
 			public void windowEnteringFullScreen(AppEvent.FullScreenEvent fse) {
-				Lemmini.this.saveProgramProps();
+				saveWindowProps();
 				Core.setFullScreen(true);
 			}
 
@@ -548,7 +548,6 @@ public class Lemmini extends JFrame implements KeyListener {
 					GameController.setMusicOn(true);
 				else
 					GameController.setMusicOn(false);
-				Core.programProps.set("music", GameController.isMusicOn());
 				if (GameController.getLevel() != null) // to be improved: level is running (game state)
 					if (GameController.isMusicOn())
 						Music.play();
@@ -568,7 +567,6 @@ public class Lemmini extends JFrame implements KeyListener {
 					GameController.setSoundOn(true);
 				else
 					GameController.setSoundOn(false);
-				Core.programProps.set("sound", GameController.isSoundOn());
 			}
 		});
 		jMenuItemSound.setSelected(GameController.isSoundOn());
@@ -811,7 +809,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		 * Apple menu bar for MacOS
 		 */
 		//IF-MAC
-		System.setProperty("apple.laf.useScreenMenuBar", "true");		
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		//END-MAC
 
 		/*
@@ -1182,6 +1180,8 @@ public class Lemmini extends JFrame implements KeyListener {
 		com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
 		/*ELSE-IF-NOT-MAC
 		if(!Core.isFullScreen()) {
+			saveWindowProps();
+
 			int menuBarHeight = jMenuBar.getHeight();
 			jMenuZoom.setEnabled(false);
 			Core.setFullScreen(true);
@@ -1227,18 +1227,10 @@ public class Lemmini extends JFrame implements KeyListener {
 	}
 
 	/**
-	 * Store program properties.
+	 * Store window properties.
 	 */
-	public void saveProgramProps() {
-		// store frame pos
-		Point p = this.getLocation();
-		Core.programProps.set("framePosX", p.x);
-		Core.programProps.set("framePosY", p.y);
-
-		// scale
-		double s = Core.getScale();
-		Core.programProps.set("scale", s);
-
+	public void saveWindowProps() {
+		Core.recordWindowProps(this.getLocation());
 		Core.programProps.save();
 	}
 
@@ -1248,8 +1240,16 @@ public class Lemmini extends JFrame implements KeyListener {
 	private void exit() {
 		if(!Core.isFullScreen()) {
 			// don't record window position when in full screen
-			this.saveProgramProps();
+			Core.recordWindowProps(this.getLocation());
 		}
+
+		// music
+		Core.programProps.set("music", GameController.isMusicOn());
+		Core.programProps.set("sound", GameController.isSoundOn());
+
+		// save ini file
+		Core.programProps.save();
+
 		// remember player status
 		Core.savePlayerProps();
 

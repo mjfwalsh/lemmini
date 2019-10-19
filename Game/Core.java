@@ -3,6 +3,8 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.Point;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -214,6 +216,18 @@ public class Core {
 	 */
 	public static String findResource(final String fname) {
 		return resourcePath+fname;
+	}
+
+	/**
+	 * Record window properties.
+	 */
+	public static void recordWindowProps(Point p) {
+		// store frame pos
+		programProps.set("framePosX", p.x);
+		programProps.set("framePosY", p.y);
+
+		// scale
+		programProps.set("scale", Core.getScale());
 	}
 
 	/**
