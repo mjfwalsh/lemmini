@@ -144,6 +144,11 @@ public class Lemmini extends JFrame implements KeyListener {
 	private JCheckBoxMenuItem jMenuItemClassicalCursor;
 	private JMenu jMenuZoom;
 	private JMenuItem jMenuItemFullscreen;
+	private JMenuItem jMenuItemManagePlayer;
+	private JMenuItem jMenuItemLoad;
+	private JMenuItem jMenuItemReplay;
+	private JMenuItem jMenuItemLevelCode;
+	private JMenuItem jMenuItemVolume;
 
 	// action listener for levels
 	private java.awt.event.ActionListener lvlListener;
@@ -354,7 +359,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		// Create Player Menu
 		JMenu jMenuPlayer = new JMenu("Player");
-		JMenuItem jMenuItemManagePlayer = new JMenuItem("Manage Players");
+		jMenuItemManagePlayer = new JMenuItem("Manage Players");
 		jMenuItemManagePlayer.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -449,7 +454,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 		jMenuLevel.add(jMenuItemRestart);
 
-		JMenuItem jMenuItemLoad = new JMenuItem();
+		jMenuItemLoad = new JMenuItem();
 		jMenuItemLoad.setText("Add Level Pack");
 		jMenuItemLoad.addActionListener(new java.awt.event.ActionListener() {
 			@Override
@@ -459,7 +464,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 		jMenuLevel.add(jMenuItemLoad);
 
-		JMenuItem jMenuItemReplay = new JMenuItem();
+		jMenuItemReplay = new JMenuItem();
 		jMenuItemReplay.setText("Load Replay");
 		jMenuItemReplay.addActionListener(new java.awt.event.ActionListener() {
 			@Override
@@ -490,7 +495,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 		jMenuLevel.add(jMenuItemReplay);
 
-		JMenuItem jMenuItemLevelCode = new JMenuItem("Enter Level Code");
+		jMenuItemLevelCode = new JMenuItem("Enter Level Code");
 		jMenuItemLevelCode.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -607,7 +612,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		}
 		jMenuSound.add(jMenuSFX);
 
-		JMenuItem jMenuItemVolume = new JMenuItem("Volume Control");
+		jMenuItemVolume = new JMenuItem("Volume Control");
 		jMenuItemVolume.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -1191,18 +1196,26 @@ public class Lemmini extends JFrame implements KeyListener {
 		com.apple.eawt.Application.getApplication().requestToggleFullScreen(this);
 		/*ELSE-IF-NOT-MAC
 		if(!Core.isFullScreen()) {
+			// remember some stuff
 			saveWindowProps();
-
 			int menuBarHeight = jMenuBar.getHeight();
-			jMenuZoom.setEnabled(false);
 			Core.setFullScreen(true);
 
+			// disable menus which won't work in fullscreen
+			jMenuZoom.setEnabled(false);
+			jMenuItemManagePlayer.setEnabled(false);
+			jMenuItemLoad.setEnabled(false);
+			jMenuItemReplay.setEnabled(false);
+			jMenuItemLevelCode.setEnabled(false);
+			jMenuItemVolume.setEnabled(false);
+
+			// get rid of windowed window
 			dispose();
 			setUndecorated(true);
 			setJMenuBar(null);
 
+			// set full screen and redo layout
 			gd.setFullScreenWindow(thisFrame);
-
 			intermezzo.setLayout(null);
 			intermezzo.add(jMenuBar);
 
@@ -1223,9 +1236,17 @@ public class Lemmini extends JFrame implements KeyListener {
 			// start again
 			intermezzo.setLayout(new BorderLayout());
 
+			// re-enable menus
+			jMenuZoom.setEnabled(true);
+			jMenuZoom.setEnabled(true);
+			jMenuItemManagePlayer.setEnabled(true);
+			jMenuItemLoad.setEnabled(true);
+			jMenuItemReplay.setEnabled(true);
+			jMenuItemLevelCode.setEnabled(true);
+			jMenuItemVolume.setEnabled(true);
+
 			setJMenuBar(jMenuBar);
 			jMenuBar.setVisible(true);
-			jMenuZoom.setEnabled(true);
 
 			intermezzo.add(gp, BorderLayout.CENTER);
 
