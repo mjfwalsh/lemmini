@@ -16,6 +16,7 @@ import Game.GameController;
 
 /*
  * Copyright 2009 Volker Oth
+ * (With changes by Michael J. Walsh Copyright 2019)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
