@@ -105,6 +105,12 @@ import Tools.ToolBox;
  * @author Volker Oth
  */
 
+/**
+ * I've been working with Jave 1.7 and have increased the minimum version accordingly.
+ *
+ *  Michael J. Walsh
+ */
+
 public class Lemmini extends JFrame implements KeyListener {
 	// minimum sleep duration in milliseconds - values too small may cause system clock shift under WinXP etc.
 	final static int MIN_SLEEP = 10;
@@ -829,8 +835,8 @@ public class Lemmini extends JFrame implements KeyListener {
 		jreStr = jreStr.replaceFirst("^([0-9]+).*$", "$1");
 		int jreVer = getInt(jreStr);
 
-		if(jreVer < 5) {
-			JOptionPane.showMessageDialog(null,"Run this with JVM >= 1.5","Error",JOptionPane.ERROR_MESSAGE);
+		if(jreVer < 7) {
+			JOptionPane.showMessageDialog(null,"Run this with JVM >= 1.7","Error",JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
 
