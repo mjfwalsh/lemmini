@@ -6,7 +6,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.BorderLayout;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.KeyEvent;
@@ -542,11 +541,8 @@ public class Lemmini extends JFrame implements KeyListener {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				boolean selected = jMenuItemMusic.isSelected();
-				//jMenuItemMusic.setSelected(selected);
-				if (selected)
-					GameController.setMusicOn(true);
-				else
-					GameController.setMusicOn(false);
+				GameController.setMusicOn(selected);
+
 				if (GameController.getLevel() != null) // to be improved: level is running (game state)
 					if (GameController.isMusicOn())
 						Music.play();
@@ -562,10 +558,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				boolean selected = jMenuItemSound.isSelected();
-				if (selected)
-					GameController.setSoundOn(true);
-				else
-					GameController.setSoundOn(false);
+				GameController.setSoundOn(selected);
 			}
 		});
 		jMenuItemSound.setSelected(GameController.isSoundOn());
@@ -619,6 +612,18 @@ public class Lemmini extends JFrame implements KeyListener {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				GainDialog v = new GainDialog((JFrame)Core.getCmp(), true);
+				v.addWindowListener(new java.awt.event.WindowAdapter() {
+					@Override
+					public void windowClosed(java.awt.event.WindowEvent e) {
+						updateSoundAndMusicMenuItems();
+					}
+
+					@Override
+					public void windowClosing(java.awt.event.WindowEvent e) {
+						updateSoundAndMusicMenuItems();
+					}
+				});
+
 				v.setVisible(true);
 			}
 		});
@@ -907,6 +912,13 @@ public class Lemmini extends JFrame implements KeyListener {
 
 	}
 
+	/**
+	 * Update the sound and music menu items based on the their current status
+	 */
+	private void updateSoundAndMusicMenuItems() {
+		jMenuItemMusic.setSelected(GameController.isMusicOn());
+		jMenuItemSound.setSelected(GameController.isSoundOn());
+	}
 
 	/**
 	 * Development function: patch current level x offset in the level configuration file.

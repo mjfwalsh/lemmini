@@ -18,9 +18,6 @@ package Extract;
  */
 
 import java.awt.GraphicsEnvironment;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Point;
 
 import javax.swing.JButton;
@@ -29,6 +26,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.GroupLayout;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.GroupLayout.Alignment;
 
 /**
  * Dialog to enter source and target paths for resource extraction.
@@ -148,87 +148,58 @@ public class FolderDialog extends JDialog {
 	private javax.swing.JPanel getJContentPane() {
 		if(jContentPane == null) {
 			jContentPane = new javax.swing.JPanel();
-			jContentPane.setLayout(new GridBagLayout());
+			GroupLayout gl = new GroupLayout(jContentPane);
+			gl.setAutoCreateGaps(true);
+			gl.setAutoCreateContainerGaps(true);
+			jContentPane.setLayout(gl);
 
-			jLabelSrc = new JLabel();
-			jLabelSrc.setText("Source Path (\"WINLEMM\" directory)");
-			jLabelSrc.setComponentOrientation(java.awt.ComponentOrientation.UNKNOWN);
-			jContentPane.setComponentOrientation(java.awt.ComponentOrientation.UNKNOWN);
+			GroupLayout.SequentialGroup	h = gl.createSequentialGroup();
+			GroupLayout.SequentialGroup v = gl.createSequentialGroup();
+			GroupLayout.ParallelGroup leftAlign = gl.createParallelGroup();
+			GroupLayout.ParallelGroup rightAlign = gl.createParallelGroup();
 
-			GridBagConstraints gridBagLabelHeader = new GridBagConstraints();
-			gridBagLabelHeader.gridx = 0;
-			gridBagLabelHeader.gridwidth = 2;
-			gridBagLabelHeader.anchor = GridBagConstraints.NORTHWEST;
-			gridBagLabelHeader.insets = new Insets(10, 10, 10, 0);
-			gridBagLabelHeader.gridy = 0;
+			JLabel title = new JLabel("Extract the resources from Lemmings for Windows");
+			leftAlign.addComponent(title);
+			v.addComponent(title);
 
-			jLabelHeader = new JLabel();
-			jLabelHeader.setText("Extract the resources from Lemmings for Windows");
+			v.addPreferredGap(ComponentPlacement.UNRELATED);
 
-			GridBagConstraints gridBagButtonSrc = new GridBagConstraints();
-			gridBagButtonSrc.gridx = 1;
-			gridBagButtonSrc.anchor = GridBagConstraints.EAST;
-			gridBagButtonSrc.insets = new Insets(0, 0, 0, 10);
-			gridBagButtonSrc.gridy = 4;
-			GridBagConstraints gridBagTextFieldSrc = new GridBagConstraints();
-			gridBagTextFieldSrc.fill = GridBagConstraints.BOTH;
-			gridBagTextFieldSrc.gridy = 4;
-			gridBagTextFieldSrc.weightx = 1.0;
-			gridBagTextFieldSrc.anchor = GridBagConstraints.WEST;
-			gridBagTextFieldSrc.insets = new Insets(0, 10, 0, 10);
-			gridBagTextFieldSrc.gridx = 0;
-			GridBagConstraints gridBagLabelSrc = new GridBagConstraints();
-			gridBagLabelSrc.gridx = 0;
-			gridBagLabelSrc.anchor = GridBagConstraints.WEST;
-			gridBagLabelSrc.insets = new Insets(0, 10, 0, 0);
-			gridBagLabelSrc.gridy = 3;
-			GridBagConstraints gridBagButtonExtract = new GridBagConstraints();
-			gridBagButtonExtract.gridx = 1;
-			gridBagButtonExtract.insets = new Insets(20, 0, 0, 10);
-			gridBagButtonExtract.anchor = GridBagConstraints.EAST;
-			gridBagButtonExtract.gridy = 7;
-			GridBagConstraints gridBagButtonQuit = new GridBagConstraints();
-			gridBagButtonQuit.gridx = 0;
-			gridBagButtonQuit.anchor = GridBagConstraints.WEST;
-			gridBagButtonQuit.insets = new Insets(20, 10, 0, 0);
-			gridBagButtonQuit.gridy = 7;
+			JLabel sourceLabel = new JLabel("Source Path (\"WINLEM\" directory)");
+			leftAlign.addComponent(sourceLabel);
+			v.addComponent(sourceLabel);
 
+			v.addPreferredGap(ComponentPlacement.RELATED);
 
-			jContentPane.add(jLabelSrc, gridBagLabelSrc);
-			jContentPane.add(getJTextFieldSrc(), gridBagTextFieldSrc);
-			jContentPane.add(getJButtonSrc(), gridBagButtonSrc);
+			leftAlign.addComponent(getJTextFieldSrc());
+			rightAlign.addComponent(getJButtonSrc());
+			v.addGroup(gl.createParallelGroup(Alignment.BASELINE).addComponent(getJTextFieldSrc()).addComponent(getJButtonSrc()));
+
+			v.addPreferredGap(ComponentPlacement.UNRELATED);
 
 			/*IF-NOT-MAC
-			GridBagConstraints gridBagLabelTrg = new GridBagConstraints();
-			gridBagLabelTrg.gridx = 0;
-			gridBagLabelTrg.anchor = GridBagConstraints.WEST;
-			gridBagLabelTrg.insets = new Insets(10, 10, 0, 0);
-			gridBagLabelTrg.gridy = 5;
-			GridBagConstraints gridBagButtonTrg = new GridBagConstraints();
-			gridBagButtonTrg.gridx = 1;
-			gridBagButtonTrg.anchor = GridBagConstraints.EAST;
-			gridBagButtonTrg.insets = new Insets(0, 0, 0, 10);
-			gridBagButtonTrg.gridy = 6;
 
-			GridBagConstraints gridBagTextFieldTrg = new GridBagConstraints();
-			gridBagTextFieldTrg.fill = GridBagConstraints.BOTH;
-			gridBagTextFieldTrg.gridy = 6;
-			gridBagTextFieldTrg.weightx = 1.0;
-			gridBagTextFieldTrg.anchor = GridBagConstraints.WEST;
-			gridBagTextFieldTrg.insets = new Insets(0, 10, 0, 10);
-			gridBagTextFieldTrg.gridx = 0;
+			JLabel targetLabel = new JLabel("Target Path");
+			leftAlign.addComponent(targetLabel);
+			v.addComponent(targetLabel);
 
-			jLabelTrg = new JLabel();
-			jLabelTrg.setText("Target Path");
-			jContentPane.add(jLabelTrg, gridBagLabelTrg);
-			jContentPane.add(getJTextFieldTrg(), gridBagTextFieldTrg);
+			v.addPreferredGap(ComponentPlacement.RELATED);
 
-			jContentPane.add(getJButtonTrg(), gridBagButtonTrg);
+			leftAlign.addComponent(getJTextFieldTrg());
+			rightAlign.addComponent(getJButtonTrg());
+			v.addGroup(gl.createParallelGroup(Alignment.BASELINE).addComponent(getJTextFieldTrg()).addComponent(getJButtonTrg()));
+
+			v.addPreferredGap(ComponentPlacement.UNRELATED);
+
 			//END-NOT-MAC*/
 
-			jContentPane.add(getJButtonQuit(), gridBagButtonQuit);
-			jContentPane.add(getJButtonExtract(), gridBagButtonExtract);
-			jContentPane.add(jLabelHeader, gridBagLabelHeader);
+			leftAlign.addComponent(getJButtonQuit());
+			rightAlign.addComponent(getJButtonExtract());
+			v.addGroup(gl.createParallelGroup(Alignment.BASELINE).addComponent(getJButtonQuit()).addComponent(getJButtonExtract()));
+
+			h.addGroup(leftAlign);
+			h.addGroup(rightAlign);
+			gl.setHorizontalGroup(h);
+			gl.setVerticalGroup(v);
 		}
 		return jContentPane;
 	}
@@ -240,7 +211,6 @@ public class FolderDialog extends JDialog {
 	private JTextField getJTextFieldTrg() {
 		if (jTextFieldTrg == null) {
 			jTextFieldTrg = new JTextField();
-			jTextFieldTrg.setPreferredSize(new java.awt.Dimension(100,19));
 			jTextFieldTrg.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -258,7 +228,6 @@ public class FolderDialog extends JDialog {
 	private JTextField getJTextFieldSrc() {
 		if (jTextFieldSrc == null) {
 			jTextFieldSrc = new JTextField();
-			jTextFieldSrc.setPreferredSize(new java.awt.Dimension(100,19));
 			jTextFieldSrc.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {

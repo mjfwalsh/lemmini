@@ -1,14 +1,17 @@
 package GUI;
 
 import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.Dimension;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 
 import Game.GameController;
 import Game.Music;
@@ -47,9 +50,13 @@ public class GainDialog extends JDialog {
 
 	private JSlider jSliderSound = null;
 
-	private JButton jButtonOK = null;
+	private JButton jButtonDone = null;
 
 	private JButton jButtonCancel = null;
+
+	private JCheckBox jCheckSoundMute = null;
+
+	private JCheckBox jCheckMusicMute = null;
 
 
 	/**
@@ -61,18 +68,28 @@ public class GainDialog extends JDialog {
 		super(frame, modal);
 		initialize();
 
-		//
+		// dialogue window position
 		Point p = frame.getLocation();
 		this.setLocation(p.x+frame.getWidth()/2-getWidth()/2, p.y+frame.getHeight()/2-getHeight()/2);
+
+		// start values
 		jSliderSound.setValue((int)(100*GameController.sound.getGain()));
 		jSliderMusic.setValue((int)(100*Music.getGain()));
+		jCheckMusicMute.setSelected(!GameController.isMusicOn());
+		jCheckSoundMute.setSelected(!GameController.isSoundOn());
+		jSliderMusic.setEnabled(GameController.isMusicOn());
+		jSliderSound.setEnabled(GameController.isSoundOn());
+
+		// finish window
+		this.pack();
 	}
 
 	/**
 	 * Automatically generated init.
 	 */
 	private void initialize() {
-		this.setSize(300, 200);
+		this.setMinimumSize(new Dimension(300, 10));
+		this.setResizable(false);
 		this.setTitle("Volume Controls");
 		this.setContentPane(getJContentPane());
 	}
@@ -84,20 +101,41 @@ public class GainDialog extends JDialog {
 	 */
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
-			jLabelSoundGain = new JLabel();
-			jLabelSoundGain.setBounds(new Rectangle(15, 75, 101, 14));
-			jLabelSoundGain.setText("Sound Volume");
-			jLabelMusicGain = new JLabel();
-			jLabelMusicGain.setText("Music Volume");
-			jLabelMusicGain.setBounds(new Rectangle(15, 15, 106, 14));
 			jContentPane = new JPanel();
-			jContentPane.setLayout(null);
-			jContentPane.add(getJSliderMusic(), null);
-			jContentPane.add(jLabelMusicGain, null);
-			jContentPane.add(jLabelSoundGain, null);
-			jContentPane.add(getJSliderSound(), null);
-			jContentPane.add(getJButtonOK(), null);
-			jContentPane.add(getJButtonCancel(), null);
+
+			//labels
+			jLabelSoundGain = new JLabel("Sound Volume");
+			jLabelMusicGain = new JLabel("Music Volume");
+
+			GroupLayout gl = new GroupLayout(jContentPane);
+			gl.setHorizontalGroup(
+				gl.createParallelGroup()
+					.addComponent(jLabelMusicGain, Alignment.LEADING)
+					.addComponent(getJSliderMusic(), Alignment.LEADING)
+					.addComponent(jLabelSoundGain, Alignment.LEADING)
+					.addComponent(getJSliderSound(), Alignment.LEADING)
+					.addComponent(getJCheckMusicMute(), Alignment.TRAILING)
+					.addComponent(getJCheckSoundMute(), Alignment.TRAILING)
+					.addComponent(getJButtonDone(), Alignment.TRAILING)
+			);
+			gl.setVerticalGroup(
+				gl.createParallelGroup()
+					.addGroup(gl.createSequentialGroup()
+						.addGroup(gl.createParallelGroup()
+							.addComponent(jLabelMusicGain)
+							.addComponent(getJCheckMusicMute()))
+						.addComponent(getJSliderMusic())
+						.addGap(30)
+						.addGroup(gl.createParallelGroup()
+							.addComponent(jLabelSoundGain)
+							.addComponent(getJCheckSoundMute()))
+						.addComponent(getJSliderSound())
+						.addGap(20)
+						.addComponent(getJButtonDone()))
+			);
+			gl.setAutoCreateGaps(false);
+			gl.setAutoCreateContainerGaps(true);
+			jContentPane.setLayout(gl);
 		}
 		return jContentPane;
 	}
@@ -110,12 +148,17 @@ public class GainDialog extends JDialog {
 	private JSlider getJSliderMusic() {
 		if (jSliderMusic == null) {
 			jSliderMusic = new JSlider();
-			jSliderMusic.setBounds(new Rectangle(15, 30, 256, 25));
 			jSliderMusic.setMaximum(100);
 			jSliderMusic.setMinimum(0);
 			jSliderMusic.setMajorTickSpacing(10);
 			jSliderMusic.setPaintTicks(true);
 			jSliderMusic.setValue(100);
+			jSliderMusic.addChangeListener(new javax.swing.event.ChangeListener() {
+				@Override
+				public void stateChanged(javax.swing.event.ChangeEvent e) {
+					Music.setGain(jSliderMusic.getValue()/100.0);
+				}
+			});
 		}
 		return jSliderMusic;
 	}
@@ -128,36 +171,19 @@ public class GainDialog extends JDialog {
 	private JSlider getJSliderSound() {
 		if (jSliderSound == null) {
 			jSliderSound = new JSlider();
-			jSliderSound.setBounds(new Rectangle(15, 90, 256, 25));
 			jSliderSound.setMaximum(100);
 			jSliderSound.setMinimum(0);
 			jSliderSound.setPaintTicks(true);
 			jSliderSound.setValue(100);
 			jSliderSound.setMajorTickSpacing(10);
-		}
-		return jSliderSound;
-	}
-
-	/**
-	 * This method initializes jButtonOK
-	 *
-	 * @return javax.swing.JButton
-	 */
-	private JButton getJButtonOK() {
-		if (jButtonOK == null) {
-			jButtonOK = new JButton();
-			jButtonOK.setBounds(new Rectangle(210, 135, 66, 25));
-			jButtonOK.setText(" Ok ");
-			jButtonOK.addActionListener(new java.awt.event.ActionListener() {
+			jSliderSound.addChangeListener(new javax.swing.event.ChangeListener() {
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					Music.setGain(jSliderMusic.getValue()/100.0);
+				public void stateChanged(javax.swing.event.ChangeEvent e) {
 					GameController.sound.setGain(jSliderSound.getValue()/100.0);
-					dispose();
 				}
 			});
 		}
-		return jButtonOK;
+		return jSliderSound;
 	}
 
 	/**
@@ -165,18 +191,66 @@ public class GainDialog extends JDialog {
 	 *
 	 * @return javax.swing.JButton
 	 */
-	private JButton getJButtonCancel() {
-		if (jButtonCancel == null) {
-			jButtonCancel = new JButton();
-			jButtonCancel.setBounds(new Rectangle(14, 136, 77, 23));
-			jButtonCancel.setText("Cancel");
-			jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+	private JButton getJButtonDone() {
+		if (jButtonDone == null) {
+			jButtonDone = new JButton();
+			jButtonDone.setText("Done");
+			jButtonDone.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					dispose();
 				}
 			});
 		}
-		return jButtonCancel;
+		return jButtonDone;
+	}
+
+	/**
+	 * This method initializes jCheckMusicMute
+	 *
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getJCheckMusicMute() {
+		if (jCheckMusicMute == null) {
+			jCheckMusicMute = new JCheckBox("Mute");
+			jCheckMusicMute.addChangeListener(new javax.swing.event.ChangeListener() {
+				@Override
+				public void stateChanged(javax.swing.event.ChangeEvent e) {
+					boolean selected = jCheckMusicMute.isSelected();
+
+					GameController.setMusicOn(!selected);
+					jSliderMusic.setEnabled(!selected);
+
+					if (GameController.getLevel() != null) {
+						if (!selected) {
+							Music.play();
+						} else {
+							Music.stop();
+						}
+					}
+				}
+			});
+		}
+		return jCheckMusicMute;
+	}
+
+	/**
+	 * This method initializes jCheckSoundMute
+	 *
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getJCheckSoundMute() {
+		if (jCheckSoundMute == null) {
+			jCheckSoundMute = new JCheckBox("Mute");
+			jCheckSoundMute.addChangeListener(new javax.swing.event.ChangeListener() {
+				@Override
+				public void stateChanged(javax.swing.event.ChangeEvent e) {
+					boolean selected = jCheckSoundMute.isSelected();
+					GameController.setSoundOn(!selected);
+					jSliderSound.setEnabled(!selected);
+				}
+			});
+		}
+		return jCheckSoundMute;
 	}
 }

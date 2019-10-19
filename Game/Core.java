@@ -82,7 +82,7 @@ public class Core {
 
 	/** releaseString: ie "Compiled on: 5 December 2018" */
 	/** the following line is automatically edited by a perl script  */
-	private static String releaseString = "Compiled on 14 October 2019";
+	private static String releaseString = "Compiled on 19 October 2019";
 
 	/**
 	 * Initialize some core elements.

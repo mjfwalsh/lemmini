@@ -1,9 +1,5 @@
 package GUI;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.Point;
 
 import javax.swing.JButton;
@@ -13,6 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 
 import Game.GameController;
 
@@ -74,7 +72,6 @@ public class LevelCodeDialog extends JDialog {
 		jComboBoxLvlPack.setSelectedIndex(lpi-1);
 
 		levelPackIndex = lpi;
-		jTextFieldCode.setText("");
 	}
 
 	/**
@@ -106,15 +103,17 @@ public class LevelCodeDialog extends JDialog {
 		Point p = frame.getLocation();
 		this.setLocation(p.x+frame.getWidth()/2-getWidth()/2, p.y+frame.getHeight()/2-getHeight()/2);
 		init();
+
+		this.pack();
 	}
 
 	/**
 	 * Automatically generated init.
 	 */
 	private void initialize() {
-		this.setSize(300, 153);
 		this.setTitle("Enter Level Code");
 		this.setContentPane(getJContentPane());
+		this.setResizable(false);
 	}
 
 	/**
@@ -124,61 +123,33 @@ public class LevelCodeDialog extends JDialog {
 	 */
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
-			GridBagConstraints gridBagButtonCancel = new GridBagConstraints();
-			gridBagButtonCancel.gridx = 1;
-			gridBagButtonCancel.insets = new Insets(8, 24, 0, 4);
-			gridBagButtonCancel.anchor = GridBagConstraints.EAST;
-			gridBagButtonCancel.weightx = 1.0D;
-			gridBagButtonCancel.fill = GridBagConstraints.HORIZONTAL;
-			gridBagButtonCancel.gridy = 4;
-			GridBagConstraints gridBagButtonOk = new GridBagConstraints();
-			gridBagButtonOk.gridx = 0;
-			gridBagButtonOk.insets = new Insets(8, 4, 0, 24);
-			gridBagButtonOk.anchor = GridBagConstraints.WEST;
-			gridBagButtonOk.weightx = 1.0D;
-			gridBagButtonOk.fill = GridBagConstraints.HORIZONTAL;
-			gridBagButtonOk.gridy = 4;
-			GridBagConstraints gridBagTextFieldCode = new GridBagConstraints();
-			gridBagTextFieldCode.fill = GridBagConstraints.BOTH;
-			gridBagTextFieldCode.gridy = 3;
-			gridBagTextFieldCode.weightx = 1.0;
-			gridBagTextFieldCode.insets = new Insets(0, 4, 0, 4);
-			gridBagTextFieldCode.gridwidth = 2;
-			gridBagTextFieldCode.gridx = 0;
-			GridBagConstraints gridBagLabelCode = new GridBagConstraints();
-			gridBagLabelCode.gridx = 0;
-			gridBagLabelCode.anchor = GridBagConstraints.WEST;
-			gridBagLabelCode.insets = new Insets(8, 4, 0, 4);
-			gridBagLabelCode.fill = GridBagConstraints.HORIZONTAL;
-			gridBagLabelCode.gridwidth = 2;
-			gridBagLabelCode.gridy = 2;
-			jLabelCode = new JLabel();
-			jLabelCode.setText("Enter Level Code");
-			GridBagConstraints gridBagComboLvlPack = new GridBagConstraints();
-			gridBagComboLvlPack.fill = GridBagConstraints.BOTH;
-			gridBagComboLvlPack.gridy = 1;
-			gridBagComboLvlPack.weightx = 1.0;
-			gridBagComboLvlPack.anchor = GridBagConstraints.WEST;
-			gridBagComboLvlPack.insets = new Insets(0, 4, 6, 4);
-			gridBagComboLvlPack.gridwidth = 2;
-			gridBagComboLvlPack.gridx = 0;
-			GridBagConstraints gridBagLabelLvlPack = new GridBagConstraints();
-			gridBagLabelLvlPack.gridx = 0;
-			gridBagLabelLvlPack.anchor = GridBagConstraints.NORTHWEST;
-			gridBagLabelLvlPack.insets = new Insets(4, 4, 0, 4);
-			gridBagLabelLvlPack.fill = GridBagConstraints.HORIZONTAL;
-			gridBagLabelLvlPack.gridwidth = 2;
-			gridBagLabelLvlPack.gridy = 0;
-			jLabelLvlPack = new JLabel();
-			jLabelLvlPack.setText("Chose level pack");
 			jContentPane = new JPanel();
-			jContentPane.setLayout(new GridBagLayout());
-			jContentPane.add(jLabelLvlPack, gridBagLabelLvlPack);
-			jContentPane.add(getJComboBoxLvlPack(), gridBagComboLvlPack);
-			jContentPane.add(jLabelCode, gridBagLabelCode);
-			jContentPane.add(getJTextFieldCode(), gridBagTextFieldCode);
-			jContentPane.add(getJButtonOk(), gridBagButtonOk);
-			jContentPane.add(getJButtonCancel(), gridBagButtonCancel);
+			JLabel jLabelLvlPack = new JLabel("Chose level pack");
+			JLabel jLabelCode = new JLabel("Enter Level Code");
+
+			GroupLayout gl = new GroupLayout(jContentPane);
+			gl.setHorizontalGroup(
+				gl.createParallelGroup()
+					.addComponent(jLabelLvlPack, Alignment.LEADING)
+					.addComponent(getJComboBoxLvlPack(), Alignment.LEADING)
+					.addComponent(jLabelCode, Alignment.LEADING)
+					.addComponent(getJTextFieldCode(), Alignment.LEADING)
+					.addComponent(getJButtonOk(), Alignment.LEADING)
+					.addComponent(getJButtonCancel(), Alignment.TRAILING)
+			);
+			gl.setVerticalGroup(
+				gl.createSequentialGroup()
+					.addComponent(jLabelLvlPack)
+					.addComponent(getJComboBoxLvlPack())
+					.addComponent(jLabelCode)
+					.addComponent(getJTextFieldCode())
+					.addGroup(gl.createParallelGroup()
+						.addComponent(getJButtonOk())
+						.addComponent(getJButtonCancel()))
+			);
+			gl.setAutoCreateGaps(false);
+			gl.setAutoCreateContainerGaps(true);
+			jContentPane.setLayout(gl);
 		}
 		return jContentPane;
 	}
@@ -223,9 +194,7 @@ public class LevelCodeDialog extends JDialog {
 	 */
 	private JButton getJButtonOk() {
 		if (jButtonOk == null) {
-			jButtonOk = new JButton();
-			jButtonOk.setText("Ok");
-			jButtonOk.setPreferredSize(new Dimension(90, 50));
+			jButtonOk = new JButton("Ok");
 			jButtonOk.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -245,8 +214,7 @@ public class LevelCodeDialog extends JDialog {
 	 */
 	private JButton getJButtonCancel() {
 		if (jButtonCancel == null) {
-			jButtonCancel = new JButton();
-			jButtonCancel.setText("Cancel");
+			jButtonCancel = new JButton("Cancel");
 			jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
