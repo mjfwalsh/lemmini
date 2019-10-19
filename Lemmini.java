@@ -524,9 +524,8 @@ public class Lemmini extends JFrame implements KeyListener {
 						updateLevelMenus();
 						return;
 					}
+					JOptionPane.showMessageDialog(Core.getCmp(), "Invalid Level Code", "Error", JOptionPane.WARNING_MESSAGE);
 				}
-				// not found
-				JOptionPane.showMessageDialog(Core.getCmp(), "Invalid Level Code", "Error", JOptionPane.WARNING_MESSAGE);
 			}
 		});
 		jMenuLevel.add(jMenuItemLevelCode);
