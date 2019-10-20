@@ -53,8 +53,6 @@ public class GainDialog extends JDialog {
 
 	private JButton jButtonDone = null;
 
-	private JButton jButtonCancel = null;
-
 	private JCheckBox jCheckSoundMute = null;
 
 	private JCheckBox jCheckMusicMute = null;

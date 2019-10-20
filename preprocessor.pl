@@ -26,9 +26,10 @@ if($system eq 'mac') {
 }
 
 # At the moment these are the only files that need preprocessing
-my @files = ('Lemmini.java', 
-'Game/Core.java', 
-'Extract/Extract.java', 
+my @files = ('Lemmini.java',
+'Game/Core.java',
+'Game/GraphicsPane.java',
+'Extract/Extract.java',
 'Extract/FolderDialog.java');
 
 foreach my $file (@files) {
@@ -40,7 +41,7 @@ foreach my $file (@files) {
 	$txt =~ s|[\*/]+END-$enable[\*/]*|//END-$enable|g;
 
 	$txt =~ s|[\*/]+IF-$disable[\*/]*|/\*IF-$disable|g;
-	$txt =~ s|[\*/]+END-$disable[\*/]*|//END-$disable\*/|g;		
+	$txt =~ s|[\*/]+END-$disable[\*/]*|//END-$disable\*/|g;
 
 	$txt =~ s|[\*/]+ELSE-IF-$disable[\*/]*|/*ELSE-IF-$disable|g;
 	$txt =~ s|[\*/]+ELSE-IF-$enable[\*/]*|//ELSE-IF-$enable*/|g;

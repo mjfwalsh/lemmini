@@ -41,12 +41,8 @@ public class LevelCodeDialog extends JDialog {
 
 	private JPanel jContentPane = null;
 
-	private JLabel jLabelLvlPack = null;
-
 	@SuppressWarnings("rawtypes")
 	private JComboBox jComboBoxLvlPack = null;
-
-	private JLabel jLabelCode = null;
 
 	private JTextField jTextFieldCode = null;
 

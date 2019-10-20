@@ -47,13 +47,9 @@ public class Extract extends Thread {
 	final private static String iniName = "extract.ini";
 	/** file name of patching configuration */
 	final private static String patchIniName = "patch.ini";
-	/** file name of resource CRCs (WINLEMM) */
-	final private static String crcIniName = "crc.ini";
 
 	/** index for files to be checked - static since multiple runs are possible */
 	private static int checkNo = 0;
-	/** index for CRCs - static since multiple runs are possible */
-	private static int crcNo = 0;
 	/** index for files to be extracted - static since multiple runs are possible */
 	private static int extractNo = 0;
 	/** index for files to be patched - static since multiple runs are possible */
@@ -72,8 +68,6 @@ public class Extract extends Thread {
 	private static String referencePath;
 	/** path of the DIF files */
 	private static String patchPath;
-	/** path of the CRC ini (without the file name) */
-	private static String crcPath;
 	/** exception caught in the thread */
 	private static ExtractException threadException = null;
 	/** static self reference to access thread from outside */
@@ -356,7 +350,6 @@ public class Extract extends Thread {
 		if (refPath != null)
 			referencePath = exchangeSeparators(addSeparator(refPath));
 		patchPath = exchangeSeparators(addSeparator(pPath));
-		crcPath = destinationPath; // ok, this is the wrong path, but this is executed once in a lifetime
 
 		loader = Extract.class.getClassLoader();
 
@@ -542,56 +535,6 @@ public class Extract extends Thread {
 				}
 			}
 	}
-
-	/**
-	 * Create CRCs for resources (development).
-	 * @param rPath The root path with the files to create CRCs for
-	 * @param sDir SubDir to create patches for
-	 * @param fCRCList FileWriter to create crc.ini
-	 * @throws ExtractException
-	 */
-	private static void createCRCs(final String rPath, final String sDir, final FileWriter fCRCList) throws ExtractException {
-		// add separators and create missing directories
-		String rootPath = addSeparator(rPath+sDir);
-		File fSource = new File(rootPath);
-		String out;
-		File[] files = fSource.listFiles();
-		if (files == null)
-			throw new ExtractException("Path "+rootPath+" doesn't exist or IO error occured.");
-		String subDir = addSeparator(sDir);
-
-		outerLoop:
-			for (int i = 0; i< files.length; i++) {
-				int pos;
-				// ignore directories
-				if (files[i].isDirectory())
-					continue;
-				// check extension
-				pos = files[i].getName().lastIndexOf('.');
-				if (pos > -1) {
-					String ext = files[i].getName().substring(pos+1);
-					for (int n=0; n<ignoreExt.length; n++)
-						if (ignoreExt[n].equalsIgnoreCase(ext))
-							continue outerLoop;
-				}
-				String fnIn = rootPath + files[i].getName();
-				try {
-					out(fnIn);
-					// read src file
-					byte src[] = readFile(fnIn);
-					Adler32 crc32 = new Adler32();
-					crc32.update(src);
-					out = subDir+files[i].getName()+", "+src.length+", 0x"+Long.toHexString(crc32.getValue());
-					fCRCList.write("crc_"+(Integer.toString(crcNo++))+" = "+out+"\n");
-				} catch (Exception ex)  {
-					String msg = ex.getMessage();
-					if (msg == null)
-						msg = ex.toString();
-					throw new ExtractException(ex.getMessage());
-				}
-			}
-	}
-
 
 	/**
 	 * Add separator "/" to path name (if there isn't one yet)

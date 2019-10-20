@@ -38,15 +38,12 @@ import javax.swing.GroupLayout.Alignment;
 public class FolderDialog extends JDialog {
 
 	private javax.swing.JPanel jContentPane = null;
-	private JLabel jLabelTrg = null;
 	private JTextField jTextFieldTrg = null;
-	private JLabel jLabelSrc = null;
 	private JTextField jTextFieldSrc = null;
 	private JButton jButtonSrc = null;
 	private JButton jButtonTrg = null;
 	private JButton jButtonQuit = null;
 	private JButton jButtonExtract = null;
-	private JLabel jLabelHeader = null;
 
 	// own stuff
 	private final static long serialVersionUID = 0x01;

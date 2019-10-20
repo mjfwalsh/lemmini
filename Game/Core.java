@@ -19,9 +19,6 @@ import GUI.LegalDialog;
 import Tools.Props;
 import Tools.ToolBox;
 
-import java.net.JarURLConnection;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 
 /*
  * Copyright 2009 Volker Oth
@@ -82,7 +79,7 @@ public class Core {
 
 	/** releaseString: ie "Compiled on: 5 December 2018" */
 	/** the following line is automatically edited by a perl script  */
-	private static String releaseString = "Compiled on 19 October 2019";
+	private static String releaseString = "Compiled on 20 October 2019";
 
 	/**
 	 * Initialize some core elements.
