@@ -539,7 +539,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 					case TextScreen.BUTTON_MENU:
 						GameController.setTransition(GameController.TransitionState.TO_INTRO);
 						Fader.setState(Fader.State.OUT);
+						/*IF-NOT-MAC
 						((JFrame)Core.getCmp()).setTitle("Lemmini");
+						//END-NOT-MAC*/
 						break;
 					case TextScreen.BUTTON_REPLAY:
 						GameController.requestRestartLevel(true);

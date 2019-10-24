@@ -29,6 +29,7 @@ if($system eq 'mac') {
 my @files = ('Lemmini.java',
 'Game/Core.java',
 'Game/GraphicsPane.java',
+'Game/GameController.java',
 'Extract/Extract.java',
 'Extract/FolderDialog.java');
 

@@ -1216,7 +1216,9 @@ public class GameController {
 				case LOAD_REPLAY:
 					try {
 						changeLevel(nextLevelPack, nextDiffLevel, nextLevelNumber, transitionState == TransitionState.LOAD_REPLAY);
+						/*IF-NOT-MAC
 						((JFrame)Core.getCmp()).setTitle("Lemmini - "+getLevel().getLevelName());
+						//END-NOT-MAC*/
 					} catch (ResourceException ex) {
 						Core.resourceError(ex.getMessage());
 					} catch (LemmException ex) {
