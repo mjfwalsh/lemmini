@@ -386,14 +386,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 						// draw cursor
 						if (lemmUnderCursor != null) {
 							int lx,ly;
-							if (GameController.isClassicalCursor()) {
-								lx = (int)Math.round(xMouseScreen/scale);
-								ly = (int)Math.round(yMouseScreen/scale);
-								enableCursor(false);
-							} else {
-								lx = lemmUnderCursor.midX()-xOfsTemp;
-								ly = lemmUnderCursor.midY();
-							}
+							lx = (int)Math.round(xMouseScreen/scale);
+							ly = (int)Math.round(yMouseScreen/scale);
+							enableCursor(false);
 							BufferedImage cursorImg = LemmCursor.getBoxImage();
 							lx -= cursorImg.getWidth()/2;
 							ly -= cursorImg.getHeight()/2;

@@ -79,7 +79,7 @@ public class Core {
 
 	/** releaseString: ie "Compiled on: 5 December 2018" */
 	/** the following line is automatically edited by a perl script  */
-	private static String releaseString = "Compiled on 20 October 2019";
+	private static String releaseString = "Compiled on 24 October 2019";
 
 	/**
 	 * Initialize some core elements.
@@ -149,7 +149,6 @@ public class Core {
 		gain = programProps.get("soundGain", 1.0);
 		GameController.setSoundGain(gain);
 		GameController.setAdvancedSelect(programProps.get("advancedSelect", true));
-		GameController.setClassicalCursor(programProps.get("classicalCursor", false));
 		if (sourcePath.length()==0 || resourcePath.length()==0 || !REVISION.equalsIgnoreCase(rev)) {
 			// extract resources
 			try {

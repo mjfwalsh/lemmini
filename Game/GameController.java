@@ -177,8 +177,6 @@ public class GameController {
 	private static boolean soundOn;
 	/** flag: use advanced mouse selection methods */
 	private static boolean advancedSelect;
-	/** flag: use classical mouse cursor behavior */
-	private static boolean classicalCursor;
 	/** graphics object for the background image */
 	private static Graphics2D bgGfx;
 	/** color used to erase the background (black) */
@@ -1607,22 +1605,6 @@ public class GameController {
 	 */
 	public static boolean isAdvancedSelect() {
 		return advancedSelect;
-	}
-
-	/**
-	 * Set classical cursor mode.
-	 * @param sel true: classical cursor mode active, false otherwise
-	 */
-	public static void setClassicalCursor(final boolean sel) {
-		classicalCursor = sel;
-	}
-
-	/**
-	 * Get state of classical cursor mode.
-	 * @return true if classical cursor mode activated, false otherwise
-	 */
-	public static boolean isClassicalCursor() {
-		return classicalCursor;
 	}
 
 	/**

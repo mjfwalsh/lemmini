@@ -126,7 +126,6 @@ public class Lemmini extends JFrame implements KeyListener {
 	private JCheckBoxMenuItem jMenuItemMusic;
 	private JCheckBoxMenuItem jMenuItemSound;
 	private JCheckBoxMenuItem jMenuItemCursor;
-	private JCheckBoxMenuItem jMenuItemClassicalCursor;
 	private JMenu jMenuZoom;
 	private JMenuItem jMenuItemFullscreen;
 	private JMenuItem jMenuItemManagePlayer;
@@ -643,25 +642,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 		jMenuItemCursor.setSelected(GameController.isAdvancedSelect());
 		jMenuOptions.add(jMenuItemCursor);
-
-		jMenuItemClassicalCursor = new JCheckBoxMenuItem("Classical Cursor", false);
-		jMenuItemClassicalCursor.addActionListener(new java.awt.event.ActionListener() {
-			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				boolean selected = jMenuItemClassicalCursor.isSelected();
-				if (selected)
-					GameController.setClassicalCursor(true);
-				else {
-					GameController.setClassicalCursor(false);
-				}
-				Core.programProps.set("classicalCursor", GameController.isClassicalCursor());
-			}
-		});
-		jMenuItemClassicalCursor.setSelected(GameController.isClassicalCursor());
-		jMenuOptions.add(jMenuItemClassicalCursor);
 
 		// Zoom Menu
 		/*IF-NOT-MAC
