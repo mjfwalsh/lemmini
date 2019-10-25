@@ -415,16 +415,81 @@ public class GameController {
 
 	/**
 	 * Proceed to next level.
-	 * @return true: ok, false: no more level in this difficulty level
 	 */
-	public static synchronized boolean nextLevel() {
-		int num = curLevelNumber + 1;
+	public static synchronized void nextLevel() {
+		if ( curLevelNumber < (levelPack.get(curLevelPack).getLevels(curDiffLevel).length - 1) ) {
+			curLevelNumber++;
+			GameController.requestChangeLevel(curLevelPack, curDiffLevel, curLevelNumber, false);
+		}
+	}
 
-		if ( num < levelPack.get(curLevelPack).getLevels(curDiffLevel).length ) {
-			curLevelNumber = num;
-			return true;
-		} else
-			return false; // congrats - difficulty level done
+	/**
+	 * Plays the highest available level in the remembered diff level
+	 */
+	public static synchronized void playCurDifLevel() {
+		String p[] = Core.player.getCurDifLevel();
+
+		if(p == null || p[0] == null) {
+			GameController.requestChangeLevel(1, 0, 0, false);
+			return;
+		}
+
+		// find the lowest completed level in this difficulty level
+		int ln = Core.player.getCompletedLevelNum(p[0], p[1]);
+
+		// search for the indexes for the pack and diff levels
+		for(int i = 1;/* skip dummp */ i<levelPack.size(); i++ ) {
+			if(p[0].equalsIgnoreCase(levelPack.get(i).getName())) {
+				String diffs[] = levelPack.get(i).getDiffLevels();
+				for(int j = 0; j<diffs.length; j++ ) {
+					if(p[1].equalsIgnoreCase(diffs[j])) {
+						GameController.requestChangeLevel(i, j, ln, false);
+						break;
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Determine the next level to play
+	 * This function is called when a player successfully finishes a level.
+	 * It increments the saved current difficulty level the user is on to
+	 * the next pack or difficulty level found.
+	 */
+	public static synchronized void determineNextLevel() {
+		int clp = curLevelPack;
+		int cdl = curDiffLevel;
+
+		if ( curLevelNumber >= (levelPack.get(clp).getLevels(cdl).length - 1) ) {
+			return;
+		}
+
+		// current difficulty level has completed
+		if( cdl < (levelPack.get(clp).getDiffLevels().length - 1) ) {
+			cdl++;
+		} else if( clp < (levelPack.size() - 1) ) {
+			cdl = 0;
+			clp++;
+		} else {
+			cdl = 0;
+			clp = 1; // avoid dummy level pack
+		}
+
+		// remember pack and difficulty level for next time
+		String pack = levelPack.get(clp).getName();
+		String diff = levelPack.get(clp).getDiffLevels()[cdl];
+		Core.player.setCurDifLevel(pack, diff);
+	}
+
+	/**
+	 * Remember this difficulty level
+	 */
+	public static synchronized void rememberThisDifficultyLevel() {
+		String pack = levelPack.get(curLevelPack).getName();
+		String diff = levelPack.get(curLevelPack).getDiffLevels()[curDiffLevel];
+		Core.player.setCurDifLevel(pack, diff);
 	}
 
 	/**
@@ -446,19 +511,8 @@ public class GameController {
 		replayMode = false;
 
 		if (!wasLost()) {
-			if (curLevelPack!=0)
 				levelMenuUpdateListener.update();
-			//			String pack = levelPack[curLevelPack].getName();
-			//			String diff = levelPack[curLevelPack].getDiffLevels()[curDiffLevel];
-			//			// get next level
-			//			int num = curLevelNumber + 1;
-			//			if ( num >= levelPack[curLevelPack].getLevels(curDiffLevel).length )
-			//				num = curLevelNumber;
-			//			// set next level as available
-			//			GroupBitfield bf = Core.player.setAvailable(pack, diff, num);
-			//			// update the menu
-			//			if (curLevelPack!=0) // 0 is the dummy pack
-			//				((Lemmini)Core.getCmp()).updateLevelMenu(pack, diff, bf);
+			determineNextLevel();
 		}
 		gameState = State.DEBRIEFING;
 	}
@@ -548,6 +602,8 @@ public class GameController {
 		lemmSkillOld = lemmSkill;
 		nukeOld = false;
 		xPosOld = getLevel().getXpos();
+
+		GameController.rememberThisDifficultyLevel();
 
 		gameState = State.BRIEFING;
 	}

@@ -38,6 +38,8 @@ public class Player {
 	private boolean cheat;
 	/** player's name */
 	private String name;
+	/** last difficulty level played */
+	private String[] curDifLevel;
 
 	/**
 	 * Constructor.
@@ -64,6 +66,10 @@ public class Player {
 				lvlGroup.put(s[0], new GroupBitfield(s[1]));
 			}
 		}
+
+		// get the difficulty level the player is on
+		String cdl[] = { null, null };
+		curDifLevel = props.get("curDifLevel", cdl );
 
 		// cheat mode
 		cheat = false;
@@ -159,6 +165,17 @@ public class Player {
 	}
 
 	/**
+	 * Get int of the hightest level to be completed in a level of difficulty.
+	 * @param pack level pack
+	 * @param diff difficulty level
+	 * @return bitfield containing the approval information for all levels of this pack/difficulty
+	 */
+	public int getCompletedLevelNum(final String pack, final String diff) {
+		GroupBitfield bf = getBitField(pack, diff);
+		return bf.bitLength() - 1;
+	}
+
+	/**
 	 * Get player's name.
 	 * @return player's name
 	 */
@@ -172,5 +189,25 @@ public class Player {
 	 */
 	public boolean isCheat() {
 		return cheat;
+	}
+
+	/**
+	 * Set last successful level played
+	 * @param pack level pack
+	 * @param diff difficulty level
+	 * @param num level number
+	 */
+	public void setCurDifLevel(String lp, String dl) {
+		curDifLevel[0] = lp;
+		curDifLevel[1] = dl;
+		props.set("curDifLevel", lp.toLowerCase() + "," + dl.toLowerCase() );
+	}
+
+	/**
+	 * Get last successful level played
+	 * @return {int, int, int}
+	 */
+	public String[] getCurDifLevel() {
+		return curDifLevel;
 	}
 }

@@ -514,6 +514,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 			return;
 
 		switch (GameController.getGameState()) {
+			case INTRO:
+				GameController.playCurDifLevel();
+				break;
 			case BRIEFING:
 				MiniMap.init(smallX, smallY, 16, 8, true);
 				GameController.setTransition(GameController.TransitionState.TO_LEVEL);
@@ -525,8 +528,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 				switch (button) {
 					case TextScreen.BUTTON_CONTINUE:
 						GameController.nextLevel(); // continue to next level
-						GameController.requestChangeLevel(GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(),
-								GameController.getCurLevelNumber(), false);
 						break;
 					case TextScreen.BUTTON_RESTART:
 						GameController.requestRestartLevel(false);
