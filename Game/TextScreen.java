@@ -153,25 +153,37 @@ public class TextScreen {
 		textScreen.init();
 		textScreen.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
 		Level level = GameController.getLevel();
-		//LevelInfo li;
 		textScreen.restore();
-		//li = GameController.levelPack[GameController.curLevelPack].getInfo(GameController.curDiffLevel, GameController.curLevelNumber);
-		String rating = GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()];
+
 		textScreen.drawImage(GameController.getMapPreview(), -170);
 
-		String levelLabel = "Level " + (GameController.getCurLevelNumber()+1) + " ";
+		textScreen.print("Level Pack  " + GameController.getCurLevelPack().getName(), -19, -2);
 
-		textScreen.print(levelLabel + level.getLevelName(), (-9 - levelLabel.length()), -2, RED);
-		textScreen.print("Number of Lemmings "+level.getNumLemmings(), -9, 0, BLUE);
-		textScreen.print(""+(level.getNumToRescue()*100/level.getNumLemmings())+"% to be saved", -9, 1, GREEN);
-		textScreen.print("Release Rate "+level.getReleaseRate(), -9, 2, BROWN);
+		textScreen.print("Difficulty  " + GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()], -19, -1, VIOLET);
+
+		// primitive text wrap for long level names
+		String levelLabel = "Level  " + (GameController.getCurLevelNumber()+1) + " " + level.getLevelName();
+		int lineRef = 0;
+		if(levelLabel.length() > 35) {
+			int index = levelLabel.lastIndexOf(" ", 35);
+
+			textScreen.print(levelLabel.substring(0, index), -14, 0, RED);
+			textScreen.print(levelLabel.substring(index+1), -7, 1, RED);
+			lineRef = 1;
+		} else {
+			textScreen.print(levelLabel, -14, 0, RED);
+		}
+
+		textScreen.print("Lemmings  "+level.getNumLemmings(), -17, lineRef+2, BLUE);
+		textScreen.print("Target  "+(level.getNumToRescue()*100/level.getNumLemmings())+"%", -15, lineRef+3, GREEN);
+		textScreen.print("Release Rate  "+level.getReleaseRate(), -21, lineRef+4, BROWN);
 		int minutes = level.getTimeLimitSeconds() / 60;
 		int seconds = level.getTimeLimitSeconds() % 60;
 		if (seconds == 0)
-			textScreen.print("Time         "+minutes+" Minutes", -9, 3, TURQUOISE);
+			textScreen.print("Time  "+minutes+" Minutes", -13, lineRef+5, TURQUOISE);
 		else
-			textScreen.print("Time         "+minutes+"-"+seconds+" Minutes", -9, 3, TURQUOISE);
-		textScreen.print("Rating       "+rating, -9, 4, VIOLET);
+			textScreen.print("Time  "+minutes+":"+seconds+" Minutes", -13, lineRef+5, TURQUOISE);
+
 		textScreen.copyToBackBuffer(); // though not really needed
 	}
 
