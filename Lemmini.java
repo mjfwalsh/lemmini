@@ -739,13 +739,24 @@ public class Lemmini extends JFrame implements KeyListener {
 		item.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-				Core.player.store(); // save player in case it is changed
 				JMenuItem item = (JMenuItem)e.getSource();
 				String player = item.getText();
+
+				// don't do anything if the player hasn't been changed
+				if(player.equals(Core.player.getName())) return;
+
+				// save old player
+				Core.player.store();
+
+				// get new player
 				Player p = new Player(player);
 				Core.player = p; // default player
 				item.setSelected(true);
 				updateLevelMenus();
+
+				// return to intro screen
+				GameController.setTransition(GameController.TransitionState.TO_INTRO);
+				Fader.setState(Fader.State.OUT);
 			}
 		});
 		playerGroup.add(item);
