@@ -262,6 +262,15 @@ public class Lemmini extends JFrame implements KeyListener {
 		// this enables the green button on mac
 		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
 		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
+
+		// about menu item
+		com.apple.eawt.Application.getApplication().setAboutHandler(new com.apple.eawt.AboutHandler() {
+			@Override
+			public void handleAbout(com.apple.eawt.AppEvent.AboutEvent e) {
+				showInitScreen();
+			}
+		});
+
 		//END-MAC
 
 		// finish window
@@ -317,11 +326,11 @@ public class Lemmini extends JFrame implements KeyListener {
 		JMenu jMenuFile = new JMenu("File");
 
 		// Exit menu
-		JMenuItem jMenuItemExit = new JMenuItem("Exit");
+		JMenuItem jMenuItemExit = new JMenuItem("About");
 		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-				exit();
+				showInitScreen();
 			}
 		});
 		jMenuFile.add(jMenuItemExit);
@@ -1161,6 +1170,19 @@ public class Lemmini extends JFrame implements KeyListener {
 	@Override
 	public void keyTyped(final KeyEvent keyevent) {
 	}
+
+	/**
+	 * Return to the init screen
+	 */
+	public void showInitScreen() {
+		GameController.setTransition(GameController.TransitionState.TO_INTRO);
+		Fader.setState(Fader.State.OUT);
+		/*IF-NOT-MAC
+		((JFrame)Core.getCmp()).setTitle("Lemmini");
+		//END-NOT-MAC*/
+	}
+
+
 
 	/**
 	 * Toggle in and out of fullscreen mode
