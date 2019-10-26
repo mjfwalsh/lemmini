@@ -724,7 +724,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
 		/*IF-NOT-MAC
 		if(Core.isFullScreen()) {
-			getParent().getComponent(1).setVisible(y < 5);
+			getParent().getComponent(0).setVisible(y < 5);
 		}
 		//END-NOT-MAC*/
 

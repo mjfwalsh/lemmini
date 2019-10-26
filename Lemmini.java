@@ -32,6 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.JLayeredPane;
 
 //IF-MAC
 import com.apple.eawt.FullScreenListener;
@@ -159,17 +160,10 @@ public class Lemmini extends JFrame implements KeyListener {
 			System.exit(1);
 		}
 
-		// set default menu bar height (doesn't have to be that accurate, for now)
-		//IF-MAC
-		int menuBarHeight = 0;
-		/*ELSE-IF-NOT-MAC
-		int menuBarHeight = 22;
-		//END-NOT-MAC*/
-
 		// gather screen dimension, window height and scale
 		gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		screenWidth = gd.getDisplayMode().getWidth();
-		screenHeight = gd.getDisplayMode().getHeight() - menuBarHeight;
+		screenHeight = gd.getDisplayMode().getHeight();
 		int drawHeight = Core.getDrawHeight();
 		double scale = Core.getScale();
 
@@ -1193,7 +1187,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			int menuBarHeight = jMenuBar.getHeight();
 			Core.setFullScreen(true);
 
-			// disable menus which won't work in fullscreen
+			// disable menus which don't work in fullscreen
 			jMenuZoom.setEnabled(false);
 			jMenuItemManagePlayer.setEnabled(false);
 			jMenuItemLoad.setEnabled(false);
@@ -1205,17 +1199,24 @@ public class Lemmini extends JFrame implements KeyListener {
 			dispose();
 			setUndecorated(true);
 			setJMenuBar(null);
+			intermezzo.remove(gp);
 
-			// set full screen and redo layout
-			gd.setFullScreenWindow(thisFrame);
-			intermezzo.setLayout(null);
-			intermezzo.add(jMenuBar);
+			// setup new layered pane
+			JLayeredPane newlp = new JLayeredPane();
+			intermezzo.add(newlp, BorderLayout.CENTER);
 
-			gp.setBounds(0, menuBarHeight, screenWidth, screenHeight);
+			// add elements
+			newlp.add(gp, JLayeredPane.DEFAULT_LAYER);
+			newlp.add(jMenuBar, JLayeredPane.POPUP_LAYER);
+			gp.setBounds(0, 0, screenWidth, screenHeight);
 			jMenuBar.setBounds(0, 0, screenWidth, menuBarHeight);
-			jMenuBar.setVisible(false); // start invisible
 
-			setVisible(true);
+			// set full screen
+			gd.setFullScreenWindow(thisFrame);
+
+			// hide menubat and show layeredpane
+			jMenuBar.setVisible(false); // start invisible
+			newlp.setVisible(true);
 
 			jMenuItemFullscreen.setText("Exit Fullscreen");
 		} else {
