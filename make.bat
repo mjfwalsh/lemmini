@@ -18,16 +18,13 @@ where jar >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
 	echo Jar maker not found
 	SET dependencies=bad
-) 
+)
 
 IF %dependencies% == bad (
 	ECHO Dependancies failed
 	ECHO You may need to check your PATH
 	EXIT /B
 )
-
-perl update_compile_time.pl
-if %ERRORLEVEL% NEQ 0 EXIT /B
 
 perl preprocessor.pl generic
 if %ERRORLEVEL% NEQ 0 EXIT /B

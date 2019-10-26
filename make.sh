@@ -23,7 +23,7 @@ compile_java()
 	fi
 
 	# Updating Compile Datastamp...
-	./update_compile_time.pl
+	#./update_compile_time.pl
 
 	echo Running Java Compiler...
 	mkdir -p build && javac -encoding UTF8 -d ./build Lemmini.java

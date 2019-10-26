@@ -77,10 +77,6 @@ public class Core {
 	/** internal draw width */
 	private static int internalWidth;
 
-	/** releaseString: ie "Compiled on: 5 December 2018" */
-	/** the following line is automatically edited by a perl script  */
-	private static String releaseString = "Compiled on 24 October 2019";
-
 	/**
 	 * Initialize some core elements.
 	 * @param frame parent frame
@@ -134,6 +130,7 @@ public class Core {
 		}
 
 		scale = Core.programProps.get("scale",1.0);
+		if(scale < 1) scale = 1;
 
 		/*IF-NOT-MAC
 		resourcePath = programProps.get("resourcePath", "");
@@ -411,13 +408,5 @@ public class Core {
 	 */
 	public static void setFullScreen(boolean b) {
 		fullScreen = b;
-	}
-
-	/**
-	 * Get release string
-	 * @return releaseString
-	 */
-	public static String getReleaseString() {
-		return releaseString;
 	}
 }
