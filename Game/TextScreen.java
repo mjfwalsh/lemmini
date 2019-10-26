@@ -50,8 +50,6 @@ public class TextScreen {
 	public final static int BUTTON_CONTINUE = 0;
 	/** Button: restart level */
 	public final static int BUTTON_RESTART = 1;
-	/** Button: back to menu */
-	public final static int BUTTON_MENU = 2;
 	/** Button: replay level */
 	public final static int BUTTON_REPLAY = 3;
 	/** Button: save replay */
@@ -217,7 +215,7 @@ public class TextScreen {
 				textScreen.printCentered("You got pretty close that time.", -1, RED);
 				textScreen.printCentered("Now try again for that few % extra.", 0, RED);
 			}
-			textScreen.addTextButton(-2, 6, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
+			textScreen.addTextButton(9, 5, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
 		} else {
 			if (rescued == 100) {
 				textScreen.printCentered("Superb! You rescued every lemming on", -1, RED);
@@ -240,7 +238,7 @@ public class TextScreen {
 
 				textScreen.printCentered("Your access code for level "+(ln+2), 2, BROWN);
 				textScreen.printCentered("is "+code, 3, BROWN);
-				textScreen.addTextButton(-1, 6, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
+				textScreen.addTextButton(9, 5, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
 			} else {
 				textScreen.printCentered("Congratulations!", 2, BROWN);
 				textScreen.printCentered("You finished all the "+lp.getDiffLevels()[GameController.getCurDiffLevel()]+" levels!", 3, GREEN);
@@ -248,9 +246,7 @@ public class TextScreen {
 		}
 		textScreen.copyToBackBuffer(); // though not really needed
 		textScreen.addTextButton(-12, 5, BUTTON_REPLAY, "Replay", "Replay", BLUE, BROWN);
-		if (GameController.getCurLevelPackIdx() != 0) // not for single levels started via "load level"
-			textScreen.addTextButton( -4, 5, BUTTON_SAVEREPLAY, "Save Replay", "Save Replay", BLUE, BROWN);
-		textScreen.addTextButton( 9, 5, BUTTON_MENU, "Menu", "Menu", BLUE, BROWN);
+		textScreen.addTextButton( -4, 5, BUTTON_SAVEREPLAY, "Save Replay", "Save Replay", BLUE, BROWN);
 	}
 
 	/**
