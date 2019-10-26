@@ -159,17 +159,19 @@ public class TextScreen {
 
 		textScreen.print("Difficulty  " + GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()], -19, -1, VIOLET);
 
+		textScreen.print("Level  " + (GameController.getCurLevelNumber()+1), -14, 0, RED);
+
 		// primitive text wrap for long level names
-		String levelLabel = "Level  " + (GameController.getCurLevelNumber()+1) + " " + level.getLevelName();
-		int lineRef = 0;
+		String levelLabel = "Title  " + level.getLevelName();
+		int lineRef = 1;
 		if(levelLabel.length() > 35) {
 			int index = levelLabel.lastIndexOf(" ", 35);
 
-			textScreen.print(levelLabel.substring(0, index), -14, 0, RED);
-			textScreen.print(levelLabel.substring(index+1), -7, 1, RED);
-			lineRef = 1;
+			textScreen.print(levelLabel.substring(0, index), -14, 1, BROWN);
+			textScreen.print(levelLabel.substring(index+1), -7, 2, BROWN);
+			lineRef++;
 		} else {
-			textScreen.print(levelLabel, -14, 0, RED);
+			textScreen.print(levelLabel, -14, 1, BROWN);
 		}
 
 		textScreen.print("Lemmings  "+level.getNumLemmings(), -17, lineRef+2, BLUE);
