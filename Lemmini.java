@@ -115,7 +115,6 @@ public class Lemmini extends JFrame implements KeyListener {
 	// store some lengths
 	private int screenWidth;
 	private int screenHeight;
-	private int menuBarHeight;
 	private int xMargin;
 	private int yMargin;
 
@@ -162,9 +161,9 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		// set default menu bar height (doesn't have to be that accurate, for now)
 		//IF-MAC
-		menuBarHeight = 0;
+		int menuBarHeight = 0;
 		/*ELSE-IF-NOT-MAC
-		menuBarHeight = 22;
+		int menuBarHeight = 22;
 		//END-NOT-MAC*/
 
 		// gather screen dimension, window height and scale
@@ -213,6 +212,9 @@ public class Lemmini extends JFrame implements KeyListener {
 		intermezzo.setBackground(Color.BLACK);
 		intermezzo.add(gp, BorderLayout.CENTER);
 
+		// Add menu bar
+		buildMenuBar();
+
 		// finish window
 		this.setContentPane(intermezzo);
 		this.pack();
@@ -224,7 +226,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		xMargin = wholeWindow.width - width;
 		yMargin = wholeWindow.height - height;
 		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
-		System.out.println(xMargin +" - "+ yMargin);
+		System.out.println("Margins: " + xMargin +" - "+ yMargin);
 
 		// set coords - default to centre of screen
 		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
@@ -232,9 +234,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		posX = Math.max(posX, 0);
 		posY = Math.max(posY, 0);
 		this.setLocation(posX, posY);
-
-		// Add menu bar
-		buildMenuBar();
 
 		// Add window listeners
 
@@ -303,9 +302,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 
 		//END-MAC
-
-		// Record menu bar height
-		menuBarHeight = jMenuBar.getHeight();
 
 		this.setVisible(true);
 		gp.init();
