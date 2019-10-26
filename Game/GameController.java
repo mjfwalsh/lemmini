@@ -430,7 +430,8 @@ public class GameController {
 		String p[] = Core.player.getCurDifLevel();
 
 		if(p == null || p[0] == null) {
-			GameController.requestChangeLevel(1, 0, 0, false);
+			int ln = Core.player.getCompletedLevelNum(levelPack.get(1).getName(), levelPack.get(1).getDiffLevels()[0]);
+			GameController.requestChangeLevel(1, 0, ln, false);
 			return;
 		}
 
@@ -444,10 +445,10 @@ public class GameController {
 				for(int j = 0; j<diffs.length; j++ ) {
 					if(p[1].equalsIgnoreCase(diffs[j])) {
 						GameController.requestChangeLevel(i, j, ln, false);
-						break;
+						return;
 					}
 				}
-				break;
+				return;
 			}
 		}
 	}
