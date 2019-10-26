@@ -116,6 +116,8 @@ public class Lemmini extends JFrame implements KeyListener {
 	private int screenWidth;
 	private int screenHeight;
 	private int menuBarHeight;
+	private int xMargin;
+	private int yMargin;
 
 	// Menu stuff
 	private JMenuBar jMenuBar;
@@ -179,14 +181,29 @@ public class Lemmini extends JFrame implements KeyListener {
 		else if(drawWidth > 850) drawWidth = 850;
 		Core.setDrawWidth(drawWidth);
 
+		// set graphics pane dimensions
+		int width = (int)Math.round((float)drawWidth * scale);
+		int height = (int)Math.round((float)drawHeight * scale);
+
+		// Unfortunately JFrame provides very little control here
+		//IF-MAC
+		this.setResizable(true);
+		/*ELSE-IF-NOT-MAC
+		this.setResizable(false);
+		//END-NOT-MAC*/
+
+		// this enables the green button on mac
+		//IF-MAC
+		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
+		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
+		//END-MAC
+
 		// set component pane
 		gp = new GraphicsPane();
 		gp.setBackground(Color.BLACK);
 		gp.setDoubleBuffered(false);
 
-		// set graphics pane dimensions
-		int width = (int)Math.round((float)drawWidth * scale);
-		int height = (int)Math.round((float)drawHeight * scale);
+		// set dimensions
 		gp.setPreferredSize(new Dimension(width, height));
 
 		// create content panel
@@ -196,7 +213,30 @@ public class Lemmini extends JFrame implements KeyListener {
 		intermezzo.setBackground(Color.BLACK);
 		intermezzo.add(gp, BorderLayout.CENTER);
 
+		// finish window
+		this.setContentPane(intermezzo);
+		this.pack();
+		this.validate(); // force redraw
+		this.setTitle("Lemmini");
+
+		// calculate frame size and set min size
+		Dimension wholeWindow = this.getSize();
+		xMargin = wholeWindow.width - width;
+		yMargin = wholeWindow.height - height;
+		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
+		System.out.println(xMargin +" - "+ yMargin);
+
+		// set coords - default to centre of screen
+		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
+		int posY = Core.programProps.get("framePosY", (screenHeight/2) - (wholeWindow.height/2));
+		posX = Math.max(posX, 0);
+		posY = Math.max(posY, 0);
+		this.setLocation(posX, posY);
+
+		// Add menu bar
 		buildMenuBar();
+
+		// Add window listeners
 
 		// Exit the app when the user closes the window
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -218,13 +258,8 @@ public class Lemmini extends JFrame implements KeyListener {
 				Core.setScale(scale);
 
 				if(!Core.isFullScreen()) {
-					// calculate dimensions of look and feel
-					Dimension frameSize = getSize();
-					int xm = frameSize.width - cpSize.width;
-					int ym = frameSize.height - cpSize.height;
-
 					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-					setSize(cpSize.width + xm, newHeight + ym);
+					setSize(cpSize.width + xMargin, newHeight + yMargin);
 				}
 				/*ELSE-IF-NOT-MAC
 				float scaleX = (float)cpSize.width / Core.getDrawWidth();
@@ -259,10 +294,6 @@ public class Lemmini extends JFrame implements KeyListener {
 			public void windowExitingFullScreen(AppEvent.FullScreenEvent fse) {}
 		});
 
-		// this enables the green button on mac
-		com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(this,true);
-		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
-
 		// about menu item
 		com.apple.eawt.Application.getApplication().setAboutHandler(new com.apple.eawt.AboutHandler() {
 			@Override
@@ -272,31 +303,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		});
 
 		//END-MAC
-
-		// finish window
-		this.setContentPane(intermezzo);
-		//IF-MAC
-		this.setResizable(true);
-		/*ELSE-IF-NOT-MAC
-		this.setResizable(false);
-		//END-NOT-MAC*/
-		this.validate(); // force redraw
-		this.setTitle("Lemmini");
-		this.pack();
-
-		// Now that the window is finished but not yet visible
-		// calculate frame size and set min size
-		Dimension wholeWindow = this.getSize();
-		int xMargin = wholeWindow.width - width;
-		int yMargin = wholeWindow.height - height;
-		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
-
-		// set coords - default to centre of screen
-		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
-		int posY = Core.programProps.get("framePosY", (screenHeight/2) - (wholeWindow.height/2));
-		posX = Math.max(posX, 0);
-		posY = Math.max(posY, 0);
-		this.setLocation(posX, posY);
 
 		// Record menu bar height
 		menuBarHeight = jMenuBar.getHeight();
@@ -853,15 +859,9 @@ public class Lemmini extends JFrame implements KeyListener {
 		int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
 		int newWidth  = (int)Math.round((float)scale * Core.getDrawWidth());
 
-		// calculate dimensions of look and feel
-		Dimension cpSize = getContentPane().getSize();
-		Dimension frameSize = getSize();
-		int xm = frameSize.width - cpSize.width;
-		int ym = frameSize.height - cpSize.height;
-
 		// set scale and window size
 		Core.setScale(scale);
-		setSize(newWidth + xm, newHeight + ym);
+		setSize(newWidth + xMargin, newHeight + yMargin);
 	}
 	//END-NOT-MAC*/
 
