@@ -152,25 +152,26 @@ public class TextScreen {
 		Level level = GameController.getLevel();
 		textScreen.restore();
 
-		textScreen.drawImage(GameController.getMapPreview(), -170);
+		textScreen.drawImage(GameController.getMapPreview(), -185);
 
-		textScreen.print("Level Pack  " + GameController.getCurLevelPack().getName(), -19, -2);
+		textScreen.print("Level Pack  " + GameController.getCurLevelPack().getName(), -19, -3);
 
-		textScreen.print("Difficulty  " + GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()], -19, -1, VIOLET);
+		textScreen.print("Difficulty  " + GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()], -19, -2, VIOLET);
 
-		textScreen.print("Level  " + (GameController.getCurLevelNumber()+1), -14, 0, RED);
+		textScreen.print("Level  " + (GameController.getCurLevelNumber()+1), -14, -1, RED);
 
 		// primitive text wrap for long level names
 		String levelLabel = "Title  " + level.getLevelName();
-		int lineRef = 1;
-		if(levelLabel.length() > 35) {
-			int index = levelLabel.lastIndexOf(" ", 35);
+		int lineRef = 0;
+		int limit = (textScreen.getLineWidth() / 2) + 13;
+		if(levelLabel.length() > limit) {
+			int index = levelLabel.lastIndexOf(" ", limit);
 
-			textScreen.print(levelLabel.substring(0, index), -14, 1, BROWN);
-			textScreen.print(levelLabel.substring(index+1), -7, 2, BROWN);
+			textScreen.print(levelLabel.substring(0, index), -14, 0, BROWN);
+			textScreen.print(levelLabel.substring(index+1), -7, 1, BROWN);
 			lineRef++;
 		} else {
-			textScreen.print(levelLabel, -14, 1, BROWN);
+			textScreen.print(levelLabel, -14, 0, BROWN);
 		}
 
 		textScreen.print("Lemmings  "+level.getNumLemmings(), -17, lineRef+2, BLUE);
@@ -283,7 +284,6 @@ public class TextScreen {
 			scrollerImg = ToolBox.createImage(LemmFont.getWidth()*(1+SCROLL_WIDTH),SCROLL_HEIGHT, Transparency.BITMASK);
 			scrollerGfx = scrollerImg.createGraphics();
 			scrollerGfx.setBackground(new Color(0,0,0,0));
-
 			textScreen  = new TextDialog(width, height);
 		}
 	}

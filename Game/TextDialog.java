@@ -165,6 +165,14 @@ public class TextDialog {
 	}
 
 	/**
+	 * Find how many characters can fit in a line of print
+	 * @return number of characters
+	 */
+	public int getLineWidth() {
+		return (int)Math.floor(width/LemmFont.getWidth());
+	}
+
+	/**
 	 * Draw string.
 	 * @param s String
 	 * @param x X position relative to center expressed in character widths
