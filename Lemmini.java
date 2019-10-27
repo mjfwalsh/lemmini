@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -111,7 +110,7 @@ public class Lemmini extends JFrame implements KeyListener {
 	// graphics device
 	final private GraphicsDevice gd;
 	// Content Pane
-	private JPanel intermezzo;
+	//private JPanel intermezzo;
 
 	// store some lengths
 	private int screenWidth;
@@ -174,10 +173,6 @@ public class Lemmini extends JFrame implements KeyListener {
 		else if(drawWidth > 850) drawWidth = 850;
 		Core.setDrawWidth(drawWidth);
 
-		// set graphics pane dimensions
-		int width = (int)Math.round((float)drawWidth * scale);
-		int height = (int)Math.round((float)drawHeight * scale);
-
 		// Unfortunately JFrame provides very little control here
 		//IF-MAC
 		this.setResizable(true);
@@ -191,26 +186,21 @@ public class Lemmini extends JFrame implements KeyListener {
 		com.apple.eawt.Application.getApplication().setQuitStrategy(QuitStrategy.CLOSE_ALL_WINDOWS);
 		//END-MAC
 
-		// set component pane
+		// set graphics pane
 		gp = new GraphicsPane();
 		gp.setBackground(Color.BLACK);
 		gp.setDoubleBuffered(false);
 
 		// set dimensions
+		int width = (int)Math.round((float)drawWidth * scale);
+		int height = (int)Math.round((float)drawHeight * scale);
 		gp.setPreferredSize(new Dimension(width, height));
-
-		// create content panel
-		intermezzo = new JPanel();
-		intermezzo.setDoubleBuffered(false);
-		intermezzo.setLayout(new BorderLayout());
-		intermezzo.setBackground(Color.BLACK);
-		intermezzo.add(gp, BorderLayout.CENTER);
 
 		// Add menu bar
 		buildMenuBar();
 
 		// finish window
-		this.setContentPane(intermezzo);
+		this.setContentPane(gp);
 		this.pack();
 		this.validate(); // force redraw
 		this.setTitle("Lemmini");
@@ -1223,7 +1213,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			setUndecorated(false);
 
 			// start again
-			setContentPane(intermezzo);
+			setContentPane(gp);
 
 			// re-enable menus
 			jMenuZoom.setEnabled(true);
@@ -1235,7 +1225,6 @@ public class Lemmini extends JFrame implements KeyListener {
 			jMenuItemVolume.setEnabled(true);
 
 			setJMenuBar(jMenuBar);
-			intermezzo.add(gp, BorderLayout.CENTER);
 
 			jMenuItemFullscreen.setText("Fullscreen");
 
