@@ -1199,22 +1199,21 @@ public class Lemmini extends JFrame implements KeyListener {
 			dispose();
 			setUndecorated(true);
 			setJMenuBar(null);
-			intermezzo.remove(gp);
 
-			// setup new layered pane
+			// setup layered pane
 			JLayeredPane newlp = new JLayeredPane();
-			intermezzo.add(newlp, BorderLayout.CENTER);
+			setContentPane(newlp);
 
 			// add elements
-			newlp.add(gp, JLayeredPane.DEFAULT_LAYER);
 			newlp.add(jMenuBar, JLayeredPane.POPUP_LAYER);
+			newlp.add(gp, JLayeredPane.DEFAULT_LAYER);
 			gp.setBounds(0, 0, screenWidth, screenHeight);
 			jMenuBar.setBounds(0, 0, screenWidth, menuBarHeight);
 
 			// set full screen
 			gd.setFullScreenWindow(thisFrame);
 
-			// hide menubat and show layeredpane
+			// hide menubar and show layeredpane
 			jMenuBar.setVisible(false); // start invisible
 			newlp.setVisible(true);
 
@@ -1223,11 +1222,8 @@ public class Lemmini extends JFrame implements KeyListener {
 			dispose();
 			setUndecorated(false);
 
-			intermezzo.remove(jMenuBar);
-			intermezzo.remove(gp);
-
 			// start again
-			intermezzo.setLayout(new BorderLayout());
+			setContentPane(intermezzo);
 
 			// re-enable menus
 			jMenuZoom.setEnabled(true);
@@ -1239,12 +1235,11 @@ public class Lemmini extends JFrame implements KeyListener {
 			jMenuItemVolume.setEnabled(true);
 
 			setJMenuBar(jMenuBar);
-			jMenuBar.setVisible(true);
-
 			intermezzo.add(gp, BorderLayout.CENTER);
 
 			jMenuItemFullscreen.setText("Fullscreen");
 
+			jMenuBar.setVisible(true);
 			setVisible(true);
 			Core.setFullScreen(false);
 		}
