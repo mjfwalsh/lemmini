@@ -116,13 +116,13 @@ public class Lemmini extends JFrame implements KeyListener {
 	private int screenHeight;
 	private int xMargin;
 	private int yMargin;
+	private float maxScale;
 
 	// Menu stuff
 	private JMenuBar jMenuBar;
 	private JMenu jMenuLevel;
 	private JMenu jMenuSelectPlayer;
 	private ButtonGroup playerGroup;
-	private ButtonGroup zoomGroup;
 	private JCheckBoxMenuItem jMenuItemMusic;
 	private JCheckBoxMenuItem jMenuItemSound;
 	private JCheckBoxMenuItem jMenuItemCursor;
@@ -171,6 +171,15 @@ public class Lemmini extends JFrame implements KeyListener {
 		if(drawWidth < 672) drawWidth = 672;
 		else if(drawWidth > 850) drawWidth = 850;
 		Core.setDrawWidth(drawWidth);
+
+		// Calculate max scale
+		float maxXScale = (float)screenWidth / drawWidth;
+		float maxYScale = (float)screenHeight / drawHeight;
+		maxScale = Math.min(maxXScale, maxYScale);
+		if(scale > maxScale) {
+			scale = maxScale;
+			Core.setScale(scale);
+		}
 
 		// Unfortunately JFrame provides very little control here
 		//IF-MAC
@@ -237,9 +246,16 @@ public class Lemmini extends JFrame implements KeyListener {
 				//IF-MAC
 				float scale = (float)cpSize.width / Core.getDrawWidth();
 
-				Core.setScale(scale);
-
-				if(!Core.isFullScreen()) {
+				if(Core.isFullScreen()) {
+					Core.setScale(scale);
+				} else if(scale > maxScale) { // avoid exceeding screen size
+					scale = maxScale;
+					Core.setScale(scale);
+					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
+					int newWidth = (int)Math.round((float)scale * Core.getDrawWidth());
+					setSize(newWidth + xMargin, newHeight + yMargin);
+				} else {
+					Core.setScale(scale);
 					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
 					setSize(cpSize.width + xMargin, newHeight + yMargin);
 				}
@@ -248,6 +264,7 @@ public class Lemmini extends JFrame implements KeyListener {
 				float scaleY = (float)cpSize.height / Core.getDrawHeight();
 
 				float scale = Math.min(scaleX, scaleY);
+				scale = Math.min(scale, maxScale);
 
 				Core.setScale(scale);
 				//END-NOT-MAC*/
@@ -640,77 +657,25 @@ public class Lemmini extends JFrame implements KeyListener {
 		// Zoom Menu
 		/*IF-NOT-MAC
 		jMenuZoom = new JMenu("Zoom");
-		zoomGroup = new ButtonGroup();
+		ButtonGroup zoomGroup = new ButtonGroup();
+		double realMaxScale = Math.pow(maxScale, 2);
+		double realCurrentScale = ((int)Math.pow(Core.getScale(), 2) * 1000) / 1000;
 
-		JRadioButtonMenuItem jMenuRadioItemX1 = new JRadioButtonMenuItem("x1");
-		jMenuRadioItemX1.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1);
+		for(double zoom = 1; zoom < realMaxScale; zoom += 0.25) {
+			JRadioButtonMenuItem zoomMenuItem = new JRadioButtonMenuItem("x" + zoom);
+			final double z = Math.sqrt(zoom);
+			zoomMenuItem.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					setScale(z);
+				}
+			});
+			jMenuZoom.add(zoomMenuItem);
+			zoomGroup.add(zoomMenuItem);
+
+			if(zoom == realCurrentScale) {
+				zoomMenuItem.setSelected(true);
 			}
-		});
-		jMenuZoom.add(jMenuRadioItemX1);
-		zoomGroup.add(jMenuRadioItemX1);
-
-		JRadioButtonMenuItem jMenuRadioItemX1P5 = new JRadioButtonMenuItem("x1.5");
-		jMenuRadioItemX1P5.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1.224744871391589);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX1P5);
-		zoomGroup.add(jMenuRadioItemX1P5);
-
-		JRadioButtonMenuItem jMenuRadioItemX2 = new JRadioButtonMenuItem("x2");
-		jMenuRadioItemX2.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1.414213562373095);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX2);
-		zoomGroup.add(jMenuRadioItemX2);
-
-		JRadioButtonMenuItem jMenuRadioItemX2P5 = new JRadioButtonMenuItem("x2.5");
-		jMenuRadioItemX2P5.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1.58113883008419);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX2P5);
-		zoomGroup.add(jMenuRadioItemX2P5);
-
-		JRadioButtonMenuItem jMenuRadioItemX3 = new JRadioButtonMenuItem("x3");
-		jMenuRadioItemX3.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				setScale(1.732050807568877);
-			}
-		});
-		jMenuZoom.add(jMenuRadioItemX3);
-		zoomGroup.add(jMenuRadioItemX3);
-
-		switch ((int)(Math.round(Math.pow(Core.getScale(), 2)) * 2)) {
-			case 2:
-				jMenuRadioItemX1.setSelected(true);
-				break;
-			case 3:
-				jMenuRadioItemX1P5.setSelected(true);
-				break;
-			case 4:
-				jMenuRadioItemX2.setSelected(true);
-				break;
-			case 5:
-				jMenuRadioItemX2P5.setSelected(true);
-				break;
-			case 6:
-				jMenuRadioItemX3.setSelected(true);
-				break;
-			default:
-				zoomGroup.clearSelection();
-				break;
 		}
 
 		jMenuOptions.add(jMenuZoom);
@@ -1215,7 +1180,6 @@ public class Lemmini extends JFrame implements KeyListener {
 			setContentPane(gp);
 
 			// re-enable menus
-			jMenuZoom.setEnabled(true);
 			jMenuZoom.setEnabled(true);
 			jMenuItemManagePlayer.setEnabled(true);
 			jMenuItemLoad.setEnabled(true);
