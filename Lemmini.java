@@ -117,6 +117,8 @@ public class Lemmini extends JFrame implements KeyListener {
 	private int xMargin;
 	private int yMargin;
 	private float maxScale;
+	private Dimension oldSize;
+	private double windowRatio;
 
 	// Menu stuff
 	private JMenuBar jMenuBar;
@@ -180,6 +182,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			scale = maxScale;
 			Core.setScale(scale);
 		}
+		this.setMaximumSize(new Dimension(screenWidth, screenHeight));
 
 		// Unfortunately JFrame provides very little control here
 		//IF-MAC
@@ -203,6 +206,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		int width = (int)Math.round((float)drawWidth * scale);
 		int height = (int)Math.round((float)drawHeight * scale);
 		gp.setPreferredSize(new Dimension(width, height));
+		windowRatio = (double)drawWidth / drawHeight;
 
 		// Add menu bar
 		buildMenuBar();
@@ -219,6 +223,9 @@ public class Lemmini extends JFrame implements KeyListener {
 		yMargin = wholeWindow.height - height;
 		this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
 		System.out.println("Margins: " + xMargin +" - "+ yMargin);
+
+		// store content pane size
+		oldSize = new Dimension(width, height);
 
 		// set coords - default to centre of screen
 		int posX = Core.programProps.get("framePosX", (screenWidth/2) - (wholeWindow.width/2));
@@ -241,30 +248,34 @@ public class Lemmini extends JFrame implements KeyListener {
 		this.addComponentListener(new java.awt.event.ComponentAdapter() {
 			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
-				Dimension cpSize = getContentPane().getSize();
+				Dimension newSize = getContentPane().getSize();
 
 				//IF-MAC
-				float scale = (float)cpSize.width / Core.getDrawWidth();
-
 				if(Core.isFullScreen()) {
+					float scale = (float)newSize.width / Core.getDrawWidth();
 					Core.setScale(scale);
-				} else if(scale > maxScale) { // avoid exceeding screen size
-					scale = maxScale;
+				} else if(oldSize.height == newSize.height) {
+					float scale = (float)newSize.width / Core.getDrawWidth();
+					int newHeight = (int)Math.round(newSize.width / windowRatio);
+
+					setSize(newSize.width + xMargin, newHeight + yMargin);
+					oldSize = newSize;
 					Core.setScale(scale);
-					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-					int newWidth = (int)Math.round((float)scale * Core.getDrawWidth());
-					setSize(newWidth + xMargin, newHeight + yMargin);
+				} else if(oldSize.width == newSize.width) {
+					float scale = (float)newSize.height / Core.getDrawHeight();
+					int newWidth = (int)Math.round(newSize.height * windowRatio);
+
+					setSize(newWidth + xMargin, newSize.height + yMargin);
+					oldSize = newSize;
+					Core.setScale(scale);
 				} else {
-					Core.setScale(scale);
-					int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-					setSize(cpSize.width + xMargin, newHeight + yMargin);
+					setSize(oldSize.width + xMargin, oldSize.height + yMargin);
 				}
 				/*ELSE-IF-NOT-MAC
-				float scaleX = (float)cpSize.width / Core.getDrawWidth();
-				float scaleY = (float)cpSize.height / Core.getDrawHeight();
+				float scaleX = (float)newSize.width / Core.getDrawWidth();
+				float scaleY = (float)newSize.height / Core.getDrawHeight();
 
 				float scale = Math.min(scaleX, scaleY);
-				scale = Math.min(scale, maxScale);
 
 				Core.setScale(scale);
 				//END-NOT-MAC*/
