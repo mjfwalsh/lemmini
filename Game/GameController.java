@@ -463,7 +463,7 @@ public class GameController {
 		int clp = curLevelPack;
 		int cdl = curDiffLevel;
 
-		if ( curLevelNumber >= (levelPack.get(clp).getLevels(cdl).length - 1) ) {
+		if ( curLevelNumber < (levelPack.get(clp).getLevels(cdl).length - 1) ) {
 			return;
 		}
 
