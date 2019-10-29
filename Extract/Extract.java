@@ -47,6 +47,8 @@ public class Extract extends Thread {
 	final private static String iniName = "extract.ini";
 	/** file name of patching configuration */
 	final private static String patchIniName = "patch.ini";
+	/** file name of resource CRCs (WINLEMM) */
+	final private static String crcIniName = "crc.ini";
 
 	/** index for files to be checked - static since multiple runs are possible */
 	private static int checkNo = 0;
@@ -112,6 +114,30 @@ public class Extract extends Thread {
 				throw new ExtractException("File " + iniName + " not found or error while reading");
 
 			ignoreExt = props.get("ignore_ext", ignoreExt);
+
+			// prolog_ check CRC
+			out("\nValidating WINLEMM");
+			URL fncrc = findFile(crcIniName);
+			Props cprops = new Props();
+			if (fncrc==null || !cprops.load(fncrc))
+				throw new ExtractException("File " + crcIniName + " not found or error while reading");
+			for (int i=0; true; i++) {
+				String crcbuf[] = {null,null,null};
+				// 0: name, 1:size, 2: crc
+				crcbuf = cprops.get("crc_"+Integer.toString(i),crcbuf);
+				if (crcbuf[0] == null)
+					break;
+				out(crcbuf[0]);
+				long len = new File(sourcePath+crcbuf[0]).length();
+				if (len != Long.parseLong(crcbuf[1]))
+					throw new ExtractException("CRC error for file "+sourcePath+crcbuf[0]+".\n");
+				byte src[] = readFile(sourcePath+crcbuf[0]);
+				Adler32 crc32 = new Adler32();
+				crc32.update(src);
+				if (Long.toHexString(crc32.getValue()).compareToIgnoreCase(crcbuf[2].substring(2))!=0)
+					throw new ExtractException("CRC error for file "+sourcePath+crcbuf[0]+".\n");
+				checkCancel();
+			}
 
 			// step one: extract the levels
 			out("\nExtracting levels");
