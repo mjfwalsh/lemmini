@@ -14,7 +14,7 @@ It also adds the following keyboard shortcuts:
 
 ### Binaries
 
-A ``dmg` file (for MacOS) and a `jar` (for Windows and possibly other systems) are available on the [releases page](releases/).
+A ``dmg` file (for MacOS) and a `jar` (for Windows and possibly other systems) are available on the [releases page](/mjfwalsh/lemmini/releases).
 
 You will need a Java JRE to run them. They're not signed or anything so expect your computer to object loudly if you try to download them.
 
