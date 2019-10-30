@@ -289,11 +289,13 @@ public class Lemmini extends JFrame implements KeyListener {
 			public void windowEnteringFullScreen(AppEvent.FullScreenEvent fse) {
 				saveWindowProps();
 				Core.setFullScreen(true);
+				jMenuItemFullscreen.setText("Exit Fullscreen");
 			}
 
 			@Override
 			public void windowExitedFullScreen(AppEvent.FullScreenEvent fse) {
 				Core.setFullScreen(false);
+				jMenuItemFullscreen.setText("Fullscreen");
 			}
 
 			// all four methods need to be defined, even if we're not using them
@@ -339,24 +341,24 @@ public class Lemmini extends JFrame implements KeyListener {
 		JMenu jMenuFile = new JMenu("File");
 
 		// Exit menu
-		JMenuItem jMenuItemExit = new JMenuItem("About");
-		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
+		JMenuItem jMenuItemAbout = new JMenuItem("About");
+		jMenuItemAbout.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				showInitScreen();
 			}
 		});
-		jMenuFile.add(jMenuItemExit);
+		jMenuFile.add(jMenuItemAbout);
 
-		// Fullscreen
-		jMenuItemFullscreen = new JMenuItem("Fullscreen");
-		jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
+		// Exit menu
+		JMenuItem jMenuItemExit = new JMenuItem("Exit");
+		jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
-				toggleFullScreen();
+				exit();
 			}
 		});
-		jMenuFile.add(jMenuItemFullscreen);
+		jMenuFile.add(jMenuItemExit);
 
 		jMenuBar.add(jMenuFile);
 		//END-NOT-MAC*/
@@ -692,6 +694,16 @@ public class Lemmini extends JFrame implements KeyListener {
 		jMenuOptions.add(jMenuZoom);
 		//END-NOT-MAC*/
 
+		// Fullscreen
+		jMenuItemFullscreen = new JMenuItem("Fullscreen");
+		jMenuItemFullscreen.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				toggleFullScreen();
+			}
+		});
+		jMenuOptions.add(jMenuItemFullscreen);
+
 		// Finish Options Menu
 		jMenuBar.add(jMenuOptions);
 
@@ -806,7 +818,7 @@ public class Lemmini extends JFrame implements KeyListener {
 	}
 
 	/**
-	 * Set scale and window bounds in response to user choice
+	 * Set window bounds in response to user choice
 	 */
 	/*IF-NOT-MAC
 	void setScale(double scale) {
@@ -814,8 +826,7 @@ public class Lemmini extends JFrame implements KeyListener {
 		int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
 		int newWidth  = (int)Math.round((float)scale * Core.getDrawWidth());
 
-		// set scale and window size
-		Core.setScale(scale);
+		// set window size
 		setSize(newWidth + xMargin, newHeight + yMargin);
 	}
 	//END-NOT-MAC*/
