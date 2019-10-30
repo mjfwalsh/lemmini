@@ -24,7 +24,7 @@ The Mac version expects to find the resource folder at `~/Library/Application Su
 
 #### Windows
 
-It should compile with either Java 7 or 8. You'll also need Perl for the compilation scripts (I'm difficult that way).
+It should compile with either Java 7 or 8.
 
 Double click the `make.bat` script to make the jar.
 
