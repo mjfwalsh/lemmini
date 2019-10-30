@@ -1181,7 +1181,7 @@ public class Lemmini extends JFrame implements KeyListener {
 			setContentPane(newlp);
 
 			// add elements
-			newlp.add(jMenuBar, JLayeredPane.POPUP_LAYER);
+			newlp.add(jMenuBar, JLayeredPane.PALETTE_LAYER);
 			newlp.add(gp, JLayeredPane.DEFAULT_LAYER);
 			gp.setBounds(0, 0, screenWidth, screenHeight);
 			jMenuBar.setBounds(0, 0, screenWidth, menuBarHeight);
