@@ -84,7 +84,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo done
 
 ECHO Making Jar File...
-jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png patch
+jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png LemminiIcon.png patch
 if %ERRORLEVEL% NEQ 0 (
 	ECHO failed
 	EXIT /B

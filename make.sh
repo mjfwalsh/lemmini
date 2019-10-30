@@ -45,7 +45,7 @@ make_jar()
 	fi
 
 	echo Making Jar File...
-	jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png patch
+	jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png LemminiIcon.png patch
 
 	if [ "$?" != "0" ]; then
 		echo Failed to make jar

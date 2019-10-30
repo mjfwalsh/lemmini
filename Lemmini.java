@@ -313,8 +313,12 @@ public class Lemmini extends JFrame implements KeyListener {
 				showInitScreen();
 			}
 		});
+		/*ELSE-IF-NOT-MAC
 
-		//END-MAC
+		try { // It doesn't matter if this fails
+			setIconImage(Core.loadImageJar("LemminiIcon.png"));
+		} catch (ResourceException ex) {}
+		//END-NOT-MAC*/
 
 		this.setVisible(true);
 		gp.init();
