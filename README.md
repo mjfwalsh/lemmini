@@ -12,6 +12,12 @@ It also adds the following keyboard shortcuts:
 * `Esc` to exit fullscreen mode
 * `r` to restart a level
 
+### Binaries
+
+A ``dmg` file (for MacOS) and a `jar` (for Windows and possibly other systems) are available on the [releases page](releases/).
+
+You will need a Java JRE to run them. They're not signed or anything so expect your computer to object loudly if you try to download them.
+
 ### Compiling from source
 
 #### Mac
