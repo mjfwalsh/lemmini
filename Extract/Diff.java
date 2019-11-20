@@ -149,35 +149,35 @@ public class Diff {
 				case INSERT :
 					// insert
 					out("Insert: "+len);
-					patch.add(new Byte(INSERT));
+					patch.add(Byte.valueOf(INSERT));
 					setLen(patch,len);
 					for (int i = 0; i<len; i++)
-						patch.add(new Byte((byte)trg.getByte()));
+						patch.add(Byte.valueOf((byte)trg.getByte()));
 					break;
 				case DELETE:
 					// delete
 					out("Delete: "+len);
-					patch.add(new Byte(DELETE));
+					patch.add(Byte.valueOf(DELETE));
 					setLen(patch,len);
 					src.setIndex(src.getIndex()+len);
 					break;
 				case REPLACE:
 					// replace
 					out("Replace: "+len);
-					patch.add(new Byte(REPLACE));
+					patch.add(Byte.valueOf(REPLACE));
 					setLen(patch,len);
 					for (int i = 0; i<len; i++)
-						patch.add(new Byte((byte)trg.getByte()));
+						patch.add(Byte.valueOf((byte)trg.getByte()));
 					src.setIndex(src.getIndex()+len);
 					break;
 				case SUBSTITUTE:
 					// replace
 					out("Substitute: "+lens[0]+"/"+lens[1]);
-					patch.add(new Byte(SUBSTITUTE));
+					patch.add(Byte.valueOf(SUBSTITUTE));
 					setLen(patch,lens[0]);
 					setLen(patch,lens[1]);
 					for (int i = 0; i<lens[1]; i++)
-						patch.add(new Byte((byte)trg.getByte()));
+						patch.add(Byte.valueOf((byte)trg.getByte()));
 					src.setIndex(src.getIndex()+lens[0]);
 					break;
 			}
@@ -191,12 +191,12 @@ public class Diff {
 
 		// check for stuff to insert in target
 		if (trg.getIndex() < trg.length()) {
-			patch.add(new Byte(INSERT));
+			patch.add(Byte.valueOf(INSERT));
 			int len = trg.length() - trg.getIndex();
 			out("Insert (End): "+len);
 			setLen(patch,len);
 			for (int i = 0; i<len; i++)
-				patch.add(new Byte((byte)trg.getByte()));
+				patch.add(Byte.valueOf((byte)trg.getByte()));
 		}
 
 		if (patch.size() == 0)
@@ -333,10 +333,10 @@ public class Diff {
 	private static void setLen(final List<Byte> l, final int value) {
 		int val = value;
 		while ( val > 0x7f) {
-			l.add(new Byte((byte)(val & 0x7f | 0x80)));
+			l.add(Byte.valueOf((byte)(val & 0x7f | 0x80)));
 			val >>>= 7;
 		}
-		l.add(new Byte((byte)val));
+		l.add(Byte.valueOf((byte)val));
 	}
 
 	/**
@@ -484,10 +484,10 @@ public class Diff {
 	 * @param val DWord value
 	 */
 	private static void setDWord(final List<Byte> l, final int val) {
-		l.add(new Byte((byte)val));
-		l.add(new Byte((byte)(val>>8)));
-		l.add(new Byte((byte)(val>>16)));
-		l.add(new Byte((byte)(val>>24)));
+		l.add(Byte.valueOf((byte)val));
+		l.add(Byte.valueOf((byte)(val>>8)));
+		l.add(Byte.valueOf((byte)(val>>16)));
+		l.add(Byte.valueOf((byte)(val>>24)));
 	}
 
 	private static void out(final String s) {

@@ -683,7 +683,7 @@ public class Extract extends Thread {
 
 			while ( (len=f.read(buffer)) != -1) {
 				for (int i=0; i<len; i++)
-					lbuf.add(new Byte(buffer[i]));
+					lbuf.add(Byte.valueOf(buffer[i]));
 			}
 			f.close();
 
