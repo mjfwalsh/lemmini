@@ -22,9 +22,6 @@ compile_java()
 		rm -fR build
 	fi
 
-	# Updating Compile Datastamp...
-	#./update_compile_time.pl
-
 	echo Running Java Compiler...
 	mkdir -p build && javac -encoding UTF8 -d ./build Lemmini.java
 
@@ -88,10 +85,18 @@ make_mac_app()
 	cp Lemmini.icns tmpapp/Contents/Resources/
 	mv Lemmini.jar tmpapp/Contents/Resources/
 
-	echo \#\!/bin/sh > tmpapp/Contents/MacOS/Lemmini
-	echo FOO=\`dirname \"\$0\"\` >> tmpapp/Contents/MacOS/Lemmini
-	echo cd \"\$FOO/../Resources\" >> tmpapp/Contents/MacOS/Lemmini
-	echo java \"-Xdock:icon=\$FOO/../Resources/Lemmini.icns\" -jar Lemmini.jar >> tmpapp/Contents/MacOS/Lemmini
+	cat <<'EOF' > tmpapp/Contents/MacOS/Lemmini
+#!/bin/sh
+FOO=`dirname "$0"`
+cd "$FOO/../Resources"
+export JAVA_HOME=`/usr/libexec/java_home -Fv 1.7 2> /dev/null`
+if [ "$JAVA_HOME" = "" ]; then
+	exec osascript -e 'display alert "Lemmini needs Java 1.7 to work" as critical buttons {"Ok"}'
+else
+	exec java "-Xdock:icon=Lemmini.icns" -jar Lemmini.jar
+fi
+EOF
+
 	chmod 755 tmpapp/Contents/MacOS/Lemmini
 
 	mv tmpapp Lemmini.app
@@ -158,7 +163,7 @@ fi
 
 # On Mac find the most recent version of the 1.7 JDK.
 if [ "$system" = "Darwin" ] && ! [ "$2" = "nolook" ]; then
-	export JAVA_HOME=`ls -1d /Library/Java/JavaVirtualMachines/jdk1.7*.jdk/Contents/Home 2> /dev/null | sort -Vr | head -n 1`
+	export JAVA_HOME=`/usr/libexec/java_home -Fv 1.7 2> /dev/null`
 
 	if [ "$JAVA_HOME" = ""  ]; then
 		echo Can\'t find Java 1.7
