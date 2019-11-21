@@ -5,7 +5,8 @@ This is a fork of Lemmini by Volker Oth (http://lemmini.de). It is released unde
 Lemmini is the attempt to combine the playing sensation of the original Amiga version of Lemmings with the improved graphics of the Win95 port to create the best possible Lemmings experience on all platforms that support a Java virtual machine.
 
 The main changes in this fork are that it supports:
-* fullscreen mode including native fullscreen on Mac, and
+* fullscreen mode including native fullscreen on Mac,
+* correct scaling on Windows (ie x2 scaling should be twice as big not four times), and
 * granular window resizing (Mac only).
 
 It also adds the following keyboard shortcuts:
@@ -14,7 +15,7 @@ It also adds the following keyboard shortcuts:
 
 ### Binaries
 
-A ``dmg` file (for MacOS) and a `jar` (for Windows and possibly other systems) are available on the releases page.
+A `dmg` file (for MacOS) and a `jar` (for Windows and possibly other systems) are available on the releases page.
 
 You will need a Java JRE to run them. They're not signed or anything so expect your computer to object loudly if you try to download them.
 
@@ -49,7 +50,7 @@ Copyright (c) Volker Oth 2005-2017. With modifications by Michael J. Walsh 2018-
 
 The Lemmini official website, along with Volker Oth's build and links to the original source code are at: http://lemmini.de
 
-MicroMod and GifEncoder are both released under Three-Clause BSD Licenses:
+MicroMod and GifEncoder are both released under three-clause BSD Licenses:
 
 GifEncoder Library: Copyright (C)1996,1998 by Jef Poskanzer <jef@mail.acme.com>. All rights reserved.
 
