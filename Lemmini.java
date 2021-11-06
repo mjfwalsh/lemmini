@@ -169,7 +169,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
 		// adjust game width to fit screen dimensions
 		float hRatio = (float)drawHeight / screenHeight;
-		int drawWidth = (int)Math.round((float)screenWidth * hRatio);
+		int drawWidth = (int)((float)screenWidth * hRatio);
 		if(drawWidth < 672) drawWidth = 672;
 		else if(drawWidth > 850) drawWidth = 850;
 		Core.setDrawWidth(drawWidth);
@@ -203,8 +203,8 @@ public class Lemmini extends JFrame implements KeyListener {
 		gp.setDoubleBuffered(false);
 
 		// set dimensions
-		int width = (int)Math.round((float)drawWidth * scale);
-		int height = (int)Math.round((float)drawHeight * scale);
+		int width = (int)((float)drawWidth * scale);
+		int height = (int)((float)drawHeight * scale);
 		gp.setPreferredSize(new Dimension(width, height));
 		windowRatio = (double)drawWidth / drawHeight;
 
@@ -256,14 +256,14 @@ public class Lemmini extends JFrame implements KeyListener {
 					Core.setScale(scale);
 				} else if(oldSize.height == newSize.height) {
 					float scale = (float)newSize.width / Core.getDrawWidth();
-					int newHeight = (int)Math.round(newSize.width / windowRatio);
+					int newHeight = (int)(newSize.width / windowRatio);
 
 					setSize(newSize.width + xMargin, newHeight + yMargin);
 					oldSize = newSize;
 					Core.setScale(scale);
 				} else if(oldSize.width == newSize.width) {
 					float scale = (float)newSize.height / Core.getDrawHeight();
-					int newWidth = (int)Math.round(newSize.height * windowRatio);
+					int newWidth = (int)(newSize.height * windowRatio);
 
 					setSize(newWidth + xMargin, newSize.height + yMargin);
 					oldSize = newSize;
@@ -827,8 +827,8 @@ public class Lemmini extends JFrame implements KeyListener {
 	/*IF-NOT-MAC
 	void setScale(double scale) {
 		// calculate new heights of graphicsPane
-		int newHeight = (int)Math.round((float)scale * Core.getDrawHeight());
-		int newWidth  = (int)Math.round((float)scale * Core.getDrawWidth());
+		int newHeight = (int)((float)scale * Core.getDrawHeight());
+		int newWidth  = (int)((float)scale * Core.getDrawWidth());
 
 		// set window size
 		setSize(newWidth + xMargin, newHeight + yMargin);

@@ -175,14 +175,21 @@ public class TextScreen {
 		}
 
 		textScreen.print("Lemmings  "+level.getNumLemmings(), -17, lineRef+2, BLUE);
-		textScreen.print("Target  "+(level.getNumToRescue()*100/level.getNumLemmings())+"%", -15, lineRef+3, GREEN);
+		textScreen.print("Target  "+level.getNumToRescue()+" (" +
+		(level.getNumToRescue()*100/level.getNumLemmings()) + "%)", -15, lineRef+3, GREEN);
 		textScreen.print("Release Rate  "+level.getReleaseRate(), -21, lineRef+4, BROWN);
 		int minutes = level.getTimeLimitSeconds() / 60;
 		int seconds = level.getTimeLimitSeconds() % 60;
-		if (seconds == 0)
-			textScreen.print("Time  "+minutes+" Minutes", -13, lineRef+5, TURQUOISE);
-		else
-			textScreen.print("Time  "+minutes+":"+seconds+" Minutes", -13, lineRef+5, TURQUOISE);
+
+		String time_text = "Time  " + minutes;
+		time_text += minutes == 1 ? " minute" : " minutes";
+
+		if (seconds > 0) {
+			time_text += ", " + seconds;
+			time_text += seconds == 1 ? " second" : " seconds";
+		}
+
+		textScreen.print(time_text, -13, lineRef+5, TURQUOISE);
 
 		textScreen.copyToBackBuffer(); // though not really needed
 	}
