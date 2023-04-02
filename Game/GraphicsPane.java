@@ -721,11 +721,11 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 		LemmCursor.setX((int)(xMouseScreen/scale/*-LemmCursor.width/2*/));
 		LemmCursor.setY((int)(yMouseScreen/scale/*-LemmCursor.height/2*/));
 
-		/*IF-NOT-MAC
-		if(Core.isFullScreen()) {
-			 getParent().getComponent(0).setVisible(y < 5);
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			if(Core.isFullScreen()) {
+				 getParent().getComponent(0).setVisible(y < 5);
+			}
 		}
-		//END-NOT-MAC*/
 
 		switch (GameController.getGameState()) {
 			case INTRO:

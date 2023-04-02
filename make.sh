@@ -125,15 +125,11 @@ print_usage()
 {
 		cat << EOF
 
-Usage: ./make.sh command [nolook]
+Usage: ./make.sh command
 
 All commands complete any required earlier steps, with the effect that a
 ./make install will compile the java code, make a jar file, put it in an
 app wrapper and move the app to the Applications folder.
-
-When run on a Mac this script will look for the Java 1.7 JDK in the
-/Library/Java/JavaVirtualMachines/ directory. To disable this give the
-second command as nolook, and set the JAVA_HOME environmental variable yourself.
 
 Main Commands:
 compile     Compile the java code
@@ -160,17 +156,6 @@ if [ "$#" = "0" ]; then
 	print_usage
 	exit 0
 fi
-
-# On Mac find the most recent version of the 1.7 JDK.
-if [ "$system" = "Darwin" ] && ! [ "$2" = "nolook" ]; then
-	export JAVA_HOME=`/usr/libexec/java_home -Fv 1.7 2> /dev/null`
-
-	if [ "$JAVA_HOME" = ""  ]; then
-		echo Can\'t find Java 1.7
-		exit
-	fi
-fi
-
 
 if [ "$1" = "run" ]; then
 	run_java

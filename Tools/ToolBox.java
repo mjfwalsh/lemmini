@@ -294,11 +294,11 @@ public class ToolBox {
 	  * @param from an existing folder
 	  * @param to folder to be created
 	  */
-    public static void copyFolder(Path from, Path to)  {
-    	copyFolder(from.toFile(), to);
-    }
+	public static void copyFolder(Path from, Path to)  {
+		copyFolder(from.toFile(), to);
+	}
 
-    public static void copyFolder(File from, Path to)  {
+	public static void copyFolder(File from, Path to)  {
 		to.toFile().mkdirs();
 
 		File dir[] = from.listFiles();
@@ -316,5 +316,5 @@ public class ToolBox {
 				copyFolder(dir[i], t);
 			}
 		}
-    }
+	}
 }

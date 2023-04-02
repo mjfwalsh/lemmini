@@ -89,35 +89,34 @@ public class Core {
 		// get ini path
 		String programPropsFileStr = "";
 
-		//IF-MAC
-		// resourcePath and programPropsFileStr are in fixed places on Mac
-		resourcePath = System.getProperty("user.home") + "/Library/Application Support/Lemmini/";
+		if(System.getProperty("os.name").equals("Mac OS X")) {
+			// resourcePath and programPropsFileStr are in fixed places on Mac
+			resourcePath = System.getProperty("user.home") + "/Library/Application Support/Lemmini/";
 
-		// ini path
-		programPropsFileStr = resourcePath + INI_NAME;
+			// ini path
+			programPropsFileStr = resourcePath + INI_NAME;
+		} else {
+			String s = frame.getClass().getName().replace('.','/') + ".class";
+			URL url = frame.getClass().getClassLoader().getResource(s);
+			int pos;
+			try {
+				programPropsFileStr = URLDecoder.decode(url.getPath(),"UTF-8");
+			} catch (UnsupportedEncodingException ex) {};
+			// special handling for JAR
+			if (( (pos=programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
+				programPropsFileStr = programPropsFileStr.substring(pos+5);
+			if ( (pos=programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
+				programPropsFileStr = programPropsFileStr.substring(0,pos);
 
-		/*ELSE-IF-NOT-MAC
-		String s = frame.getClass().getName().replace('.','/') + ".class";
-		URL url = frame.getClass().getClassLoader().getResource(s);
-		int pos;
-		try {
-			programPropsFileStr = URLDecoder.decode(url.getPath(),"UTF-8");
-		} catch (UnsupportedEncodingException ex) {};
-		// special handling for JAR
-		if (( (pos=programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
-			programPropsFileStr = programPropsFileStr.substring(pos+5);
-		if ( (pos=programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
-			programPropsFileStr = programPropsFileStr.substring(0,pos);
+			// @todo doesn't work if JAR is renamed...
+			// Maybe it would be a better idea to search only for ".JAR" and then
+			// for the first path separator...
 
-		// @todo doesn't work if JAR is renamed...
-		// Maybe it would be a better idea to search only for ".JAR" and then
-		// for the first path separator...
-
-		s = (frame.getClass().getName().replace('.','/') + ".jar").toLowerCase();
-		if ( (pos=programPropsFileStr.toLowerCase().indexOf(s)) != -1)
-			programPropsFileStr = programPropsFileStr.substring(0,pos);
-		programPropsFileStr += INI_NAME;
-		//END-NOT-MAC*/
+			s = (frame.getClass().getName().replace('.','/') + ".jar").toLowerCase();
+			if ( (pos=programPropsFileStr.toLowerCase().indexOf(s)) != -1)
+				programPropsFileStr = programPropsFileStr.substring(0,pos);
+			programPropsFileStr += INI_NAME;
+		}
 
 		// read main ini file
 		programProps = new Props();
@@ -132,9 +131,9 @@ public class Core {
 		scale = Core.programProps.get("scale",1.0);
 		if(scale < 1) scale = 1;
 
-		/*IF-NOT-MAC
-		resourcePath = programProps.get("resourcePath", "");
-		//END-NOT-MAC*/
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			resourcePath = programProps.get("resourcePath", "");
+		}
 
 		String sourcePath = programProps.get("sourcePath", "");
 		String rev = programProps.get("revision", "");
@@ -151,18 +150,18 @@ public class Core {
 			try {
 				Extract.extract(null, sourcePath, resourcePath, null, "patch");
 
-				/*IF-NOT-MAC
-				resourcePath = Extract.getResourcePath();
-				programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
-				//END-NOT-MAC*/
+				if(!System.getProperty("os.name").equals("Mac OS X")) {
+					resourcePath = Extract.getResourcePath();
+					programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
+				}
 
 				programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
 				programProps.set("revision", REVISION);
 				programProps.save();
 			} catch (ExtractException ex) {
-				/*IF-NOT-MAC
-				programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
-				//END-NOT-MAC*/
+				if(!System.getProperty("os.name").equals("Mac OS X")) {
+					programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
+				}
 
 				programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
 				programProps.save();

@@ -388,9 +388,9 @@ public class Extract extends Thread {
 				System.exit(0);
 			sourcePath = exchangeSeparators(addSeparator(fDiag.getSource()));
 
-			/*IF-NOT-MAC
-			destinationPath = exchangeSeparators(addSeparator(fDiag.getTarget()));
-			//END-NOT-MAC*/
+			if(!System.getProperty("os.name").equals("Mac OS X")) {
+				destinationPath = exchangeSeparators(addSeparator(fDiag.getTarget()));
+			}
 
 			// check if source path exists
 			File fSrc = new File(sourcePath);

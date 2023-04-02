@@ -91,10 +91,10 @@ public class FolderDialog extends JDialog {
 		jTextFieldSrc.setText( srcPath );
 		sourcePath = srcPath;
 
-		/*IF-NOT-MAC
-		jTextFieldTrg.setText( trgPath );
-		targetPath = trgPath;
-		//END-NOT-MAC*/
+		if(!System.getProperty("os.name").equals("Mac OS X")) {
+			jTextFieldTrg.setText( trgPath );
+			targetPath = trgPath;
+		}
 	}
 
 	/**
@@ -173,21 +173,19 @@ public class FolderDialog extends JDialog {
 
 			v.addPreferredGap(ComponentPlacement.UNRELATED);
 
-			/*IF-NOT-MAC
+			if(!System.getProperty("os.name").equals("Mac OS X")) {
+				JLabel targetLabel = new JLabel("Target Path");
+				leftAlign.addComponent(targetLabel);
+				v.addComponent(targetLabel);
 
-			JLabel targetLabel = new JLabel("Target Path");
-			leftAlign.addComponent(targetLabel);
-			v.addComponent(targetLabel);
+				v.addPreferredGap(ComponentPlacement.RELATED);
 
-			v.addPreferredGap(ComponentPlacement.RELATED);
+				leftAlign.addComponent(getJTextFieldTrg());
+				rightAlign.addComponent(getJButtonTrg());
+				v.addGroup(gl.createParallelGroup(Alignment.BASELINE).addComponent(getJTextFieldTrg()).addComponent(getJButtonTrg()));
 
-			leftAlign.addComponent(getJTextFieldTrg());
-			rightAlign.addComponent(getJButtonTrg());
-			v.addGroup(gl.createParallelGroup(Alignment.BASELINE).addComponent(getJTextFieldTrg()).addComponent(getJButtonTrg()));
-
-			v.addPreferredGap(ComponentPlacement.UNRELATED);
-
-			//END-NOT-MAC*/
+				v.addPreferredGap(ComponentPlacement.UNRELATED);
+			}
 
 			leftAlign.addComponent(getJButtonQuit());
 			rightAlign.addComponent(getJButtonExtract());
@@ -314,9 +312,9 @@ public class FolderDialog extends JDialog {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					sourcePath = jTextFieldSrc.getText();
-					/*IF-NOT-MAC
-					targetPath = jTextFieldTrg.getText();
-					//END-NOT-MAC*/
+					if(!System.getProperty("os.name").equals("Mac OS X")) {
+						targetPath = jTextFieldTrg.getText();
+					}
 					doExtract = true;
 					dispose();
 				}
