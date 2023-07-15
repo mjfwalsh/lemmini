@@ -87,14 +87,22 @@ make_mac_app()
 
 	cat <<'EOF' > tmpapp/Contents/MacOS/Lemmini
 #!/bin/sh
-FOO=`dirname "$0"`
+FOO=$(dirname "$0")
 cd "$FOO/../Resources"
-export JAVA_HOME=`/usr/libexec/java_home -Fv 1.7 2> /dev/null`
-if [ "$JAVA_HOME" = "" ]; then
-	exec osascript -e 'display alert "Lemmini needs Java 1.7 to work" as critical buttons {"Ok"}'
-else
-	exec java "-Xdock:icon=Lemmini.icns" -jar Lemmini.jar
+msg=$(java "-Xdock:icon=Lemmini.icns" -jar Lemmini.jar 2>&1 )
+if [ $? -eq 0 ]
+then
+	exit 0
 fi
+
+osascript - "$msg" <<'EOS'
+on run argv
+	display alert (item 1 of argv) as critical buttons {"Ok"}
+end run
+EOS
+
+exit 1
+
 EOF
 
 	chmod 755 tmpapp/Contents/MacOS/Lemmini
