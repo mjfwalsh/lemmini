@@ -403,7 +403,7 @@ public class GameController {
    *
    * @throws ResourceException
    */
-  public static void init() throws ResourceException {
+  public static synchronized void init() throws ResourceException {
     bgImage = ToolBox.createImage(Level.WIDTH, Level.HEIGHT, Transparency.BITMASK);
     bgGfx = bgImage.createGraphics();
 
@@ -477,7 +477,7 @@ public class GameController {
    * @param level relative level number
    * @return absolute level number (0..127)
    */
-  static int absLevelNum(final int lvlPack, final int diffLevel, final int level) {
+  static synchronized int absLevelNum(final int lvlPack, final int diffLevel, final int level) {
     LevelPack lpack = levelPack.get(lvlPack);
     // calculate absolute level number
     int absLvl = level;
@@ -492,7 +492,7 @@ public class GameController {
    * @param lvlAbs absolute level number
    * @return { difficulty level, relative level number }
    */
-  public static int[] relLevelNum(final int lvlPack, final int lvlAbs) {
+  public static synchronized int[] relLevelNum(final int lvlPack, final int lvlAbs) {
     int retval[] = new int[2];
     LevelPack lpack = levelPack.get(lvlPack);
     int diffLevels = lpack.getDiffLevels().length;
@@ -616,7 +616,7 @@ public class GameController {
    *
    * @param l UpdateListener
    */
-  public static void setLevelMenuUpdateListener(final UpdateListener l) {
+  public static synchronized void setLevelMenuUpdateListener(final UpdateListener l) {
     levelMenuUpdateListener = l;
   }
 
@@ -638,7 +638,7 @@ public class GameController {
   }
 
   /** Initialize a level after it was loaded. */
-  private static void initLevel() {
+  private static synchronized void initLevel() {
     Music.stop();
 
     setFastForward(false);
@@ -838,7 +838,7 @@ public class GameController {
   }
 
   /** Stop replay. */
-  private static void stopReplayMode() {
+  private static synchronized void stopReplayMode() {
     if (replayMode) stopReplayMode = true;
   }
 
@@ -1209,7 +1209,7 @@ public class GameController {
   }
 
   /** Calculate the counter threshold for releasing a new Lemmings. */
-  private static void calcReleaseBase() {
+  private static synchronized void calcReleaseBase() {
     // the original formula is: release lemming every 4+(99-speed)/2 time steps
     // where one step is 60ms (3s/50) or 66ms (4s/60).
     // Lemmini runs at 30ms/33ms, so the term has to be multiplied by 2
@@ -1306,7 +1306,7 @@ public class GameController {
    *
    * @param g graphics object
    */
-  public static void fade(final Graphics g) {
+  public static synchronized void fade(final Graphics g) {
     if (Fader.getState() == Fader.State.OFF && transitionState != TransitionState.NONE) {
       switch (transitionState) {
         case END_LEVEL:
@@ -1377,7 +1377,7 @@ public class GameController {
    * @param height height of screen in pixels
    * @param xOfs horizontal level offset in pixels
    */
-  public static void drawExplosions(
+  public static synchronized void drawExplosions(
       final Graphics2D g, final int width, final int height, final int xOfs) {
     synchronized (explosions) {
       Iterator<Explosion> it = explosions.iterator();
@@ -1394,7 +1394,7 @@ public class GameController {
    * @param x x coordinate in pixels.
    * @param y y coordinate in pixels.
    */
-  public static void addExplosion(final int x, final int y) {
+  public static synchronized void addExplosion(final int x, final int y) {
     // create particle explosion
     synchronized (GameController.explosions) {
       GameController.explosions.add(new Explosion(x, y));
@@ -1408,7 +1408,7 @@ public class GameController {
    * @param x x coordinate in pixels
    * @param y y coordinate in pixels
    */
-  public static void drawIcons(final Graphics2D g, final int x, final int y) {
+  public static synchronized void drawIcons(final Graphics2D g, final int x, final int y) {
     g.drawImage(Icons.getImg(), x, y, null);
   }
 
@@ -1418,7 +1418,7 @@ public class GameController {
    * @param g graphics object
    * @param y y offset in pixels
    */
-  public static void drawCounters(final Graphics2D g, final int y) {
+  public static synchronized void drawCounters(final Graphics2D g, final int y) {
     // draw counters
     int[] val =
         new int[] {
@@ -1444,7 +1444,7 @@ public class GameController {
    *
    * @return index of current level pack
    */
-  public static int getCurLevelPackIdx() {
+  public static synchronized int getCurLevelPackIdx() {
     return curLevelPack;
   }
 
@@ -1453,7 +1453,7 @@ public class GameController {
    *
    * @return current level pack
    */
-  public static LevelPack getCurLevelPack() {
+  public static synchronized LevelPack getCurLevelPack() {
     return levelPack.get(curLevelPack);
   }
 
@@ -1462,7 +1462,7 @@ public class GameController {
    *
    * @return number of level packs
    */
-  public static int getLevelPackNum() {
+  public static synchronized int getLevelPackNum() {
     return levelPack.size();
   }
 
@@ -1472,7 +1472,7 @@ public class GameController {
    * @param i index of level pack
    * @return LevelPack
    */
-  public static LevelPack getLevelPack(final int i) {
+  public static synchronized LevelPack getLevelPack(final int i) {
     return levelPack.get(i);
   }
 
@@ -1481,7 +1481,7 @@ public class GameController {
    *
    * @return index of current difficulty level
    */
-  public static int getCurDiffLevel() {
+  public static synchronized int getCurDiffLevel() {
     return curDiffLevel;
   }
 
@@ -1490,7 +1490,7 @@ public class GameController {
    *
    * @return number of current leve
    */
-  public static int getCurLevelNumber() {
+  public static synchronized int getCurLevelNumber() {
     return curLevelNumber;
   }
 
@@ -1499,7 +1499,7 @@ public class GameController {
    *
    * @param x horizontal scrolling offset in pixels
    */
-  public static void setxPos(final int x) {
+  public static synchronized void setxPos(final int x) {
     xPos = x;
   }
 
@@ -1508,7 +1508,7 @@ public class GameController {
    *
    * @return horizontal scrolling offset in pixels
    */
-  public static int getxPos() {
+  public static synchronized int getxPos() {
     return xPos;
   }
 
@@ -1517,7 +1517,7 @@ public class GameController {
    *
    * @param s new game state
    */
-  public static void setGameState(final State s) {
+  public static synchronized void setGameState(final State s) {
     gameState = s;
   }
 
@@ -1526,7 +1526,7 @@ public class GameController {
    *
    * @return game state
    */
-  public static State getGameState() {
+  public static synchronized State getGameState() {
     return gameState;
   }
 
@@ -1535,7 +1535,7 @@ public class GameController {
    *
    * @param c true: enable, false: disable
    */
-  public static void setCheat(final boolean c) {
+  public static synchronized void setCheat(final boolean c) {
     cheat = c;
   }
 
@@ -1544,7 +1544,7 @@ public class GameController {
    *
    * @return true if cheat mode enabled, false otherwise
    */
-  public static boolean isCheat() {
+  public static synchronized boolean isCheat() {
     return cheat;
   }
 
@@ -1553,7 +1553,7 @@ public class GameController {
    *
    * @param ts TransitionState
    */
-  public static void setTransition(final TransitionState ts) {
+  public static synchronized void setTransition(final TransitionState ts) {
     transitionState = ts;
   }
 
@@ -1563,7 +1563,7 @@ public class GameController {
    * @param fn file name
    * @return replay level info object
    */
-  public static ReplayLevelInfo loadReplay(final String fn) {
+  public static synchronized ReplayLevelInfo loadReplay(final String fn) {
     return replay.load(fn);
   }
 
@@ -1573,7 +1573,7 @@ public class GameController {
    * @param fn file name
    * @return true if saved successfully, false otherwise
    */
-  public static boolean saveReplay(final String fn) {
+  public static synchronized boolean saveReplay(final String fn) {
     return replay.save(fn);
   }
 
@@ -1582,7 +1582,7 @@ public class GameController {
    *
    * @param sl true: activate, false: deactivate
    */
-  public static void setSuperLemming(final boolean sl) {
+  public static synchronized void setSuperLemming(final boolean sl) {
     superLemming = sl;
   }
 
@@ -1591,7 +1591,7 @@ public class GameController {
    *
    * @return true is Superlemming mode is active, false otherwise
    */
-  public static boolean isSuperLemming() {
+  public static synchronized boolean isSuperLemming() {
     return superLemming;
   }
 
@@ -1600,7 +1600,7 @@ public class GameController {
    *
    * @param c true: cheat mode was activated, false otherwise
    */
-  public static void setWasCheated(final boolean c) {
+  public static synchronized void setWasCheated(final boolean c) {
     wasCheated = c;
   }
 
@@ -1609,7 +1609,7 @@ public class GameController {
    *
    * @param p true: pause is active, false otherwise
    */
-  public static void setPaused(final boolean p) {
+  public static synchronized void setPaused(final boolean p) {
     paused = p;
   }
 
@@ -1618,7 +1618,7 @@ public class GameController {
    *
    * @return true if pause is active, false otherwise
    */
-  public static boolean isPaused() {
+  public static synchronized boolean isPaused() {
     return paused;
   }
 
@@ -1627,7 +1627,7 @@ public class GameController {
    *
    * @param ff true: fast forward is active, false otherwise
    */
-  public static void setFastForward(final boolean ff) {
+  public static synchronized void setFastForward(final boolean ff) {
     fastForward = ff;
   }
 
@@ -1636,7 +1636,7 @@ public class GameController {
    *
    * @return true if fast forward is active, false otherwise
    */
-  public static boolean isFastForward() {
+  public static synchronized boolean isFastForward() {
     return fastForward;
   }
 
@@ -1645,7 +1645,7 @@ public class GameController {
    *
    * @return number of lemmings left in the game
    */
-  public static int getNumLeft() {
+  public static synchronized int getNumLeft() {
     return numLeft;
   }
 
@@ -1654,7 +1654,7 @@ public class GameController {
    *
    * @param n number of Lemmings left in the game
    */
-  public static void setNumLeft(final int n) {
+  public static synchronized void setNumLeft(final int n) {
     numLeft = n;
   }
 
@@ -1663,7 +1663,7 @@ public class GameController {
    *
    * @return level object
    */
-  public static Level getLevel() {
+  public static synchronized Level getLevel() {
     return level;
   }
 
@@ -1672,7 +1672,7 @@ public class GameController {
    *
    * @return maximum number of Lemmings for this level
    */
-  public static int getNumLemmingsMax() {
+  public static synchronized int getNumLemmingsMax() {
     return numLemmingsMax;
   }
 
@@ -1682,7 +1682,7 @@ public class GameController {
    * @param x x position in pixels
    * @return icon type
    */
-  public static Icons.Type getIconType(final int x) {
+  public static synchronized Icons.Type getIconType(final int x) {
     return Icons.getType(x);
   }
 
@@ -1691,7 +1691,7 @@ public class GameController {
    *
    * @param t icon type
    */
-  public static void pressIcon(final Icons.Type t) {
+  public static synchronized void pressIcon(final Icons.Type t) {
     Icons.press(t);
   }
 
@@ -1700,7 +1700,7 @@ public class GameController {
    *
    * @param t icon type
    */
-  public static void releaseIcon(final Icons.Type t) {
+  public static synchronized void releaseIcon(final Icons.Type t) {
     Icons.release(t);
   }
 
@@ -1709,7 +1709,7 @@ public class GameController {
    *
    * @param d bitmask: key or icon
    */
-  public static void pressPlus(final int d) {
+  public static synchronized void pressPlus(final int d) {
     plus.pressed(d);
   }
 
@@ -1718,7 +1718,7 @@ public class GameController {
    *
    * @param d bitmask: key or icon
    */
-  public static void releasePlus(final int d) {
+  public static synchronized void releasePlus(final int d) {
     plus.released(d);
   }
 
@@ -1727,7 +1727,7 @@ public class GameController {
    *
    * @param d bitmask: key or icon
    */
-  public static void pressMinus(final int d) {
+  public static synchronized void pressMinus(final int d) {
     minus.pressed(d);
   }
 
@@ -1736,7 +1736,7 @@ public class GameController {
    *
    * @param d bitmask: key or icon
    */
-  public static void releaseMinus(final int d) {
+  public static synchronized void releaseMinus(final int d) {
     minus.released(d);
   }
 
@@ -1745,7 +1745,7 @@ public class GameController {
    *
    * @return list of all Lemmings under the mouse cursor
    */
-  public static ArrayList<Lemming> getLemmsUnderCursor() {
+  public static synchronized ArrayList<Lemming> getLemmsUnderCursor() {
     return lemmsUnderCursor;
   }
 
@@ -1754,7 +1754,7 @@ public class GameController {
    *
    * @return list of all Lemmings in this level
    */
-  public static LinkedList<Lemming> getLemmings() {
+  public static synchronized LinkedList<Lemming> getLemmings() {
     return lemmings;
   }
 
@@ -1763,7 +1763,7 @@ public class GameController {
    *
    * @param g gain (0..1.0)
    */
-  public static void setSoundGain(final double g) {
+  public static synchronized void setSoundGain(final double g) {
     soundGain = g;
     if (sound != null) sound.setGain(soundGain);
   }
@@ -1773,7 +1773,7 @@ public class GameController {
    *
    * @param g gain (0..1.0)
    */
-  public static void setMusicGain(final double g) {
+  public static synchronized void setMusicGain(final double g) {
     musicGain = g;
     if (Music.getType() != null) Music.setGain(musicGain);
   }
@@ -1783,7 +1783,7 @@ public class GameController {
    *
    * @param sel true: advanced selection mode active, false otherwise
    */
-  public static void setAdvancedSelect(final boolean sel) {
+  public static synchronized void setAdvancedSelect(final boolean sel) {
     advancedSelect = sel;
   }
 
@@ -1792,7 +1792,7 @@ public class GameController {
    *
    * @return true if advanced selection mode activated, false otherwise
    */
-  public static boolean isAdvancedSelect() {
+  public static synchronized boolean isAdvancedSelect() {
     return advancedSelect;
   }
 
@@ -1801,7 +1801,7 @@ public class GameController {
    *
    * @return background image of level
    */
-  public static BufferedImage getBgImage() {
+  public static synchronized BufferedImage getBgImage() {
     return bgImage;
   }
 
@@ -1810,7 +1810,7 @@ public class GameController {
    *
    * @return background stencil of level
    */
-  public static Stencil getStencil() {
+  public static synchronized Stencil getStencil() {
     return stencil;
   }
 
@@ -1819,7 +1819,7 @@ public class GameController {
    *
    * @param on true: music on, false otherwise
    */
-  public static void setMusicOn(final boolean on) {
+  public static synchronized void setMusicOn(final boolean on) {
     musicOn = on;
   }
 
@@ -1828,7 +1828,7 @@ public class GameController {
    *
    * @return true: music is on, false otherwise
    */
-  public static boolean isMusicOn() {
+  public static synchronized boolean isMusicOn() {
     return musicOn;
   }
 
@@ -1837,7 +1837,7 @@ public class GameController {
    *
    * @param on true: sound on, false otherwise
    */
-  public static void setSoundOn(final boolean on) {
+  public static synchronized void setSoundOn(final boolean on) {
     soundOn = on;
   }
 
@@ -1846,7 +1846,7 @@ public class GameController {
    *
    * @return true: sound is on, false otherwise
    */
-  public static boolean isSoundOn() {
+  public static synchronized boolean isSoundOn() {
     return soundOn;
   }
 
@@ -1855,7 +1855,7 @@ public class GameController {
    *
    * @return small preview image of level
    */
-  public static BufferedImage getMapPreview() {
+  public static synchronized BufferedImage getMapPreview() {
     return mapPreview;
   }
 
@@ -1864,7 +1864,7 @@ public class GameController {
    *
    * @return number of Lemmings to rescue
    */
-  public static int getNumToRecue() {
+  public static synchronized int getNumToRecue() {
     return numToRecue;
   }
 
@@ -1873,7 +1873,7 @@ public class GameController {
    *
    * @return time left in seconds
    */
-  public static int getTime() {
+  public static synchronized int getTime() {
     return time;
   }
 
@@ -1882,7 +1882,7 @@ public class GameController {
    *
    * @param absolute path of level pack folder
    */
-  public static void addLevelPack(String folder) throws ResourceException {
+  public static synchronized void addLevelPack(String folder) throws ResourceException {
     levelPack.add(new LevelPack(folder + "/levelpack.ini"));
   }
 }

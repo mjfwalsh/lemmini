@@ -89,7 +89,7 @@ public class Core {
    * @param frame parent frame
    * @throws LemmException
    */
-  public static void init(final JFrame frame) throws LemmException {
+  public static synchronized void init(final JFrame frame) throws LemmException {
     // alias for object
     cmp = frame;
 
@@ -206,7 +206,7 @@ public class Core {
    *
    * @return parent component
    */
-  public static Component getCmp() {
+  public static synchronized Component getCmp() {
     return cmp;
   }
 
@@ -216,12 +216,12 @@ public class Core {
    * @param fname file name (without path)
    * @return absolute path to resource
    */
-  public static String findResource(final String fname) {
+  public static synchronized String findResource(final String fname) {
     return resourcePath + fname;
   }
 
   /** Save properties */
-  public static void saveProps(Point p) {
+  public static synchronized void saveProps(Point p) {
     if (!isFullScreen()) {
       // don't record window position when in full screen
       recordWindowProps(p);
@@ -249,7 +249,7 @@ public class Core {
   }
 
   /** Record window properties. */
-  public static void recordWindowProps(Point p) {
+  public static synchronized void recordWindowProps(Point p) {
     // store frame pos
     programProps.set("framePosX", p.x);
     programProps.set("framePosY", p.y);
@@ -263,7 +263,7 @@ public class Core {
    *
    * @param rsrc name missing of resource.
    */
-  public static void resourceError(final String rsrc) {
+  public static synchronized void resourceError(final String rsrc) {
     String out =
         "The resource " + rsrc + " is missing\n" + "Please restart to extract all resources.";
     JOptionPane.showMessageDialog(null, out, "Error", JOptionPane.ERROR_MESSAGE);
@@ -281,7 +281,7 @@ public class Core {
    * @return Image
    * @throws ResourceException
    */
-  public static Image loadImage(final MediaTracker tracker, final String fName)
+  public static synchronized Image loadImage(final MediaTracker tracker, final String fName)
       throws ResourceException {
     String fileLoc = findResource(fName);
     if (fileLoc == null) return null;
@@ -298,8 +298,8 @@ public class Core {
    * @return Image
    * @throws ResourceException
    */
-  private static Image loadImage(final MediaTracker tracker, final String fName, final boolean jar)
-      throws ResourceException {
+  private static synchronized Image loadImage(
+      final MediaTracker tracker, final String fName, final boolean jar) throws ResourceException {
     Image image;
     if (jar) image = Toolkit.getDefaultToolkit().createImage(ToolBox.findFile(fName));
     else image = Toolkit.getDefaultToolkit().createImage(fName);
@@ -325,7 +325,7 @@ public class Core {
    * @return Image
    * @throws ResourceException
    */
-  public static Image loadImage(final String fname) throws ResourceException {
+  public static synchronized Image loadImage(final String fname) throws ResourceException {
     MediaTracker tracker = new MediaTracker(cmp);
     Image img = loadImage(tracker, fname);
     if (img == null) throw new ResourceException(fname);
@@ -339,7 +339,7 @@ public class Core {
    * @return Image
    * @throws ResourceException
    */
-  public static Image loadImageJar(final String fname) throws ResourceException {
+  public static synchronized Image loadImageJar(final String fname) throws ResourceException {
     MediaTracker tracker = new MediaTracker(cmp);
     Image img = loadImage(tracker, fname, true);
     if (img == null) throw new ResourceException(fname);
@@ -352,7 +352,7 @@ public class Core {
    * @param idx player index
    * @return player name
    */
-  public static String getPlayer(final int idx) {
+  public static synchronized String getPlayer(final int idx) {
     return players.get(idx);
   }
 
@@ -361,13 +361,13 @@ public class Core {
    *
    * @return number of player.
    */
-  public static int getPlayerNum() {
+  public static synchronized int getPlayerNum() {
     if (players == null) return 0;
     return players.size();
   }
 
   /** Reset list of players. */
-  public static void clearPlayers() {
+  public static synchronized void clearPlayers() {
     players.clear();
     playerProps.clear();
   }
@@ -377,7 +377,7 @@ public class Core {
    *
    * @param name player name
    */
-  public static void addPlayer(final String name) {
+  public static synchronized void addPlayer(final String name) {
     players.add(name);
     playerProps.set("player_" + (players.size() - 1), name);
   }
@@ -387,7 +387,7 @@ public class Core {
    *
    * @return internal draw width
    */
-  public static int getDrawWidth() {
+  public static synchronized int getDrawWidth() {
     return internalWidth;
   }
 
@@ -396,7 +396,7 @@ public class Core {
    *
    * @param internal draw width
    */
-  public static void setDrawWidth(int w) {
+  public static synchronized void setDrawWidth(int w) {
     internalWidth = w;
   }
 
@@ -405,7 +405,7 @@ public class Core {
    *
    * @return internal draw width
    */
-  public static int getDrawHeight() {
+  public static synchronized int getDrawHeight() {
     return Level.HEIGHT + WIN_OFS;
   }
 
@@ -414,7 +414,7 @@ public class Core {
    *
    * @return zoom scale
    */
-  public static double getScale() {
+  public static synchronized double getScale() {
     return scale;
   }
 
@@ -423,7 +423,7 @@ public class Core {
    *
    * @param s zoom scale
    */
-  public static void setScale(double s) {
+  public static synchronized void setScale(double s) {
     scale = s;
   }
 
@@ -432,7 +432,7 @@ public class Core {
    *
    * @return boolean fullScreen
    */
-  public static boolean isFullScreen() {
+  public static synchronized boolean isFullScreen() {
     return fullScreen;
   }
 
@@ -441,7 +441,7 @@ public class Core {
    *
    * @param b boolean fullScreen
    */
-  public static void setFullScreen(boolean b) {
+  public static synchronized void setFullScreen(boolean b) {
     fullScreen = b;
   }
 }
