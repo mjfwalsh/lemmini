@@ -214,7 +214,7 @@ public class Lemmini extends JFrame implements KeyListener {
         new java.awt.event.WindowAdapter() {
           @Override
           public void windowClosing(java.awt.event.WindowEvent e) {
-            exit();
+            System.exit(0);
           }
         });
 
@@ -277,7 +277,7 @@ public class Lemmini extends JFrame implements KeyListener {
           new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-              exit();
+              System.exit(0);
             }
           });
       jMenuFile.add(jMenuItemExit);
@@ -746,6 +746,9 @@ public class Lemmini extends JFrame implements KeyListener {
 
     Toolkit.getDefaultToolkit().setDynamicLayout(true);
     thisFrame = new Lemmini();
+
+    // setting shutdown hook
+    Runtime.getRuntime().addShutdownHook(new ShutdownHook());
   }
 
   /** Set window bounds in response to user choice */
@@ -832,10 +835,7 @@ public class Lemmini extends JFrame implements KeyListener {
     Path targetDirectory = Paths.get(Core.resourcePath + "levels/" + name.toString());
     if (Files.exists(targetDirectory)) {
       JOptionPane.showMessageDialog(
-          thisFrame,
-          "Error!",
-          "Target directory already exists",
-          JOptionPane.INFORMATION_MESSAGE);
+          thisFrame, "Error!", "Target directory already exists", JOptionPane.INFORMATION_MESSAGE);
       return;
     }
 
@@ -1089,7 +1089,7 @@ public class Lemmini extends JFrame implements KeyListener {
   public void toggleFullScreen() {
     if (!Core.isFullScreen()) {
       // remember some stuff
-      saveWindowProps();
+      Core.saveWindowProps(getLocation());
       int menuBarHeight = jMenuBar.getHeight();
       Core.setFullScreen(true);
 
@@ -1150,30 +1150,8 @@ public class Lemmini extends JFrame implements KeyListener {
   }
 
   /** Store window properties. */
-  public void saveWindowProps() {
-    Core.recordWindowProps(getLocation());
-    Core.programProps.save();
-  }
-
-  /** Common exit method to use in exit events. */
-  private void exit() {
-    if (!Core.isFullScreen()) {
-      // don't record window position when in full screen
-      Core.recordWindowProps(getLocation());
-    }
-
-    // music
-    Core.programProps.set("music", GameController.isMusicOn());
-    Core.programProps.set("sound", GameController.isSoundOn());
-
-    // save ini file
-    Core.programProps.save();
-
-    // remember player status
-    Core.savePlayerProps();
-
-    // exit
-    System.exit(0);
+  public void saveProps() {
+    Core.saveProps(getLocation());
   }
 
   /** Make the Level Pack Menu */
@@ -1259,5 +1237,11 @@ public class Lemmini extends JFrame implements KeyListener {
       diffLevel = diff;
       level = lvl;
     }
+  }
+}
+
+class ShutdownHook extends Thread {
+  public void run() {
+    Lemmini.thisFrame.saveProps();
   }
 }

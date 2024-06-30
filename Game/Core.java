@@ -220,6 +220,34 @@ public class Core {
     return resourcePath + fname;
   }
 
+  /** Save properties */
+  public static void saveProps(Point p) {
+    if (!isFullScreen()) {
+      // don't record window position when in full screen
+      recordWindowProps(p);
+    }
+
+    // music
+    programProps.set("music", GameController.isMusicOn());
+    programProps.set("sound", GameController.isSoundOn());
+
+    // save ini file
+    programProps.save();
+
+    // Store player properties.
+    playerProps.set("defaultPlayer", player.getName());
+    playerProps.save();
+    player.store();
+
+    System.out.println("Saving on exit");
+  }
+
+  /** Store window properties. */
+  public static synchronized void saveWindowProps(Point p) {
+    recordWindowProps(p);
+    programProps.save();
+  }
+
   /** Record window properties. */
   public static void recordWindowProps(Point p) {
     // store frame pos
@@ -228,13 +256,6 @@ public class Core {
 
     // scale
     programProps.set("scale", scale);
-  }
-
-  /** Store player properties. */
-  public static void savePlayerProps() {
-    playerProps.set("defaultPlayer", player.getName());
-    playerProps.save();
-    player.store();
   }
 
   /**
