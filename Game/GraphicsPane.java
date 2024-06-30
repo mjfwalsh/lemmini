@@ -106,6 +106,26 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     this.setCursor(LemmCursor.getCursor());
     this.addMouseListener(this);
     this.addMouseMotionListener(this);
+
+    int w = Core.getDrawWidth();
+    int h = Core.getDrawHeight();
+    double scale = Core.getScale();
+
+    this.setSize((int) (scale * w), (int) (scale * h));
+
+    offImage = new BufferedImage[2];
+    offGraphics = new Graphics2D[2];
+    offImage[0] = ToolBox.createImage(w, h, Transparency.OPAQUE);
+    offImage[1] = ToolBox.createImage(w, h, Transparency.OPAQUE);
+    offGraphics[0] = offImage[0].createGraphics();
+    offGraphics[1] = offImage[1].createGraphics();
+
+    outStrImg = ToolBox.createImage(w, LemmFont.getHeight(), Transparency.BITMASK);
+    outStrGfx = outStrImg.createGraphics();
+    outStrGfx.setBackground(new Color(0, 0, 0));
+
+    TextScreen.init(w, (int) (this.getHeight() / scale));
+    shiftPressed = false;
   }
 
   /**
@@ -133,7 +153,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   @Override
   public void paint(final Graphics g) {
-    // super.paint(iconGfx);
     synchronized (paintSemaphore) {
       if (offImage != null) {
         int w = Core.getDrawWidth();
@@ -151,43 +170,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   @Override
   public void update(final Graphics g) {
-    // super.update(iconGfx);
-    synchronized (paintSemaphore) {
-      if (offImage != null) {
-        int w = Core.getDrawWidth();
-        int h = Core.getDrawHeight();
-        double scale = Core.getScale();
-        // g.drawImage(offImage[activeBuffer],0,0,null);
-        g.drawImage(
-            offImage[activeBuffer], 0, 0, (int) (w * scale), (int) (h * scale), 0, 0, w, h, null);
-      }
-    }
-  }
-
-  /** Initialization. */
-  public void init() {
-    synchronized (paintSemaphore) {
-      int w = Core.getDrawWidth();
-      int h = Core.getDrawHeight();
-      double scale = Core.getScale();
-
-      this.setSize((int) (scale * w), (int) (scale * h));
-
-      offImage = new BufferedImage[2];
-      offGraphics = new Graphics2D[2];
-      offImage[0] = ToolBox.createImage(w, h, Transparency.OPAQUE);
-      offImage[1] = ToolBox.createImage(w, h, Transparency.OPAQUE);
-      offGraphics[0] = offImage[0].createGraphics();
-      offGraphics[1] = offImage[1].createGraphics();
-
-      outStrImg = ToolBox.createImage(w, LemmFont.getHeight(), Transparency.BITMASK);
-      outStrGfx = outStrImg.createGraphics();
-      outStrGfx.setBackground(new Color(0, 0, 0));
-      outStrGfx.setClip(0, 0, w, LemmFont.getHeight());
-
-      TextScreen.init(w, (int) (this.getHeight() / scale));
-      shiftPressed = false;
-    }
+    paint(g);
   }
 
   /** Delete offImage to avoid redraw and force init. */
@@ -204,8 +187,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     Graphics2D offGfx;
 
     synchronized (paintSemaphore) {
-      // if (offImage == null)
-      //	init();
       drawBuffer = (activeBuffer == 0) ? 1 : 0;
       offGfx = offGraphics[drawBuffer];
 
@@ -215,25 +196,22 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
           TextScreen.setMode(TextScreen.Mode.INTRO);
           TextScreen.update();
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
-          // offGfx.drawImage(LemmCursor.getImage(LemmCursor.TYPE_NORMAL), LemmCursor.x,
-          // LemmCursor.y, null);
           break;
+
         case BRIEFING:
           TextScreen.setMode(TextScreen.Mode.BRIEFING);
           TextScreen.update();
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
-          // offGfx.drawImage(LemmCursor.getImage(LemmCursor.TYPE_NORMAL), LemmCursor.x,
-          // LemmCursor.y, null);
           break;
+
         case DEBRIEFING:
           TextScreen.setMode(TextScreen.Mode.DEBRIEFING);
           TextScreen.update();
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
           TextScreen.getDialog()
               .handleMouseMove((int) (xMouseScreen / scale), (int) (yMouseScreen / scale));
-          // offGfx.drawImage(LemmCursor.getImage(LemmCursor.TYPE_NORMAL), LemmCursor.x,
-          // LemmCursor.y, null);
           break;
+
         case LEVEL:
         case LEVEL_END:
           if (bgImage != null) {
@@ -266,7 +244,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
             if (level != null) {
 
               // clear screen
-              offGfx.setClip(0, 0, w, h);
               offGfx.setBackground(level.getBgColor());
               offGfx.clearRect(0, 0, w, h);
 
@@ -279,21 +256,20 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
               // draw "in front" objects
               GameController.getLevel().drawInFrontObjects(offGfx, w, xOfsTemp);
             }
+
             // clear parts of the screen for menu etc.
-            offGfx.setClip(0, Level.HEIGHT, w, this.getHeight());
             offGfx.setBackground(Color.BLACK);
             offGfx.clearRect(0, scoreY, w, this.getHeight());
-            // draw counter, icons, small level pic
-            // draw menu
-            // Icons icons = GameController.getIcons();
+
+            // draw icons, small level pic
             GameController.drawIcons(offGfx, 0, iconsY);
             offGfx.drawImage(MiscGfx.getImage(MiscGfx.Index.BORDER), smallX - 4, smallY - 4, null);
             MiniMap.draw(offGfx, smallX, smallY, xOfsTemp);
+
             // draw counters
             GameController.drawCounters(offGfx, counterY);
 
             // draw lemmings
-            offGfx.setClip(0, 0, w, h);
             GameController.getLemmsUnderCursor().clear();
             List<Lemming> lemmings = GameController.getLemmings();
             synchronized (GameController.getLemmings()) {
@@ -316,7 +292,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
                 }
               }
               // draw pixels in mini map
-              offGfx.setClip(0, 0, w, this.getHeight());
               it = lemmings.iterator();
               while (it.hasNext()) {
                 Lemming l = it.next();
@@ -327,10 +302,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
               }
             }
             Lemming lemmUnderCursor = GameController.lemmUnderCursor(LemmCursor.getType());
-            offGfx.setClip(0, 0, w, h);
+
             // draw explosions
             GameController.drawExplosions(offGfx, offImage[0].getWidth(), Level.HEIGHT, xOfsTemp);
-            offGfx.setClip(0, 0, w, this.getHeight());
 
             // draw info string
             outStrGfx.clearRect(0, 0, outStrImg.getWidth(), outStrImg.getHeight());
@@ -365,7 +339,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
               if (s.length() == 1) sb.append(" ");
               sb.append(s);
               sb.append("%  TIME ").append(GameController.getTimeString());
-              LemmFont.strImageRight(outStrGfx, sb.toString(), 4);
+              LemmFont.strImageRight(outStrGfx, sb.toString(), offImage[0].getWidth() - 4);
 
               if (lemmUnderCursor != null) {
                 String n = lemmUnderCursor.getName();
@@ -605,10 +579,10 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     double scale = Core.getScale();
     mouseDx = 0;
     mouseDy = 0;
-    int x = (int) (mouseevent.getX() / scale /*-LemmCursor.width/2*/);
-    int y = (int) (mouseevent.getY() / scale /*-LemmCursor.height/2*/);
-    LemmCursor.setX(x /*-LemmCursor.width/2*/);
-    LemmCursor.setY(y /*-LemmCursor.height/2*/);
+    int x = (int) (mouseevent.getX() / scale);
+    int y = (int) (mouseevent.getY() / scale);
+    LemmCursor.setX(x);
+    LemmCursor.setY(y);
   }
 
   /* (non-Javadoc)
@@ -628,7 +602,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
         x += GameController.getxPos() * scale;
         if (x >= Level.WIDTH) x = Level.WIDTH - 1;
         xMouse = x;
-        LemmCursor.setX((int) (xMouseScreen / scale /*-LemmCursor.width/2*/));
+        LemmCursor.setX((int) (xMouseScreen / scale));
 
         int y = yMouseScreen + mouseDy;
         if (y >= this.getHeight()) y = this.getHeight() - 1;
@@ -639,7 +613,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
         if (y >= Level.HEIGHT) y = Level.HEIGHT - 1;
         if (y < 0) y = 0;
         yMouse = y;
-        LemmCursor.setY((int) (yMouseScreen / scale /*-LemmCursor.height/2*/));
+        LemmCursor.setY((int) (yMouseScreen / scale));
         mouseevent.consume();
         break;
     }
@@ -681,18 +655,17 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   @Override
   public void mouseMoved(final MouseEvent mouseevent) {
-    // long t = System.currentTimeMillis();
     double scale = Core.getScale();
-    int x, y;
     int oldX = xMouse;
     int oldY = yMouse;
 
-    x = (int) ((mouseevent.getX() / scale + GameController.getxPos()));
-    y = (int) (mouseevent.getY() / scale);
+    int x = (int) ((mouseevent.getX() / scale + GameController.getxPos()));
+    int y = (int) (mouseevent.getY() / scale);
     if (x >= Level.WIDTH) x = Level.WIDTH - 1;
     if (y >= Level.HEIGHT) y = Level.HEIGHT - 1;
     xMouse = (int) (x * scale);
     yMouse = (int) (y * scale);
+
     // LemmCursor
     xMouseScreen = mouseevent.getX();
     if (xMouseScreen >= this.getWidth()) xMouseScreen = this.getWidth();
@@ -700,8 +673,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     yMouseScreen = mouseevent.getY();
     if (yMouseScreen >= this.getHeight()) yMouseScreen = this.getHeight();
     else if (yMouseScreen < 0) yMouseScreen = 0;
-    LemmCursor.setX((int) (xMouseScreen / scale /*-LemmCursor.width/2*/));
-    LemmCursor.setY((int) (yMouseScreen / scale /*-LemmCursor.height/2*/));
+    LemmCursor.setX((int) (xMouseScreen / scale));
+    LemmCursor.setY((int) (yMouseScreen / scale));
 
     if (!System.getProperty("os.name").equals("Mac OS X")) {
       if (Core.isFullScreen()) {

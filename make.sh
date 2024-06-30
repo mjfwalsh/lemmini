@@ -18,10 +18,6 @@
 
 compile_java()
 {
-	if [ -d build ]; then
-		rm -fR build
-	fi
-
 	echo Running Java Compiler...
 	mkdir -p build && javac -encoding UTF8 -d ./build Lemmini.java
 

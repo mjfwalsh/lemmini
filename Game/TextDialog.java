@@ -130,34 +130,6 @@ public class TextDialog {
   }
 
   /**
-   * Restore a rectangle of the background from backbuffer.
-   *
-   * @param x x position of upper left corner of rectangle
-   * @param y y position of upper left corner of rectangle
-   * @param width width of rectangle
-   * @param height height of rectangle
-   */
-  public void restoreRect(final int x, final int y, final int width, final int height) {
-    gScreen.drawImage(backBuffer, x, y, x + width, y + height, x, y, x + width, y + height, null);
-  }
-
-  /**
-   * Restore a rectangle of the background from backbuffer that might be invalidated by a text
-   * starting at x,y and having a length of len characters.
-   *
-   * @param x0 x position of upper left corner of rectangle expressed in character widths
-   * @param y0 y position of upper left corner of rectangle expressed in character heights
-   * @param l Length of text
-   */
-  public void restoreText(final int x0, final int y0, final int l) {
-    int x = x0 * LemmFont.getWidth();
-    int y = y0 * (LemmFont.getHeight() + 4);
-    int len = l * LemmFont.getWidth();
-    int h = LemmFont.getHeight() + 4;
-    gScreen.drawImage(backBuffer, x, y, x + len, y + h, x, y, x + len, y + h, null);
-  }
-
-  /**
    * Draw string.
    *
    * @param s String
@@ -311,8 +283,7 @@ public class TextDialog {
   public void handleMouseMove(final int x, final int y) {
     for (int i = 0; i < buttons.size(); i++) {
       Button b = buttons.get(i);
-      if (b.inside(x, y)) b.selected = true;
-      else b.selected = false;
+      b.selected = b.inside(x, y);
     }
   }
 
@@ -403,22 +374,12 @@ class Button {
   }
 
   /**
-   * Return current button image (normal or selected, depending on state).
-   *
-   * @return current button image
-   */
-  BufferedImage getImage() {
-    if (selected) return imgSelected;
-    else return image;
-  }
-
-  /**
    * Draw the button.
    *
    * @param g graphics object to draw on
    */
   void draw(final Graphics2D g) {
-    g.drawImage(getImage(), x, y, null);
+    g.drawImage(selected ? imgSelected : image, x, y, null);
   }
 
   /**

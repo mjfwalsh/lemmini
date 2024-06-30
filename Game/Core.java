@@ -136,7 +136,7 @@ public class Core {
       if (!ld.isOk()) System.exit(0);
     }
 
-    scale = Core.programProps.get("scale", 1.0);
+    scale = programProps.get("scale", 1.0);
     if (scale < 1) scale = 1;
 
     if (!System.getProperty("os.name").equals("Mac OS X")) {
@@ -185,7 +185,7 @@ public class Core {
 
     // read player names
     playerProps = new Props();
-    playerProps.load(Core.resourcePath + "players.ini");
+    playerProps.load(resourcePath + "players.ini");
     String defaultPlayer = playerProps.get("defaultPlayer", "default");
     players = new ArrayList<String>();
     for (int idx = 0; true; idx++) {
@@ -196,7 +196,7 @@ public class Core {
     if (players.size() == 0) {
       // no players yet, establish default player
       players.add("default");
-      Core.playerProps.set("player_0", "default");
+      playerProps.set("player_0", "default");
     }
     player = new Player(defaultPlayer);
   }
@@ -227,12 +227,12 @@ public class Core {
     programProps.set("framePosY", p.y);
 
     // scale
-    programProps.set("scale", Core.getScale());
+    programProps.set("scale", scale);
   }
 
   /** Store player properties. */
   public static void savePlayerProps() {
-    playerProps.set("defaultPlayer", Core.player.getName());
+    playerProps.set("defaultPlayer", player.getName());
     playerProps.save();
     player.store();
   }
@@ -305,7 +305,7 @@ public class Core {
    * @throws ResourceException
    */
   public static Image loadImage(final String fname) throws ResourceException {
-    MediaTracker tracker = new MediaTracker(Core.getCmp());
+    MediaTracker tracker = new MediaTracker(cmp);
     Image img = loadImage(tracker, fname);
     if (img == null) throw new ResourceException(fname);
     return img;
@@ -319,7 +319,7 @@ public class Core {
    * @throws ResourceException
    */
   public static Image loadImageJar(final String fname) throws ResourceException {
-    MediaTracker tracker = new MediaTracker(Core.getCmp());
+    MediaTracker tracker = new MediaTracker(cmp);
     Image img = loadImage(tracker, fname, true);
     if (img == null) throw new ResourceException(fname);
     return img;

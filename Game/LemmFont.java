@@ -149,7 +149,7 @@ public class LemmFont {
    * @param rMargin rightmost x coordinate in pixels
    */
   public static void strImageRight(final Graphics2D g, final String s, final int rMargin) {
-    int alignOffset = g.getClipBounds().width - rMargin - (s.length() * SPACING);
+    int alignOffset = rMargin - (s.length() * SPACING);
     strImage(g, s, alignOffset, 0, Color.GREEN);
   }
 

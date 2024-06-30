@@ -80,7 +80,7 @@ public class TextScreen {
           + " maintaining Java and providing the community with a free development environment.";
 
   /** TextDialog used as base component */
-  private static TextDialog textScreen;
+  private static TextDialog textDialog;
 
   /** factor used for the rotation animation */
   private static double rotFact = 1.0;
@@ -143,14 +143,14 @@ public class TextScreen {
       if (mode != m || oldScale != scale) {
         switch (m) {
           case INTRO:
-            textScreen.init();
-            textScreen.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_BROWN));
-            textScreen.printCentered("A game engine for Lemmings(tm) in Java", -1, RED);
-            textScreen.printCentered("Created by Volker Oth", 0, VIOLET);
-            textScreen.printCentered("www.lemmini.de", 1, GREEN);
-            textScreen.printCentered("This release by Michael J. Walsh", 3, BLUE);
-            textScreen.printCentered("github.com/mjfwalsh/lemmini", 4, GREEN);
-            textScreen.copyToBackBuffer();
+            textDialog.init();
+            textDialog.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_BROWN));
+            textDialog.printCentered("A game engine for Lemmings(tm) in Java", -1, RED);
+            textDialog.printCentered("Created by Volker Oth", 0, VIOLET);
+            textDialog.printCentered("www.lemmini.de", 1, GREEN);
+            textDialog.printCentered("This release by Michael J. Walsh", 3, BLUE);
+            textDialog.printCentered("github.com/mjfwalsh/lemmini", 4, GREEN);
+            textDialog.copyToBackBuffer();
             break;
           case BRIEFING:
             initBriefing();
@@ -167,40 +167,40 @@ public class TextScreen {
 
   /** Initialize the briefing dialog. */
   static void initBriefing() {
-    textScreen.init();
-    textScreen.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
+    textDialog.init();
+    textDialog.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
     Level level = GameController.getLevel();
-    textScreen.restore();
+    textDialog.restore();
 
-    textScreen.drawImage(GameController.getMapPreview(), -185);
+    textDialog.drawImage(GameController.getMapPreview(), -185);
 
-    textScreen.print("Level Pack  " + GameController.getCurLevelPack().getName(), -19, -3);
+    textDialog.print("Level Pack  " + GameController.getCurLevelPack().getName(), -19, -3);
 
-    textScreen.print(
+    textDialog.print(
         "Difficulty  "
             + GameController.getCurLevelPack().getDiffLevels()[GameController.getCurDiffLevel()],
         -19,
         -2,
         VIOLET);
 
-    textScreen.print("Level  " + (GameController.getCurLevelNumber() + 1), -14, -1, RED);
+    textDialog.print("Level  " + (GameController.getCurLevelNumber() + 1), -14, -1, RED);
 
     // primitive text wrap for long level names
     String levelLabel = "Title  " + level.getLevelName();
     int lineRef = 0;
-    int limit = (textScreen.getLineWidth() / 2) + 13;
+    int limit = (textDialog.getLineWidth() / 2) + 13;
     if (levelLabel.length() > limit) {
       int index = levelLabel.lastIndexOf(" ", limit);
 
-      textScreen.print(levelLabel.substring(0, index), -14, 0, BROWN);
-      textScreen.print(levelLabel.substring(index + 1), -7, 1, BROWN);
+      textDialog.print(levelLabel.substring(0, index), -14, 0, BROWN);
+      textDialog.print(levelLabel.substring(index + 1), -7, 1, BROWN);
       lineRef++;
     } else {
-      textScreen.print(levelLabel, -14, 0, BROWN);
+      textDialog.print(levelLabel, -14, 0, BROWN);
     }
 
-    textScreen.print("Lemmings  " + level.getNumLemmings(), -17, lineRef + 2, BLUE);
-    textScreen.print(
+    textDialog.print("Lemmings  " + level.getNumLemmings(), -17, lineRef + 2, BLUE);
+    textDialog.print(
         "Target  "
             + level.getNumToRescue()
             + " ("
@@ -209,7 +209,7 @@ public class TextScreen {
         -15,
         lineRef + 3,
         GREEN);
-    textScreen.print("Release Rate  " + level.getReleaseRate(), -21, lineRef + 4, BROWN);
+    textDialog.print("Release Rate  " + level.getReleaseRate(), -21, lineRef + 4, BROWN);
     int minutes = level.getTimeLimitSeconds() / 60;
     int seconds = level.getTimeLimitSeconds() % 60;
 
@@ -221,15 +221,15 @@ public class TextScreen {
       time_text += seconds == 1 ? " second" : " seconds";
     }
 
-    textScreen.print(time_text, -13, lineRef + 5, TURQUOISE);
+    textDialog.print(time_text, -13, lineRef + 5, TURQUOISE);
 
-    textScreen.copyToBackBuffer(); // though not really needed
+    textDialog.copyToBackBuffer(); // though not really needed
   }
 
   /** Initialize the debriefing dialog. */
   static void initDebriefing() {
-    textScreen.init();
-    textScreen.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
+    textDialog.init();
+    textDialog.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
     int toRescue =
         GameController.getNumToRecue()
             * 100
@@ -242,39 +242,39 @@ public class TextScreen {
         GameController.getNumLeft()
             * 100
             / GameController.getNumToRecue(); // % rescued of no. to rescue
-    textScreen.restore();
-    if (GameController.getTime() == 0) textScreen.printCentered("Time is up.", -6, TURQUOISE);
-    else textScreen.printCentered("All lemmings accounted for.", -6, TURQUOISE);
-    textScreen.print("You needed:  " + Integer.toString(toRescue) + "%", -7, -4, VIOLET);
-    textScreen.print("You rescued: " + Integer.toString(rescued) + "%", -7, -3, VIOLET);
+    textDialog.restore();
+    if (GameController.getTime() == 0) textDialog.printCentered("Time is up.", -6, TURQUOISE);
+    else textDialog.printCentered("All lemmings accounted for.", -6, TURQUOISE);
+    textDialog.print("You needed:  " + Integer.toString(toRescue) + "%", -7, -4, VIOLET);
+    textDialog.print("You rescued: " + Integer.toString(rescued) + "%", -7, -3, VIOLET);
     if (GameController.wasLost()) {
       if (rescued == 0) {
-        textScreen.printCentered("ROCK BOTTOM! I hope for your sake", -1, RED);
-        textScreen.printCentered("that you nuked that level", 0, RED);
+        textDialog.printCentered("ROCK BOTTOM! I hope for your sake", -1, RED);
+        textDialog.printCentered("that you nuked that level", 0, RED);
       } else if (rescuedOfToRescue < 50) {
-        textScreen.printCentered("Better rethink your strategy before", -1, RED);
-        textScreen.printCentered("you try this level again!", 0, RED);
+        textDialog.printCentered("Better rethink your strategy before", -1, RED);
+        textDialog.printCentered("you try this level again!", 0, RED);
       } else if (rescuedOfToRescue < 95) {
-        textScreen.printCentered("A little more practice on this level", -1, RED);
-        textScreen.printCentered("is definitely recommended.", 0, RED);
+        textDialog.printCentered("A little more practice on this level", -1, RED);
+        textDialog.printCentered("is definitely recommended.", 0, RED);
       } else {
-        textScreen.printCentered("You got pretty close that time.", -1, RED);
-        textScreen.printCentered("Now try again for that few % extra.", 0, RED);
+        textDialog.printCentered("You got pretty close that time.", -1, RED);
+        textDialog.printCentered("Now try again for that few % extra.", 0, RED);
       }
-      textScreen.addTextButton(9, 5, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
+      textDialog.addTextButton(9, 5, BUTTON_RESTART, "Retry", "Retry", BLUE, BROWN);
     } else {
       if (rescued == 100) {
-        textScreen.printCentered("Superb! You rescued every lemming on", -1, RED);
-        textScreen.printCentered("that level. Can you do it again....?", 0, RED);
+        textDialog.printCentered("Superb! You rescued every lemming on", -1, RED);
+        textDialog.printCentered("that level. Can you do it again....?", 0, RED);
       } else if (rescued > toRescue) {
-        textScreen.printCentered("You totally stormed that level!", -1, RED);
-        textScreen.printCentered("Let's see if you can storm the next...", 0, RED);
+        textDialog.printCentered("You totally stormed that level!", -1, RED);
+        textDialog.printCentered("Let's see if you can storm the next...", 0, RED);
       } else if (rescued == toRescue) {
-        textScreen.printCentered("SPOT ON. You can't get much closer", -1, RED);
-        textScreen.printCentered("than that. Let's try the next....", 0, RED);
+        textDialog.printCentered("SPOT ON. You can't get much closer", -1, RED);
+        textDialog.printCentered("than that. Let's try the next....", 0, RED);
       } else {
-        textScreen.printCentered("That level seemed no problem to you on", -1, RED);
-        textScreen.printCentered("that attempt. Onto the next....       ", 0, RED);
+        textDialog.printCentered("That level seemed no problem to you on", -1, RED);
+        textDialog.printCentered("that attempt. Onto the next....       ", 0, RED);
       }
       LevelPack lp = GameController.getCurLevelPack();
       int ln = GameController.getCurLevelNumber();
@@ -284,12 +284,12 @@ public class TextScreen {
                 GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(), ln + 1);
         String code = LevelCode.create(lp.getCodeSeed(), absLevel, rescued, 0, lp.getCodeOffset());
 
-        textScreen.printCentered("Your access code for level " + (ln + 2), 2, BROWN);
-        textScreen.printCentered("is " + code, 3, BROWN);
-        textScreen.addTextButton(9, 5, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
+        textDialog.printCentered("Your access code for level " + (ln + 2), 2, BROWN);
+        textDialog.printCentered("is " + code, 3, BROWN);
+        textDialog.addTextButton(9, 5, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
       } else {
-        textScreen.printCentered("Congratulations!", 2, BROWN);
-        textScreen.printCentered(
+        textDialog.printCentered("Congratulations!", 2, BROWN);
+        textDialog.printCentered(
             "You finished all the "
                 + lp.getDiffLevels()[GameController.getCurDiffLevel()]
                 + " levels!",
@@ -297,9 +297,9 @@ public class TextScreen {
             GREEN);
       }
     }
-    textScreen.copyToBackBuffer(); // though not really needed
-    textScreen.addTextButton(-12, 5, BUTTON_REPLAY, "Replay", "Replay", BLUE, BROWN);
-    textScreen.addTextButton(-4, 5, BUTTON_SAVEREPLAY, "Save Replay", "Save Replay", BLUE, BROWN);
+    textDialog.copyToBackBuffer(); // though not really needed
+    textDialog.addTextButton(-12, 5, BUTTON_REPLAY, "Replay", "Replay", BLUE, BROWN);
+    textDialog.addTextButton(-4, 5, BUTTON_SAVEREPLAY, "Save Replay", "Save Replay", BLUE, BROWN);
   }
 
   /**
@@ -309,7 +309,7 @@ public class TextScreen {
    */
   public static TextDialog getDialog() {
     synchronized (monitor) {
-      return textScreen;
+      return textDialog;
     }
   }
 
@@ -339,30 +339,29 @@ public class TextScreen {
               LemmFont.getWidth() * (1 + SCROLL_WIDTH), SCROLL_HEIGHT, Transparency.BITMASK);
       scrollerGfx = scrollerImg.createGraphics();
       scrollerGfx.setBackground(new Color(0, 0, 0, 0));
-      textScreen = new TextDialog(width, height);
+      textDialog = new TextDialog(width, height);
     }
   }
 
   /** Update the text screen (for animations) */
   public static void update() {
     synchronized (monitor) {
-      textScreen.restore();
+      textDialog.restore();
       switch (mode) {
         case INTRO:
-          update_intro();
+          updateIntro();
           break;
         case BRIEFING:
-          update_briefing();
           break;
         case DEBRIEFING:
-          update_debriefing();
+          textDialog.drawButtons();
           break;
       }
     }
   }
 
   /** Update the into screen. */
-  private static void update_intro() {
+  private static void updateIntro() {
     // manage logo rotation
     if (++rotCtr > maxRotCtr) {
       // animate
@@ -386,29 +385,29 @@ public class TextScreen {
       AffineTransformOp op = new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
       imgGfx.clearRect(0, 0, imgTrg.getWidth(), imgTrg.getHeight());
       op.filter(imgSrc, imgTrg);
-      textScreen.drawImage(imgTrg, -120 - (int) (imgSrc.getHeight() / 2 * Math.abs(rotFact) + 0.5));
+      textDialog.drawImage(imgTrg, -120 - (int) (imgSrc.getHeight() / 2 * Math.abs(rotFact) + 0.5));
     } else {
       // display original image
       flipCtr = 0;
-      textScreen.drawImage(imgSrc, -120 - imgSrc.getHeight() / 2);
+      textDialog.drawImage(imgSrc, -120 - imgSrc.getHeight() / 2);
     }
     // manage scroller
-    String out;
     boolean wrapAround = false;
     int endIdx = scrollCharCtr + SCROLL_WIDTH + 1;
     if (endIdx > SCROLL_TEXT.length()) {
       endIdx = SCROLL_TEXT.length();
       wrapAround = true;
     }
-    out = SCROLL_TEXT.substring(scrollCharCtr, endIdx);
+
+    String out = SCROLL_TEXT.substring(scrollCharCtr, endIdx);
     if (wrapAround)
       out += SCROLL_TEXT.substring(0, scrollCharCtr + SCROLL_WIDTH + 1 - SCROLL_TEXT.length());
     scrollerGfx.clearRect(0, 0, scrollerImg.getWidth(), scrollerImg.getHeight());
     LemmFont.strImage(scrollerGfx, out, BLUE);
     int w = SCROLL_WIDTH * LemmFont.getWidth();
-    int dx = (textScreen.getScreen().getWidth() - w) / 2;
-    int dy = (textScreen.getScreen().getHeight() / 2) + SCROLL_Y;
-    textScreen
+    int dx = (textDialog.getScreen().getWidth() - w) / 2;
+    int dy = (textDialog.getScreen().getHeight() / 2) + SCROLL_Y;
+    textDialog
         .getScreen()
         .createGraphics()
         .drawImage(
@@ -431,14 +430,6 @@ public class TextScreen {
     }
   }
 
-  /** Update the briefing screen. */
-  private static void update_briefing() {}
-
-  /** Update the debriefing screen. */
-  private static void update_debriefing() {
-    textScreen.drawButtons();
-  }
-
   /**
    * Get image of text screen
    *
@@ -446,7 +437,7 @@ public class TextScreen {
    */
   public static BufferedImage getScreen() {
     synchronized (monitor) {
-      return textScreen.getScreen();
+      return textDialog.getScreen();
     }
   }
 }

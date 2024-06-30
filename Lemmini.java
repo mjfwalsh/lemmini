@@ -89,7 +89,7 @@ public class Lemmini extends JFrame implements KeyListener {
   private static final long serialVersionUID = 0x01;
 
   // self reference
-  static JFrame thisFrame;
+  static Lemmini thisFrame;
 
   // HashMap to store menu items for difficulty levels
   private HashMap<String, ArrayList<LvlMenuItem>> diffLevelMenus;
@@ -97,8 +97,6 @@ public class Lemmini extends JFrame implements KeyListener {
   private GraphicsPane gp;
   // graphics device
   private final GraphicsDevice gd;
-  // Content Pane
-  // private JPanel intermezzo;
 
   // store some lengths
   private int screenWidth;
@@ -169,10 +167,10 @@ public class Lemmini extends JFrame implements KeyListener {
       scale = maxScale;
       Core.setScale(scale);
     }
-    this.setMaximumSize(new Dimension(screenWidth, screenHeight));
+    setMaximumSize(new Dimension(screenWidth, screenHeight));
 
     // Unfortunately JFrame provides very little control here
-    this.setResizable(false);
+    setResizable(false);
 
     // set graphics pane
     gp = new GraphicsPane();
@@ -189,16 +187,16 @@ public class Lemmini extends JFrame implements KeyListener {
     buildMenuBar();
 
     // finish window
-    this.setContentPane(gp);
-    this.pack();
-    this.validate(); // force redraw
-    this.setTitle("Lemmini");
+    setContentPane(gp);
+    pack();
+    validate(); // force redraw
+    setTitle("Lemmini");
 
     // calculate frame size and set min size
-    Dimension wholeWindow = this.getSize();
+    Dimension wholeWindow = getSize();
     xMargin = wholeWindow.width - width;
     yMargin = wholeWindow.height - height;
-    this.setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
+    setMinimumSize(new Dimension(drawWidth + xMargin, drawHeight + yMargin));
     System.out.println("Margins: " + xMargin + " - " + yMargin);
 
     // store content pane size
@@ -209,10 +207,10 @@ public class Lemmini extends JFrame implements KeyListener {
     int posY = Core.programProps.get("framePosY", (screenHeight / 2) - (wholeWindow.height / 2));
     posX = Math.max(posX, 0);
     posY = Math.max(posY, 0);
-    this.setLocation(posX, posY);
+    setLocation(posX, posY);
 
     // Exit the app when the user closes the window
-    this.addWindowListener(
+    addWindowListener(
         new java.awt.event.WindowAdapter() {
           @Override
           public void windowClosing(java.awt.event.WindowEvent e) {
@@ -221,7 +219,7 @@ public class Lemmini extends JFrame implements KeyListener {
         });
 
     // Add a listener to react when the window changes size
-    this.addComponentListener(
+    addComponentListener(
         new java.awt.event.ComponentAdapter() {
           @Override
           public void componentResized(java.awt.event.ComponentEvent evt) {
@@ -241,8 +239,7 @@ public class Lemmini extends JFrame implements KeyListener {
     } catch (ResourceException ex) {
     }
 
-    this.setVisible(true);
-    gp.init();
+    setVisible(true);
     GameController.setGameState(GameController.State.INTRO);
     GameController.setTransition(GameController.TransitionState.NONE);
     Fader.setBounds(Core.getDrawWidth(), Core.getDrawHeight());
@@ -296,7 +293,7 @@ public class Lemmini extends JFrame implements KeyListener {
           @Override
           public void actionPerformed(java.awt.event.ActionEvent e) {
             Core.player.store(); // save player in case it is changed
-            PlayerDialog d = new PlayerDialog((JFrame) Core.getCmp(), true);
+            PlayerDialog d = new PlayerDialog(thisFrame, true);
             d.setVisible(true);
             // blocked until dialog returns
             List<String> players = d.getPlayers();
@@ -424,7 +421,7 @@ public class Lemmini extends JFrame implements KeyListener {
                 }
                 // else: no success
                 JOptionPane.showMessageDialog(
-                    Core.getCmp(),
+                    thisFrame,
                     "Wrong format!",
                     "Loading replay failed",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -441,7 +438,7 @@ public class Lemmini extends JFrame implements KeyListener {
         new java.awt.event.ActionListener() {
           @Override
           public void actionPerformed(java.awt.event.ActionEvent e) {
-            LevelCodeDialog lcd = new LevelCodeDialog((JFrame) Core.getCmp(), true);
+            LevelCodeDialog lcd = new LevelCodeDialog(thisFrame, true);
             lcd.setVisible(true);
             String levelCode = lcd.getCode();
             int lvlPack = lcd.getLevelPack();
@@ -451,7 +448,7 @@ public class Lemmini extends JFrame implements KeyListener {
               // cheat mode
               if (levelCode.equals("0xdeadbeef")) {
                 JOptionPane.showMessageDialog(
-                    Core.getCmp(),
+                    thisFrame,
                     "All levels and debug mode enabled",
                     "Cheater!",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -476,7 +473,7 @@ public class Lemmini extends JFrame implements KeyListener {
                 return;
               }
               JOptionPane.showMessageDialog(
-                  Core.getCmp(), "Invalid Level Code", "Error", JOptionPane.WARNING_MESSAGE);
+                  thisFrame, "Invalid Level Code", "Error", JOptionPane.WARNING_MESSAGE);
             }
           }
         });
@@ -565,7 +562,7 @@ public class Lemmini extends JFrame implements KeyListener {
         new java.awt.event.ActionListener() {
           @Override
           public void actionPerformed(java.awt.event.ActionEvent e) {
-            GainDialog v = new GainDialog((JFrame) Core.getCmp(), true);
+            GainDialog v = new GainDialog(thisFrame, true);
             v.addWindowListener(
                 new java.awt.event.WindowAdapter() {
                   @Override
@@ -652,7 +649,7 @@ public class Lemmini extends JFrame implements KeyListener {
     jMenuBar.add(jMenuOptions);
 
     // Finalise menu bar
-    this.setJMenuBar(jMenuBar);
+    setJMenuBar(jMenuBar);
   }
 
   /**
@@ -747,25 +744,6 @@ public class Lemmini extends JFrame implements KeyListener {
       System.exit(1);
     }
 
-    // workaround to adjust time base to 1ms under XP
-    // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6435126
-    new Thread() {
-      {
-        this.setDaemon(true);
-        this.start();
-      }
-
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            Thread.sleep(Integer.MAX_VALUE);
-          } catch (InterruptedException ex) {
-          }
-        }
-      }
-    };
-
     Toolkit.getDefaultToolkit().setDynamicLayout(true);
     thisFrame = new Lemmini();
   }
@@ -854,7 +832,7 @@ public class Lemmini extends JFrame implements KeyListener {
     Path targetDirectory = Paths.get(Core.resourcePath + "levels/" + name.toString());
     if (Files.exists(targetDirectory)) {
       JOptionPane.showMessageDialog(
-          Core.getCmp(),
+          thisFrame,
           "Error!",
           "Target directory already exists",
           JOptionPane.INFORMATION_MESSAGE);
@@ -866,7 +844,7 @@ public class Lemmini extends JFrame implements KeyListener {
       GameController.addLevelPack(sourceDirectory.toString());
     } catch (Exception ex) {
       JOptionPane.showMessageDialog(
-          Core.getCmp(),
+          thisFrame,
           "Error!",
           "Failed to load level pack. Bad formatting?",
           JOptionPane.INFORMATION_MESSAGE);
@@ -882,7 +860,7 @@ public class Lemmini extends JFrame implements KeyListener {
       ToolBox.copyFolder(sourceDirectory, targetDirectory);
     } catch (Exception ex) {
       JOptionPane.showMessageDialog(
-          Core.getCmp(),
+          thisFrame,
           "Error!",
           "Failed to copy pack to resource directory",
           JOptionPane.INFORMATION_MESSAGE);
@@ -994,8 +972,8 @@ public class Lemmini extends JFrame implements KeyListener {
               int xOfsTemp =
                   GameController.getxPos()
                       + ((gp.isShiftPressed()) ? GraphicsPane.X_STEP_FAST : GraphicsPane.X_STEP);
-              if (xOfsTemp < Level.WIDTH - this.getWidth()) GameController.setxPos(xOfsTemp);
-              else GameController.setxPos(Level.WIDTH - this.getWidth());
+              if (xOfsTemp < Level.WIDTH - getWidth()) GameController.setxPos(xOfsTemp);
+              else GameController.setxPos(Level.WIDTH - getWidth());
             }
             break;
           }
@@ -1103,7 +1081,7 @@ public class Lemmini extends JFrame implements KeyListener {
     GameController.setTransition(GameController.TransitionState.TO_INTRO);
     Fader.setState(Fader.State.OUT);
     if (!System.getProperty("os.name").equals("Mac OS X")) {
-      ((JFrame) Core.getCmp()).setTitle("Lemmini");
+      setTitle("Lemmini");
     }
   }
 
@@ -1173,7 +1151,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
   /** Store window properties. */
   public void saveWindowProps() {
-    Core.recordWindowProps(this.getLocation());
+    Core.recordWindowProps(getLocation());
     Core.programProps.save();
   }
 
@@ -1181,7 +1159,7 @@ public class Lemmini extends JFrame implements KeyListener {
   private void exit() {
     if (!Core.isFullScreen()) {
       // don't record window position when in full screen
-      Core.recordWindowProps(this.getLocation());
+      Core.recordWindowProps(getLocation());
     }
 
     // music
