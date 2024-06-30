@@ -32,294 +32,294 @@ import java.util.Properties;
  */
 public class Props {
 
-	/** extended hash to store properties */
-	private final Properties hash;
-	/** header string */
-	private String header;
-	/** file name */
-	private String propertyFileName;
+  /** extended hash to store properties */
+  private final Properties hash;
 
-	/**
-	 * Constructor
-	 */
-	public Props() {
-		hash = new Properties();
-		header = new String();
-	}
+  /** header string */
+  private String header;
 
-	/**
-	 * Set the property file header
-	 * @param h String containing Header information
-	 */
-	public void setHeader(final String h) {
-		header = h;
-	}
+  /** file name */
+  private String propertyFileName;
 
-	/**
-	 * Clear all properties
-	 */
-	public void clear() {
-		hash.clear();
-	}
+  /** Constructor */
+  public Props() {
+    hash = new Properties();
+    header = new String();
+  }
 
-	/**
-	 * Remove key
-	 * @param key Name of key
-	 */
-	public void remove(final String key) {
-		hash.remove(key);
-	}
+  /**
+   * Set the property file header
+   *
+   * @param h String containing Header information
+   */
+  public void setHeader(final String h) {
+    header = h;
+  }
 
-	/**
-	 * Set string property
-	 * @param key Name of the key to set value for
-	 * @param value Value to set
-	 */
-	public void set(final String key, final String value) {
-		hash.setProperty(key, value);
-	}
+  /** Clear all properties */
+  public void clear() {
+    hash.clear();
+  }
 
-	/**
-	 * Set integer property
-	 * @param key Name of the key to set value for
-	 * @param value Value to set
-	 */
-	public void set(final String key, final int value) {
-		hash.setProperty(key, String.valueOf(value));
-	}
+  /**
+   * Remove key
+   *
+   * @param key Name of key
+   */
+  public void remove(final String key) {
+    hash.remove(key);
+  }
 
-	/**
-	 * Set boolean property
-	 * @param key Name of the key to set value for
-	 * @param value Value to set
-	 */
-	public void set(final String key, final boolean value) {
-		hash.setProperty(key, String.valueOf(value));
-	}
+  /**
+   * Set string property
+   *
+   * @param key Name of the key to set value for
+   * @param value Value to set
+   */
+  public void set(final String key, final String value) {
+    hash.setProperty(key, value);
+  }
 
-	/**
-	 * Set double property
-	 * @param key Name of the key to set value for
-	 * @param value Value to set
-	 */
-	public void set(final String key, final double value) {
-		hash.setProperty(key, String.valueOf(value));
-	}
+  /**
+   * Set integer property
+   *
+   * @param key Name of the key to set value for
+   * @param value Value to set
+   */
+  public void set(final String key, final int value) {
+    hash.setProperty(key, String.valueOf(value));
+  }
 
-	/**
-	 * Get string property
-	 * @param key Name of the key to get value for
-	 * @param def Default value in case key is not found
-	 * @return Value of key as String
-	 */
-	public String get(final String key, final String def) {
-		String s = hash.getProperty(key,def);
-		return removeComment(s).trim();
-	}
+  /**
+   * Set boolean property
+   *
+   * @param key Name of the key to set value for
+   * @param value Value to set
+   */
+  public void set(final String key, final boolean value) {
+    hash.setProperty(key, String.valueOf(value));
+  }
 
-	/**
-	 * Get integer property
-	 * @param key Name of the key to get value for
-	 * @param def Default value in case key is not found
-	 * @return Value of key as int
-	 */
-	public int get(final String key, final int def) {
-		String s = hash.getProperty(key);
-		if (s == null)
-			return def;
-		s = removeComment(s);
-		return parseString(s);
-	}
+  /**
+   * Set double property
+   *
+   * @param key Name of the key to set value for
+   * @param value Value to set
+   */
+  public void set(final String key, final double value) {
+    hash.setProperty(key, String.valueOf(value));
+  }
 
-	/**
-	 * Get integer array property
-	 * @param key Name of the key to get value for
-	 * @param def Default value in case key is not found
-	 * @return Value of key as array of int
-	 */
-	public int[] get(final String key, final int def[]) {
-		String s = hash.getProperty(key);
-		if (s == null)
-			return def;
-		s = removeComment(s);
-		String members[] = s.split(",");
-		// remove trailing and leading spaces
-		for (int i=0; i<members.length; i++)
-			members[i] = trim(members[i]);
+  /**
+   * Get string property
+   *
+   * @param key Name of the key to get value for
+   * @param def Default value in case key is not found
+   * @return Value of key as String
+   */
+  public String get(final String key, final String def) {
+    String s = hash.getProperty(key, def);
+    return removeComment(s).trim();
+  }
 
-		int ret[];
-		ret = new int[members.length];
-		for (int i=0; i<members.length; i++)
-			ret[i] = parseString(members[i]);
+  /**
+   * Get integer property
+   *
+   * @param key Name of the key to get value for
+   * @param def Default value in case key is not found
+   * @return Value of key as int
+   */
+  public int get(final String key, final int def) {
+    String s = hash.getProperty(key);
+    if (s == null) return def;
+    s = removeComment(s);
+    return parseString(s);
+  }
 
-		return ret;
-	}
+  /**
+   * Get integer array property
+   *
+   * @param key Name of the key to get value for
+   * @param def Default value in case key is not found
+   * @return Value of key as array of int
+   */
+  public int[] get(final String key, final int def[]) {
+    String s = hash.getProperty(key);
+    if (s == null) return def;
+    s = removeComment(s);
+    String members[] = s.split(",");
+    // remove trailing and leading spaces
+    for (int i = 0; i < members.length; i++) members[i] = trim(members[i]);
 
-	/**
-	 * Get string array property
-	 * @param key Name of the key to get value for
-	 * @param def Default value in case key is not found
-	 * @return Value of key as array of string
-	 */
-	public String[] get(final String key, final String def[]) {
-		String s = hash.getProperty(key);
-		if (s == null)
-			return def;
-		s = removeComment(s);
-		String members[] = s.split(",");
-		// remove trailing and leading spaces
-		for (int i=0; i<members.length; i++)
-			members[i] = trim(members[i]);
+    int ret[];
+    ret = new int[members.length];
+    for (int i = 0; i < members.length; i++) ret[i] = parseString(members[i]);
 
-		return members;
-	}
+    return ret;
+  }
 
-	/**
-	 * Get boolean property
-	 * @param key Name of the key to get value for
-	 * @param def Default value in case key is not found
-	 * @return Value of key as boolean
-	 */
-	public boolean get(final String key, final boolean def) {
-		String s = hash.getProperty(key);
-		if (s == null)
-			return def;
-		s = removeComment(s);
-		return Boolean.valueOf(s).booleanValue();
-	}
+  /**
+   * Get string array property
+   *
+   * @param key Name of the key to get value for
+   * @param def Default value in case key is not found
+   * @return Value of key as array of string
+   */
+  public String[] get(final String key, final String def[]) {
+    String s = hash.getProperty(key);
+    if (s == null) return def;
+    s = removeComment(s);
+    String members[] = s.split(",");
+    // remove trailing and leading spaces
+    for (int i = 0; i < members.length; i++) members[i] = trim(members[i]);
 
-	/**
-	 * Get double property
-	 * @param key Name of the key to get value for
-	 * @param def default value in case key is not found
-	 * @return value of key as double
-	 */
-	public double get(final String key, final double def) {
-		String s = hash.getProperty(key);
-		if (s == null)
-			return def;
-		s = removeComment(s);
-		return Double.valueOf(s).doubleValue();
-	}
+    return members;
+  }
 
-	/**
-	 * Save property file
-	 * @param fname File name of property file
-	 * @return True if OK, false if exception occurred
-	 */
-	public boolean save() {
-		if(propertyFileName == null) {
-			//throw new Exception("Can't save to a property file created from a URL.");
-			System.out.println("Can't save to a property file created from a URL.");
-			return false;
-		} else {
-			try {
-				FileOutputStream f = new FileOutputStream(propertyFileName);
-				hash.store(f, header);
-				return true;
-			} catch(FileNotFoundException e) {
-				return false;
-			} catch(IOException e) {
-				return false;
-			}
-		}
-	}
+  /**
+   * Get boolean property
+   *
+   * @param key Name of the key to get value for
+   * @param def Default value in case key is not found
+   * @return Value of key as boolean
+   */
+  public boolean get(final String key, final boolean def) {
+    String s = hash.getProperty(key);
+    if (s == null) return def;
+    s = removeComment(s);
+    return Boolean.valueOf(s).booleanValue();
+  }
 
-	/**
-	 * Load property file
-	 * @param file File handle of property file
-	 * @return True if OK, false if exception occurred
-	 */
-	public boolean load(final URL file) {
-		propertyFileName = null;
+  /**
+   * Get double property
+   *
+   * @param key Name of the key to get value for
+   * @param def default value in case key is not found
+   * @return value of key as double
+   */
+  public double get(final String key, final double def) {
+    String s = hash.getProperty(key);
+    if (s == null) return def;
+    s = removeComment(s);
+    return Double.valueOf(s).doubleValue();
+  }
 
-		try {
-			InputStream f = file.openStream();
-			hash.load(f);
-			f.close();
-			return true;
-		} catch(FileNotFoundException e) {
-			return false;
-		} catch(IOException e) {
-			return false;
-		}
-	}
+  /**
+   * Save property file
+   *
+   * @param fname File name of property file
+   * @return True if OK, false if exception occurred
+   */
+  public boolean save() {
+    if (propertyFileName == null) {
+      // throw new Exception("Can't save to a property file created from a URL.");
+      System.out.println("Can't save to a property file created from a URL.");
+      return false;
+    } else {
+      try {
+        FileOutputStream f = new FileOutputStream(propertyFileName);
+        hash.store(f, header);
+        return true;
+      } catch (FileNotFoundException e) {
+        return false;
+      } catch (IOException e) {
+        return false;
+      }
+    }
+  }
 
-	/**
-	 * Load property file
-	 * @param fname File name of property file
-	 * @return True if OK, false if exception occurred
-	 */
-	public boolean load(final String fname) {
-		propertyFileName = fname;
+  /**
+   * Load property file
+   *
+   * @param file File handle of property file
+   * @return True if OK, false if exception occurred
+   */
+  public boolean load(final URL file) {
+    propertyFileName = null;
 
-		try {
-			FileInputStream f = new FileInputStream(fname);
-			hash.load(f);
-			f.close();
-			return true;
-		} catch(FileNotFoundException e) {
-			return false;
-		} catch(IOException e) {
-			return false;
-		}
-	}
+    try {
+      InputStream f = file.openStream();
+      hash.load(f);
+      f.close();
+      return true;
+    } catch (FileNotFoundException e) {
+      return false;
+    } catch (IOException e) {
+      return false;
+    }
+  }
 
-	/**
-	 * Parse hex, binary or octal number
-	 * @param s String that contains one number
-	 * @return Integer value of string
-	 */
-	private static int parseString(final String s) {
-		if (s==null || s.length()==0)
-			return -1;
-		if (s.charAt(0) == '0') {
-			if (s.length() == 1)
-				return 0;
-			else if (s.length() > 2 && s.charAt(1) == 'x')
-				return Integer.parseInt(s.substring(2),16); // hex
-			else if (s.charAt(1) == 'b')  // binary
-				return Integer.parseInt(s.substring(2),2);
-			else return Integer.parseInt(s.substring(0),8); // octal
-		}
-		int retval;
-		try {
-			retval = Integer.parseInt(s);
-		} catch (NumberFormatException ex) {
-			retval = 0;
-		}
-		return retval;
-	}
+  /**
+   * Load property file
+   *
+   * @param fname File name of property file
+   * @return True if OK, false if exception occurred
+   */
+  public boolean load(final String fname) {
+    propertyFileName = fname;
 
-	/**
-	 * Remove comment from line. Comment character is "#".
-	 * Everything behind (including "#") will be removed
-	 * @param s String to search for comment
-	 * @return String without comment
-	 */
-	private String removeComment(final String s) {
-		int pos = s.indexOf('#');
-		if (pos != -1)
-			return s.substring(0,pos);
-		else
-			return s;
-	}
+    try {
+      FileInputStream f = new FileInputStream(fname);
+      hash.load(f);
+      f.close();
+      return true;
+    } catch (FileNotFoundException e) {
+      return false;
+    } catch (IOException e) {
+      return false;
+    }
+  }
 
-	/**
-	 * Remove trailing and leading spaces from a string
-	 * @param s String to process
-	 * @return String without leading and trailing spaces
-	 */
-	private static String trim(final String s) {
-		// search first character that is not a space
-		int spos;
-		for (spos=0; spos<s.length(); spos++)
-			if (s.charAt(spos) != ' ')
-				break;
-		int epos;
-		for (epos=s.length()-1; epos > spos; epos--)
-			if (s.charAt(epos) != ' ')
-				break;
-		return s.substring(spos, epos+1);
-	}
+  /**
+   * Parse hex, binary or octal number
+   *
+   * @param s String that contains one number
+   * @return Integer value of string
+   */
+  private static int parseString(final String s) {
+    if (s == null || s.length() == 0) return -1;
+    if (s.charAt(0) == '0') {
+      if (s.length() == 1) return 0;
+      else if (s.length() > 2 && s.charAt(1) == 'x')
+        return Integer.parseInt(s.substring(2), 16); // hex
+      else if (s.charAt(1) == 'b') // binary
+      return Integer.parseInt(s.substring(2), 2);
+      else return Integer.parseInt(s.substring(0), 8); // octal
+    }
+    int retval;
+    try {
+      retval = Integer.parseInt(s);
+    } catch (NumberFormatException ex) {
+      retval = 0;
+    }
+    return retval;
+  }
+
+  /**
+   * Remove comment from line. Comment character is "#". Everything behind (including "#") will be
+   * removed
+   *
+   * @param s String to search for comment
+   * @return String without comment
+   */
+  private String removeComment(final String s) {
+    int pos = s.indexOf('#');
+    if (pos != -1) return s.substring(0, pos);
+    else return s;
+  }
+
+  /**
+   * Remove trailing and leading spaces from a string
+   *
+   * @param s String to process
+   * @return String without leading and trailing spaces
+   */
+  private static String trim(final String s) {
+    // search first character that is not a space
+    int spos;
+    for (spos = 0; spos < s.length(); spos++) if (s.charAt(spos) != ' ') break;
+    int epos;
+    for (epos = s.length() - 1; epos > spos; epos--) if (s.charAt(epos) != ' ') break;
+    return s.substring(spos, epos + 1);
+  }
 }

@@ -18,60 +18,70 @@ package Game;
 
 /**
  * Storage class for replay level info.
+ *
  * @author Volker Oth
  */
 public class ReplayLevelInfo {
-	/** name of level pack */
-	private String levelPack;
-	/** difficulty level */
-	private int diffLevel;
-	/** level number */
-	private int lvlNumber;
+  /** name of level pack */
+  private String levelPack;
 
-	/**
-	 * Set name of level pack.
-	 * @param levelPack name of level pack
-	 */
-	public void setLevelPack(final String levelPack) {
-		this.levelPack = levelPack;
-	}
-	/**
-	 * Get name of level pack.
-	 * @return name of level pack
-	 */
-	public String getLevelPack() {
-		return levelPack;
-	}
+  /** difficulty level */
+  private int diffLevel;
 
-	/**
-	 * Set difficulty level.
-	 * @param diffLevel difficulty level
-	 */
-	public void setDiffLevel(final int diffLevel) {
-		this.diffLevel = diffLevel;
-	}
+  /** level number */
+  private int lvlNumber;
 
-	/**
-	 * Get difficulty level.
-	 * @return difficulty level
-	 */
-	public int getDiffLevel() {
-		return diffLevel;
-	}
+  /**
+   * Set name of level pack.
+   *
+   * @param levelPack name of level pack
+   */
+  public void setLevelPack(final String levelPack) {
+    this.levelPack = levelPack;
+  }
 
-	/**
-	 * Set level number.
-	 * @param lvlNumber level number
-	 */
-	public void setLvlNumber(final int lvlNumber) {
-		this.lvlNumber = lvlNumber;
-	}
+  /**
+   * Get name of level pack.
+   *
+   * @return name of level pack
+   */
+  public String getLevelPack() {
+    return levelPack;
+  }
 
-	/**
-	 * Get level number.
-	 * @return level number
-	 */
-	public int getLvlNumber() {
-		return lvlNumber;
-	}
+  /**
+   * Set difficulty level.
+   *
+   * @param diffLevel difficulty level
+   */
+  public void setDiffLevel(final int diffLevel) {
+    this.diffLevel = diffLevel;
+  }
+
+  /**
+   * Get difficulty level.
+   *
+   * @return difficulty level
+   */
+  public int getDiffLevel() {
+    return diffLevel;
+  }
+
+  /**
+   * Set level number.
+   *
+   * @param lvlNumber level number
+   */
+  public void setLvlNumber(final int lvlNumber) {
+    this.lvlNumber = lvlNumber;
+  }
+
+  /**
+   * Get level number.
+   *
+   * @return level number
+   */
+  public int getLvlNumber() {
+    return lvlNumber;
+  }
 }

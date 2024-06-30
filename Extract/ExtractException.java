@@ -21,22 +21,20 @@ package Extract;
  *
  * @author Volker Oth
  */
-
 public class ExtractException extends Exception {
-	private final static long serialVersionUID = 0x000000001;
+  private static final long serialVersionUID = 0x000000001;
 
-	/**
-	 * Constructor.
-	 */
-	public ExtractException() {
-		super();
-	}
+  /** Constructor. */
+  public ExtractException() {
+    super();
+  }
 
-	/**
-	 * Constructor.
-	 * @param s Exception string
-	 */
-	public ExtractException(final String s) {
-		super(s);
-	}
+  /**
+   * Constructor.
+   *
+   * @param s Exception string
+   */
+  public ExtractException(final String s) {
+    super(s);
+  }
 }

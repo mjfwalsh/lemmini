@@ -22,8 +22,6 @@ package Game;
  * @author Volker Oth
  */
 public interface UpdateListener {
-	/**
-	 * Action to perform if Listener is called
-	 */
-	public void update();
+  /** Action to perform if Listener is called */
+  public void update();
 }

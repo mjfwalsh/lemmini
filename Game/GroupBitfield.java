@@ -19,29 +19,31 @@ import java.math.BigInteger;
  */
 
 /**
- * Wrapper class which uses BigInteger to implement a large bitfield
- * in which single bits can be set via testBit and setBit.
+ * Wrapper class which uses BigInteger to implement a large bitfield in which single bits can be set
+ * via testBit and setBit.
  */
 public class GroupBitfield extends BigInteger {
 
-	/** define "1" to avoid multiple instances */
-	final static GroupBitfield ONE = new GroupBitfield("1");
+  /** define "1" to avoid multiple instances */
+  static final GroupBitfield ONE = new GroupBitfield("1");
 
-	private final static long serialVersionUID = 1;
+  private static final long serialVersionUID = 1;
 
-	/**
-	 * Constructor with numerical value as string
-	 * @param s numerical value as string
-	 */
-	public GroupBitfield(final String s) {
-		super(s);
-	}
+  /**
+   * Constructor with numerical value as string
+   *
+   * @param s numerical value as string
+   */
+  public GroupBitfield(final String s) {
+    super(s);
+  }
 
-	/**
-	 * Constructor with numerical value as BigInteger
-	 * @param i numerical value as BigInteger
-	 */
-	public GroupBitfield(final BigInteger i) {
-		super(i.toString());
-	}
+  /**
+   * Constructor with numerical value as BigInteger
+   *
+   * @param i numerical value as BigInteger
+   */
+  public GroupBitfield(final BigInteger i) {
+    super(i.toString());
+  }
 }

@@ -22,20 +22,19 @@ package Game;
  * @author Volker Oth
  */
 public class ResourceException extends Exception {
-	private final static long serialVersionUID = 0x000000001;
+  private static final long serialVersionUID = 0x000000001;
 
-	/**
-	 * Constructor.
-	 */
-	public ResourceException() {
-		super();
-	}
+  /** Constructor. */
+  public ResourceException() {
+    super();
+  }
 
-	/**
-	 * Constructor.
-	 * @param s Exception string
-	 */
-	public ResourceException(final String s) {
-		super(s);
-	}
+  /**
+   * Constructor.
+   *
+   * @param s Exception string
+   */
+  public ResourceException(final String s) {
+    super(s);
+  }
 }
