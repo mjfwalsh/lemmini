@@ -45,8 +45,11 @@ public class TextDialog {
   /** graphics object to draw in 2nd (offscreen) screen buffer */
   private Graphics2D gBack;
 
-  /** width of screen in pixels */
-  private int width;
+  /** width of max draw width in pixels */
+  private int wholeWidth;
+
+  /** width of visible drawing area in pixels */
+  private int clipWidth;
 
   /** height of screen in pixels */
   private int height;
@@ -64,24 +67,24 @@ public class TextDialog {
    * @param h Height of screen to create
    */
   public TextDialog(final int w, final int h) {
-    width = w;
+    clipWidth = wholeWidth = w;
     height = h;
-    centerX = width / 2;
+    centerX = wholeWidth / 2;
     centerY = height / 2;
     screenBuffer = ToolBox.createImage(w, h, Transparency.OPAQUE);
     gScreen = screenBuffer.createGraphics();
-    gScreen.setClip(0, 0, width, height);
     backBuffer = ToolBox.createImage(w, h, Transparency.OPAQUE);
     gBack = backBuffer.createGraphics();
-    gBack.setClip(0, 0, width, height);
     buttons = new ArrayList<Button>();
   }
 
   /** Initialize/reset the text screen. */
-  public void init() {
+  public void init(final int w) {
+    clipWidth = w;
+    centerX = w / 2;
     buttons.clear();
     gScreen.setBackground(Color.BLACK);
-    gScreen.clearRect(0, 0, width, height);
+    gScreen.clearRect(0, 0, wholeWidth, height);
   }
 
   /**
@@ -99,8 +102,8 @@ public class TextDialog {
    * @param tile Image used as tile
    */
   public void fillBackground(final BufferedImage tile) {
-    for (int x = 0; x < width; x += tile.getWidth()) {
-      for (int y = 0; y < width; y += tile.getHeight()) gBack.drawImage(tile, x, y, null);
+    for (int x = 0; x < wholeWidth; x += tile.getWidth()) {
+      for (int y = 0; y < wholeWidth; y += tile.getHeight()) gBack.drawImage(tile, x, y, null);
     }
     gScreen.drawImage(backBuffer, 0, 0, null);
   }
@@ -116,10 +119,10 @@ public class TextDialog {
    * @param image Image to use as background
    */
   public void setBackground(final BufferedImage image) {
-    int x = (width - image.getWidth()) / 2;
+    int x = (wholeWidth - image.getWidth()) / 2;
     int y = (height - image.getHeight()) / 2;
     gBack.setBackground(Color.BLACK);
-    gBack.clearRect(0, 0, width, height);
+    gBack.clearRect(0, 0, wholeWidth, height);
     gBack.drawImage(image, x, y, null);
     gScreen.drawImage(backBuffer, 0, 0, null);
   }
@@ -149,7 +152,7 @@ public class TextDialog {
    * @return number of characters
    */
   public int getLineWidth() {
-    return (int) Math.floor(width / LemmFont.getWidth());
+    return (int) Math.floor(clipWidth / LemmFont.getWidth());
   }
 
   /**
@@ -306,6 +309,16 @@ public class TextDialog {
     }
     return -1;
   }
+
+  /** Draw Scroller */
+  public void drawScroller(int w, int h, int scrollY, BufferedImage scrollerImg, int scrollPixCtr) {
+    int dx = (clipWidth - w) / 2;
+    int dy = (height / 2) + scrollY;
+    screenBuffer
+        .createGraphics()
+        .drawImage(
+            scrollerImg, dx, dy, dx + w, dy + h, scrollPixCtr, 0, scrollPixCtr + w, h / 2, null);
+  }
 }
 
 /**
@@ -358,8 +371,8 @@ class Button {
    */
   void SetImage(final BufferedImage img) {
     image = img;
-    if (image.getHeight() > height) height = image.getHeight();
-    if (image.getWidth() > width) width = image.getWidth();
+    if (image.getHeight() != height) height = image.getHeight();
+    if (image.getWidth() != width) width = image.getWidth();
   }
 
   /**
@@ -369,8 +382,8 @@ class Button {
    */
   void SetImageSelected(final BufferedImage img) {
     imgSelected = img;
-    if (imgSelected.getHeight() > height) height = imgSelected.getHeight();
-    if (imgSelected.getWidth() > width) width = imgSelected.getWidth();
+    if (imgSelected.getHeight() != height) height = imgSelected.getHeight();
+    if (imgSelected.getWidth() != width) width = imgSelected.getWidth();
   }
 
   /**
@@ -419,8 +432,8 @@ class TextButton extends Button {
    */
   void setText(final String s, final LemmFont.Color color) {
     image = LemmFont.strImage(s, color);
-    if (image.getHeight() > height) height = image.getHeight();
-    if (image.getWidth() > width) width = image.getWidth();
+    if (image.getHeight() != height) height = image.getHeight();
+    if (image.getWidth() != width) width = image.getWidth();
   }
 
   /**
@@ -431,7 +444,7 @@ class TextButton extends Button {
    */
   void setTextSelected(final String s, final LemmFont.Color color) {
     imgSelected = LemmFont.strImage(s, color);
-    if (imgSelected.getHeight() > height) height = imgSelected.getHeight();
-    if (imgSelected.getWidth() > width) width = imgSelected.getWidth();
+    if (imgSelected.getHeight() != height) height = imgSelected.getHeight();
+    if (imgSelected.getWidth() != width) width = imgSelected.getWidth();
   }
 }

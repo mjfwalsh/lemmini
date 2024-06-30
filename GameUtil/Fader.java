@@ -64,12 +64,6 @@ public class Fader {
   /** alpha value of the fading rectangle */
   private static int alpha = 0x80; // half transparent
 
-  /** width of faded area */
-  private static int width;
-
-  /** height of faded area */
-  private static int height;
-
   /** the image used as fading rectangle */
   private static BufferedImage alphaImg = null;
 
@@ -96,17 +90,6 @@ public class Fader {
     init();
   }
 
-  /**
-   * Set bounds of fading area.
-   *
-   * @param w width in pixels
-   * @param h height pixels
-   */
-  public static synchronized void setBounds(final int w, final int h) {
-    width = w;
-    height = h;
-  }
-
   /** Initialize fader. */
   private static void init() {
     Color fillColor; /* ARGB color of the fading rectangle composed from alpha and color */
@@ -126,7 +109,7 @@ public class Fader {
    *
    * @param g graphics to apply fader to
    */
-  public static synchronized void apply(final Graphics g) {
+  public static synchronized void apply(final Graphics g, final int width, final int height) {
     for (int y = 0; y < height; y += HEIGHT)
       for (int x = 0; x < width; x += WIDTH) g.drawImage(alphaImg, x, y, null);
   }
@@ -173,7 +156,7 @@ public class Fader {
    *
    * @param g graphics to fade
    */
-  public static synchronized void fade(final Graphics g) {
+  public static synchronized void fade(final Graphics g, final int width, final int height) {
     switch (fadeState) {
       case IN:
         if (fadeValue >= fadeStep) fadeValue -= fadeStep;
@@ -182,7 +165,7 @@ public class Fader {
           fadeState = State.OFF;
         }
         Fader.setAlpha(fadeValue);
-        Fader.apply(g);
+        Fader.apply(g, width, height);
         // System.out.println(fadeValue);
         break;
       case OUT:
@@ -192,7 +175,7 @@ public class Fader {
           fadeState = State.OFF;
         }
         Fader.setAlpha(fadeValue);
-        Fader.apply(g);
+        Fader.apply(g, width, height);
         // System.out.println(fadeValue);
         break;
     }

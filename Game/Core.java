@@ -5,10 +5,8 @@ import Extract.ExtractException;
 import GUI.LegalDialog;
 import Tools.Props;
 import Tools.ToolBox;
-import java.awt.Component;
 import java.awt.Image;
 import java.awt.MediaTracker;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -53,9 +51,6 @@ public class Core {
   /** extensions accepted for replay files in file dialog */
   public static final String[] REPLAY_EXTENSIONS = {"rpl"};
 
-  /** height of icon bar in pixels */
-  private static final int WIN_OFS = 100;
-
   /** program properties */
   public static Props programProps;
 
@@ -66,7 +61,7 @@ public class Core {
   public static Player player;
 
   /** parent component (main frame) */
-  private static Component cmp;
+  private static JFrame cmp;
 
   /** player properties */
   private static Props playerProps;
@@ -74,14 +69,8 @@ public class Core {
   /** list of all players */
   private static ArrayList<String> players;
 
-  /** Zoom scale */
-  private static double scale;
-
   /** fullscreen boolean */
   private static boolean fullScreen = false;
-
-  /** internal draw width */
-  private static int internalWidth;
 
   /**
    * Initialize some core elements.
@@ -135,9 +124,6 @@ public class Core {
       ld.setVisible(true);
       if (!ld.isOk()) System.exit(0);
     }
-
-    scale = programProps.get("scale", 1.0);
-    if (scale < 1) scale = 1;
 
     if (!System.getProperty("os.name").equals("Mac OS X")) {
       resourcePath = programProps.get("resourcePath", "");
@@ -206,7 +192,7 @@ public class Core {
    *
    * @return parent component
    */
-  public static synchronized Component getCmp() {
+  public static synchronized JFrame getCmp() {
     return cmp;
   }
 
@@ -221,12 +207,7 @@ public class Core {
   }
 
   /** Save properties */
-  public static synchronized void saveProps(Point p) {
-    if (!isFullScreen()) {
-      // don't record window position when in full screen
-      recordWindowProps(p);
-    }
-
+  public static synchronized void saveProps() {
     // music
     programProps.set("music", GameController.isMusicOn());
     programProps.set("sound", GameController.isSoundOn());
@@ -240,22 +221,6 @@ public class Core {
     player.store();
 
     System.out.println("Saving on exit");
-  }
-
-  /** Store window properties. */
-  public static synchronized void saveWindowProps(Point p) {
-    recordWindowProps(p);
-    programProps.save();
-  }
-
-  /** Record window properties. */
-  public static synchronized void recordWindowProps(Point p) {
-    // store frame pos
-    programProps.set("framePosX", p.x);
-    programProps.set("framePosY", p.y);
-
-    // scale
-    programProps.set("scale", scale);
   }
 
   /**
@@ -383,52 +348,7 @@ public class Core {
   }
 
   /**
-   * Get internal Draw Width
-   *
-   * @return internal draw width
-   */
-  public static synchronized int getDrawWidth() {
-    return internalWidth;
-  }
-
-  /**
-   * Set internal Draw Width
-   *
-   * @param internal draw width
-   */
-  public static synchronized void setDrawWidth(int w) {
-    internalWidth = w;
-  }
-
-  /**
-   * Get internal Draw Height
-   *
-   * @return internal draw width
-   */
-  public static synchronized int getDrawHeight() {
-    return Level.HEIGHT + WIN_OFS;
-  }
-
-  /**
-   * Get Zoom scale
-   *
-   * @return zoom scale
-   */
-  public static synchronized double getScale() {
-    return scale;
-  }
-
-  /**
-   * Set zoom scale
-   *
-   * @param s zoom scale
-   */
-  public static synchronized void setScale(double s) {
-    scale = s;
-  }
-
-  /**
-   * Is mac fullscreen
+   * Is fullscreen
    *
    * @return boolean fullScreen
    */
@@ -437,7 +357,7 @@ public class Core {
   }
 
   /**
-   * Record mac fullscreen
+   * Record fullscreen
    *
    * @param b boolean fullScreen
    */

@@ -36,9 +36,6 @@ public class MiniMap {
   /** image used for mini map */
   private static BufferedImage img;
 
-  /** X position in main gfx */
-  private static int xPos;
-
   /** Y position in main gfx */
   private static int yPos;
 
@@ -63,9 +60,7 @@ public class MiniMap {
    * @param sy Y Scale (3 -> 0.333)
    * @param tint true: apply greenish tint, false: use original colors
    */
-  public static void init(
-      final int x, final int y, final int sx, final int sy, final boolean tint) {
-    xPos = x;
+  public static void init(final int y, final int sx, final int sy, final boolean tint) {
     yPos = y;
     scaleX = sx;
     scaleY = sy;
@@ -84,8 +79,8 @@ public class MiniMap {
    * @param y y position in pixels
    * @param xOfs horizontal level offset
    */
-  public static void draw(final Graphics2D g, final int x, final int y, final int xOfs) {
-    int wWidth = Core.getDrawWidth();
+  public static void draw(
+      final Graphics2D g, final int x, final int y, final int xOfs, final int wWidth) {
     g.drawImage(img, x, y, null);
     g.setColor(BORDER_COLOR);
     g.drawRect(x + xOfs / scaleX, y, wWidth / scaleX, img.getHeight() - 1);
@@ -98,7 +93,7 @@ public class MiniMap {
    * @param lx original lemming x position in pixels
    * @param ly original lemming y position in pixels
    */
-  public static void drawLemming(final Graphics2D g, final int lx, final int ly) {
+  public static void drawLemming(final Graphics2D g, final int lx, final int ly, final int xPos) {
     int x = xPos + (lx + scaleX / 2) / scaleX;
     int y = yPos + (ly + scaleY / 2) / scaleY;
     g.setColor(LEMM_COLOR);
@@ -122,7 +117,7 @@ public class MiniMap {
    * @param swidth screen width
    * @return new horizontal screen offset
    */
-  public static int move(final int x, final int y, final int swidth) {
+  public static int move(final int x, final int y, final int swidth, final int xPos) {
     if (y < yPos || y >= yPos + height || x < xPos || x >= xPos + width)
       return -1; // cursor outside the mini map
     int xOfs = (x - xPos) * scaleX - swidth / 2;

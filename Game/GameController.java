@@ -647,8 +647,6 @@ public class GameController {
 
     lemmSkillRequest = null;
 
-    TextScreen.setMode(TextScreen.Mode.INIT);
-
     bgGfx.setBackground(blankColor);
     bgGfx.clearRect(0, 0, bgImage.getWidth(), bgImage.getHeight());
 
@@ -1306,7 +1304,7 @@ public class GameController {
    *
    * @param g graphics object
    */
-  public static synchronized void fade(final Graphics g) {
+  public static synchronized void fade(final Graphics g, final int width, final int height) {
     if (Fader.getState() == Fader.State.OFF && transitionState != TransitionState.NONE) {
       switch (transitionState) {
         case END_LEVEL:
@@ -1366,7 +1364,7 @@ public class GameController {
       Fader.setState(Fader.State.IN);
       transitionState = TransitionState.NONE;
     }
-    Fader.fade(g);
+    Fader.fade(g, width, height);
   }
 
   /**

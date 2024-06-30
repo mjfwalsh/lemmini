@@ -130,20 +130,20 @@ public class TextScreen {
   /** synchronization monitor */
   private static Object monitor = new Object();
 
-  private static double oldScale = Core.getScale();
+  private static double oldScale = -1.0f;
+  private static int oldWidth = -1;
 
   /**
    * Set mode.
    *
    * @param m mode.
    */
-  public static void setMode(final Mode m) {
+  public static void setMode(final Mode m, final double scale, final int width) {
     synchronized (monitor) {
-      double scale = Core.getScale();
-      if (mode != m || oldScale != scale) {
+      if (mode != m || oldScale != scale || oldWidth != width) {
         switch (m) {
           case INTRO:
-            textDialog.init();
+            textDialog.init(width);
             textDialog.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_BROWN));
             textDialog.printCentered("A game engine for Lemmings(tm) in Java", -1, RED);
             textDialog.printCentered("Created by Volker Oth", 0, VIOLET);
@@ -153,21 +153,23 @@ public class TextScreen {
             textDialog.copyToBackBuffer();
             break;
           case BRIEFING:
+            textDialog.init(width);
             initBriefing();
             break;
           case DEBRIEFING:
+            textDialog.init(width);
             initDebriefing();
             break;
         }
+        mode = m;
+        oldScale = scale;
+        oldWidth = width;
       }
-      mode = m;
-      oldScale = scale;
     }
   }
 
   /** Initialize the briefing dialog. */
   static void initBriefing() {
-    textDialog.init();
     textDialog.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
     Level level = GameController.getLevel();
     textDialog.restore();
@@ -228,7 +230,6 @@ public class TextScreen {
 
   /** Initialize the debriefing dialog. */
   static void initDebriefing() {
-    textDialog.init();
     textDialog.fillBackground(MiscGfx.getImage(MiscGfx.Index.TILE_GREEN));
     int toRescue =
         GameController.getNumToRecue()
@@ -405,22 +406,8 @@ public class TextScreen {
     scrollerGfx.clearRect(0, 0, scrollerImg.getWidth(), scrollerImg.getHeight());
     LemmFont.strImage(scrollerGfx, out, BLUE);
     int w = SCROLL_WIDTH * LemmFont.getWidth();
-    int dx = (textDialog.getScreen().getWidth() - w) / 2;
-    int dy = (textDialog.getScreen().getHeight() / 2) + SCROLL_Y;
-    textDialog
-        .getScreen()
-        .createGraphics()
-        .drawImage(
-            scrollerImg,
-            dx,
-            dy,
-            dx + w,
-            dy + SCROLL_HEIGHT,
-            scrollPixCtr,
-            0,
-            scrollPixCtr + w,
-            SCROLL_HEIGHT / 2,
-            null);
+
+    textDialog.drawScroller(w, SCROLL_HEIGHT, SCROLL_Y, scrollerImg, scrollPixCtr);
 
     scrollPixCtr += SCROLL_STEP;
     if (scrollPixCtr >= LemmFont.getWidth()) {
