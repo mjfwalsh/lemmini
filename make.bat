@@ -1,34 +1,21 @@
 @echo off
 
 SET dependencies=good
-SET /A PERLORJS=0
 
-where perl >nul 2>nul
+where java >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-	echo Perl not found
-) ELSE (
-	echo Found Perl
-	set /A PERLORJS=PERLORJS+1
-)
-
-where cscript >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-	echo JavaScript not found
-) ELSE (
-	echo Found JavaScript
-	set /A PERLORJS=PERLORJS+10
-)
-
-if %PERLORJS% == 0 (
+	echo Java not found
 	SET dependencies=bad
+) ELSE (
+	echo Found Java
 )
 
 where javac >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
-	echo Javac not found
+	echo Java compiler not found
 	SET dependencies=bad
 ) ELSE (
-	echo Found Java Compiler
+	echo Found Java compiler
 )
 
 where jar >nul 2>nul
@@ -36,23 +23,13 @@ if %ERRORLEVEL% NEQ 0 (
 	echo Jar maker not found
 	SET dependencies=bad
 ) ELSE (
-	echo Found Jar Maker
+	echo Found jar maker
 )
 
 IF %dependencies% == bad (
 	ECHO Dependancies failed
 	ECHO You may need to check your PATH
 	EXIT /B
-)
-
-if %PERLORJS% GTR 5 (
-	ECHO Running JavaScript Preprocessor...
-	cscript /nologo preprocessor.js
-	if %ERRORLEVEL% NEQ 0 EXIT /B
-) ELSE (
-	ECHO Running Perl Preprocessor...
-	perl preprocessor.pl generic
-	if %ERRORLEVEL% NEQ 0 EXIT /B
 )
 
 IF EXIST build RD /S /Q build
