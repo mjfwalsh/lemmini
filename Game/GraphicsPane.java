@@ -296,13 +296,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   private void redraw() {
     drawLock.lock();
     try {
-      int drawBuffer;
-      Graphics2D offGfx;
+      int drawBuffer = (activeBuffer == 0) ? 1 : 0;
+      Graphics2D offGfx = offGraphics[drawBuffer];
 
-      drawBuffer = (activeBuffer == 0) ? 1 : 0;
-      offGfx = offGraphics[drawBuffer];
-
-      BufferedImage bgImage = GameController.getBgImage();
       switch (GameController.getGameState()) {
         case INTRO:
           TextScreen.setMode(TextScreen.Mode.INTRO, m_scale, internalWidth);
@@ -326,169 +322,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
         case LEVEL:
         case LEVEL_END:
-          if (bgImage != null) {
-            GameController.update();
-            // mouse movement
-            if (yMouseScreen > 40
-                && yMouseScreen < scoreY * m_scale) { // avoid scrolling if menu is selected
-              int xOfsTemp;
-              if (xMouseScreen > this.getWidth() - AUTOSCROLL_RANGE * m_scale) {
-                xOfsTemp = GameController.getxPos() + ((shiftPressed) ? X_STEP_FAST : X_STEP);
-                if (xOfsTemp < Level.WIDTH - this.getWidth() / m_scale)
-                  GameController.setxPos(xOfsTemp);
-                else GameController.setxPos((int) (Level.WIDTH - this.getWidth() / m_scale));
-              } else if (xMouseScreen < AUTOSCROLL_RANGE * m_scale) {
-                xOfsTemp = GameController.getxPos() - ((shiftPressed) ? X_STEP_FAST : X_STEP);
-                if (xOfsTemp > 0) GameController.setxPos(xOfsTemp);
-                else GameController.setxPos(0);
-              }
-            }
-            // store local copy of xOfs to avoid sync problems with AWT threads
-            // (scrolling by dragging changes xOfs as well)
-            int xOfsTemp = GameController.getxPos();
-
-            Level level = GameController.getLevel();
-            if (level != null) {
-
-              // clear screen
-              offGfx.setBackground(level.getBgColor());
-              offGfx.clearRect(0, 0, MAXDRAWWIDTH, level.HEIGHT);
-
-              // draw "behind" objects
-              GameController.getLevel().drawBehindObjects(offGfx, internalWidth, xOfsTemp);
-
-              // draw background
-              offGfx.drawImage(
-                  bgImage,
-                  0,
-                  0,
-                  internalWidth,
-                  level.HEIGHT,
-                  xOfsTemp,
-                  0,
-                  xOfsTemp + internalWidth,
-                  level.HEIGHT,
-                  this);
-
-              // draw "in front" objects
-              GameController.getLevel().drawInFrontObjects(offGfx, internalWidth, xOfsTemp);
-            }
-
-            // clear parts of the screen for menu etc.
-            offGfx.setBackground(Color.BLACK);
-            offGfx.clearRect(0, scoreY, MAXDRAWWIDTH, DRAWHEIGHT - scoreY);
-
-            // draw icons, small level pic
-            GameController.drawIcons(offGfx, 0, iconsY);
-            int smallX = getSmallX();
-            offGfx.drawImage(MiscGfx.getImage(MiscGfx.Index.BORDER), smallX - 4, smallY - 4, null);
-            MiniMap.draw(offGfx, smallX, smallY, xOfsTemp, internalWidth);
-
-            // draw counters
-            GameController.drawCounters(offGfx, counterY);
-
-            // draw lemmings
-            GameController.getLemmsUnderCursor().clear();
-            List<Lemming> lemmings = GameController.getLemmings();
-            synchronized (GameController.getLemmings()) {
-              Iterator<Lemming> it = lemmings.iterator();
-              while (it.hasNext()) {
-                Lemming l = it.next();
-                int lx = l.screenX();
-                int ly = l.screenY();
-                int mx = l.midX() - 16;
-                if (lx + l.width() > xOfsTemp && lx < xOfsTemp + internalWidth) {
-                  offGfx.drawImage(l.getImage(), lx - xOfsTemp, ly, null);
-                  if (LemmCursor.doesCollide(l, xOfsTemp)) {
-                    GameController.getLemmsUnderCursor().add(l);
-                  }
-                  BufferedImage cd = l.getCountdown();
-                  if (cd != null) offGfx.drawImage(cd, mx - xOfsTemp, ly - cd.getHeight(), null);
-
-                  BufferedImage sel = l.getSelectImg();
-                  if (sel != null) offGfx.drawImage(sel, mx - xOfsTemp, ly - sel.getHeight(), null);
-                }
-              }
-              // draw pixels in mini map
-              it = lemmings.iterator();
-              while (it.hasNext()) {
-                Lemming l = it.next();
-                int lx = l.screenX();
-                int ly = l.screenY();
-                // draw pixel in mini map
-                MiniMap.drawLemming(offGfx, lx, ly, getSmallX());
-              }
-            }
-            Lemming lemmUnderCursor = GameController.lemmUnderCursor(LemmCursor.getType());
-
-            // draw explosions
-            GameController.drawExplosions(offGfx, internalWidth, Level.HEIGHT, xOfsTemp);
-
-            // draw info string
-            outStrGfx.clearRect(0, 0, MAXDRAWWIDTH, DRAWHEIGHT);
-            if (GameController.isCheat()) {
-              Stencil stencil = GameController.getStencil();
-              if (stencil != null) {
-                int pos = xMouse + yMouse * Level.WIDTH;
-                pos = (int) (pos / m_scale);
-                int stencilVal = stencil.get(pos);
-                String test =
-                    "x: "
-                        + xMouse
-                        + ", y: "
-                        + yMouse
-                        + ", mask: "
-                        + (stencilVal & 0xffff)
-                        + " "
-                        + Stencil.getObjectID(stencilVal);
-                LemmFont.strImage(outStrGfx, test);
-                offGfx.drawImage(outStrImg, 4, Level.HEIGHT + 8, null);
-              }
-            } else {
-              StringBuffer sb = new StringBuffer();
-              sb.append("OUT ");
-              String s = Integer.toString(GameController.getLemmings().size());
-              sb.append(s);
-              if (s.length() == 1) sb.append(" ");
-              sb.append("  IN ");
-              s =
-                  Integer.toString(
-                      GameController.getNumLeft() * 100 / GameController.getNumLemmingsMax());
-              if (s.length() == 1) sb.append(" ");
-              sb.append(s);
-              sb.append("%  TIME ").append(GameController.getTimeString());
-              LemmFont.strImageRight(outStrGfx, sb.toString(), internalWidth - 4);
-
-              if (lemmUnderCursor != null) {
-                String n = lemmUnderCursor.getName();
-                // display also the total number of lemmings under the cursor
-                int num = GameController.getLemmsUnderCursor().size();
-                if (num > 1) n = n + " " + Integer.toString(num);
-                LemmFont.strImageLeft(outStrGfx, n, 4);
-              }
-
-              offGfx.drawImage(outStrImg, 0, Level.HEIGHT + 8, null);
-            }
-            // replay icon
-            BufferedImage replayImage = GameController.getReplayImage();
-            if (replayImage != null)
-              offGfx.drawImage(
-                  replayImage,
-                  this.getWidth() - 2 * replayImage.getWidth(),
-                  replayImage.getHeight(),
-                  null);
-            // draw cursor
-            if (lemmUnderCursor != null) {
-              int lx, ly;
-              lx = (int) (xMouseScreen / m_scale);
-              ly = (int) (yMouseScreen / m_scale);
-              enableCursor(false);
-              BufferedImage cursorImg = LemmCursor.getBoxImage();
-              lx -= cursorImg.getWidth() / 2;
-              ly -= cursorImg.getHeight() / 2;
-              offGfx.drawImage(cursorImg, lx, ly, null);
-            } else if (LemmCursor.getEnabled() == false) enableCursor(true);
-          }
+          drawLevelEnd(offGfx);
+          break;
       }
 
       // fader
@@ -500,6 +335,168 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     } finally {
       drawLock.unlock();
     }
+  }
+
+  /** draw the level end */
+  private void drawLevelEnd(Graphics2D offGfx) {
+    BufferedImage bgImage = GameController.getBgImage();
+    if (bgImage == null) return;
+
+    GameController.update();
+    // mouse movement
+    if (yMouseScreen > 40
+        && yMouseScreen < scoreY * m_scale) { // avoid scrolling if menu is selected
+      int xOfsTemp;
+      if (xMouseScreen > this.getWidth() - AUTOSCROLL_RANGE * m_scale) {
+        xOfsTemp = GameController.getxPos() + ((shiftPressed) ? X_STEP_FAST : X_STEP);
+        if (xOfsTemp < Level.WIDTH - this.getWidth() / m_scale) GameController.setxPos(xOfsTemp);
+        else GameController.setxPos((int) (Level.WIDTH - this.getWidth() / m_scale));
+      } else if (xMouseScreen < AUTOSCROLL_RANGE * m_scale) {
+        xOfsTemp = GameController.getxPos() - ((shiftPressed) ? X_STEP_FAST : X_STEP);
+        if (xOfsTemp > 0) GameController.setxPos(xOfsTemp);
+        else GameController.setxPos(0);
+      }
+    }
+    // store local copy of xOfs to avoid sync problems with AWT threads
+    // (scrolling by dragging changes xOfs as well)
+    int xOfsTemp = GameController.getxPos();
+
+    Level level = GameController.getLevel();
+    if (level != null) {
+
+      // clear screen
+      offGfx.setBackground(level.getBgColor());
+      offGfx.clearRect(0, 0, MAXDRAWWIDTH, level.HEIGHT);
+
+      // draw "behind" objects
+      GameController.getLevel().drawBehindObjects(offGfx, internalWidth, xOfsTemp);
+
+      // draw background
+      offGfx.drawImage(
+          bgImage,
+          0,
+          0,
+          internalWidth,
+          level.HEIGHT,
+          xOfsTemp,
+          0,
+          xOfsTemp + internalWidth,
+          level.HEIGHT,
+          this);
+
+      // draw "in front" objects
+      GameController.getLevel().drawInFrontObjects(offGfx, internalWidth, xOfsTemp);
+    }
+
+    // clear parts of the screen for menu etc.
+    offGfx.setBackground(Color.BLACK);
+    offGfx.clearRect(0, scoreY, MAXDRAWWIDTH, DRAWHEIGHT - scoreY);
+
+    // draw icons, small level pic
+    GameController.drawIcons(offGfx, 0, iconsY);
+    int smallX = getSmallX();
+    offGfx.drawImage(MiscGfx.getImage(MiscGfx.Index.BORDER), smallX - 4, smallY - 4, null);
+    MiniMap.draw(offGfx, smallX, smallY, xOfsTemp, internalWidth);
+
+    // draw counters
+    GameController.drawCounters(offGfx, counterY);
+
+    // draw lemmings
+    GameController.getLemmsUnderCursor().clear();
+    List<Lemming> lemmings = GameController.getLemmings();
+    synchronized (GameController.getLemmings()) {
+      Iterator<Lemming> it = lemmings.iterator();
+      while (it.hasNext()) {
+        Lemming l = it.next();
+        int lx = l.screenX();
+        int ly = l.screenY();
+        int mx = l.midX() - 16;
+        if (lx + l.width() > xOfsTemp && lx < xOfsTemp + internalWidth) {
+          offGfx.drawImage(l.getImage(), lx - xOfsTemp, ly, null);
+          if (LemmCursor.doesCollide(l, xOfsTemp)) {
+            GameController.getLemmsUnderCursor().add(l);
+          }
+          BufferedImage cd = l.getCountdown();
+          if (cd != null) offGfx.drawImage(cd, mx - xOfsTemp, ly - cd.getHeight(), null);
+
+          BufferedImage sel = l.getSelectImg();
+          if (sel != null) offGfx.drawImage(sel, mx - xOfsTemp, ly - sel.getHeight(), null);
+        }
+      }
+      // draw pixels in mini map
+      it = lemmings.iterator();
+      while (it.hasNext()) {
+        Lemming l = it.next();
+        int lx = l.screenX();
+        int ly = l.screenY();
+        // draw pixel in mini map
+        MiniMap.drawLemming(offGfx, lx, ly, getSmallX());
+      }
+    }
+    Lemming lemmUnderCursor = GameController.lemmUnderCursor(LemmCursor.getType());
+
+    // draw explosions
+    GameController.drawExplosions(offGfx, internalWidth, Level.HEIGHT, xOfsTemp);
+
+    // draw info string
+    outStrGfx.clearRect(0, 0, MAXDRAWWIDTH, DRAWHEIGHT);
+    if (GameController.isCheat()) {
+      Stencil stencil = GameController.getStencil();
+      if (stencil != null) {
+        int pos = xMouse + yMouse * Level.WIDTH;
+        pos = (int) (pos / m_scale);
+        int stencilVal = stencil.get(pos);
+        String test =
+            "x: "
+                + xMouse
+                + ", y: "
+                + yMouse
+                + ", mask: "
+                + (stencilVal & 0xffff)
+                + " "
+                + Stencil.getObjectID(stencilVal);
+        LemmFont.strImage(outStrGfx, test);
+        offGfx.drawImage(outStrImg, 4, Level.HEIGHT + 8, null);
+      }
+    } else {
+      StringBuffer sb = new StringBuffer();
+      sb.append("OUT ");
+      String s = Integer.toString(GameController.getLemmings().size());
+      sb.append(s);
+      if (s.length() == 1) sb.append(" ");
+      sb.append("  IN ");
+      s = Integer.toString(GameController.getNumLeft() * 100 / GameController.getNumLemmingsMax());
+      if (s.length() == 1) sb.append(" ");
+      sb.append(s);
+      sb.append("%  TIME ").append(GameController.getTimeString());
+      LemmFont.strImageRight(outStrGfx, sb.toString(), internalWidth - 4);
+
+      if (lemmUnderCursor != null) {
+        String n = lemmUnderCursor.getName();
+        // display also the total number of lemmings under the cursor
+        int num = GameController.getLemmsUnderCursor().size();
+        if (num > 1) n = n + " " + Integer.toString(num);
+        LemmFont.strImageLeft(outStrGfx, n, 4);
+      }
+
+      offGfx.drawImage(outStrImg, 0, Level.HEIGHT + 8, null);
+    }
+    // replay icon
+    BufferedImage replayImage = GameController.getReplayImage();
+    if (replayImage != null)
+      offGfx.drawImage(
+          replayImage, this.getWidth() - 2 * replayImage.getWidth(), replayImage.getHeight(), null);
+    // draw cursor
+    if (lemmUnderCursor != null) {
+      int lx, ly;
+      lx = (int) (xMouseScreen / m_scale);
+      ly = (int) (yMouseScreen / m_scale);
+      enableCursor(false);
+      BufferedImage cursorImg = LemmCursor.getBoxImage();
+      lx -= cursorImg.getWidth() / 2;
+      ly -= cursorImg.getHeight() / 2;
+      offGfx.drawImage(cursorImg, lx, ly, null);
+    } else if (LemmCursor.getEnabled() == false) enableCursor(true);
   }
 
   /* (non-Javadoc)
