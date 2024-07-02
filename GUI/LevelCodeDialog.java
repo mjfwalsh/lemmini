@@ -40,8 +40,7 @@ public class LevelCodeDialog extends JDialog {
 
   private JPanel jContentPane = null;
 
-  @SuppressWarnings("rawtypes")
-  private JComboBox jComboBoxLvlPack = null;
+  private JComboBox<String> jComboBoxLvlPack = null;
 
   private JTextField jTextFieldCode = null;
 
@@ -54,7 +53,6 @@ public class LevelCodeDialog extends JDialog {
   private String code; //  @jve:decl-index=0:
 
   /** Initialize manually generated resources. */
-  @SuppressWarnings("unchecked")
   private void init() {
     // level pack 0 is the dummy level pack -> not selectable
     for (int i = 1; i < GameController.getLevelPackNum(); i++)
@@ -152,10 +150,9 @@ public class LevelCodeDialog extends JDialog {
    *
    * @return javax.swing.JComboBox
    */
-  @SuppressWarnings("rawtypes")
-  private JComboBox getJComboBoxLvlPack() {
+  private JComboBox<String> getJComboBoxLvlPack() {
     if (jComboBoxLvlPack == null) {
-      jComboBoxLvlPack = new JComboBox();
+      jComboBoxLvlPack = new JComboBox<>();
     }
     return jComboBoxLvlPack;
   }

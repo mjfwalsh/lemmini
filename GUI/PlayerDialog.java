@@ -44,8 +44,7 @@ public class PlayerDialog extends JDialog {
 
   private JScrollPane jScrollPane = null;
 
-  @SuppressWarnings("rawtypes")
-  private JList jList = null;
+  private JList<String> jList = null;
 
   private JButton jButtonNew = null;
 
@@ -77,11 +76,10 @@ public class PlayerDialog extends JDialog {
   }
 
   /** Initialize manually generated resources. */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private void init() {
     players = new Vector<String>();
     for (int i = 0; i < Core.getPlayerNum(); i++) players.add(Core.getPlayer(i));
-    jList = new JList(players);
+    jList = new JList<String>(players);
     jScrollPane.setViewportView(jList);
   }
 
@@ -177,10 +175,9 @@ public class PlayerDialog extends JDialog {
    *
    * @return javax.swing.JList
    */
-  @SuppressWarnings("rawtypes")
-  private JList getJList() {
+  private JList<String> getJList() {
     if (jList == null) {
-      jList = new JList();
+      jList = new JList<String>();
     }
     return jList;
   }
@@ -196,7 +193,6 @@ public class PlayerDialog extends JDialog {
       jButtonNew.setText("New Player");
       jButtonNew.addActionListener(
           new java.awt.event.ActionListener() {
-            @SuppressWarnings("unchecked")
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
               String player =
@@ -238,7 +234,6 @@ public class PlayerDialog extends JDialog {
       jButtonDelete.setText("Delete Player");
       jButtonDelete.addActionListener(
           new java.awt.event.ActionListener() {
-            @SuppressWarnings("unchecked")
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
               int idx = jList.getSelectedIndex();
