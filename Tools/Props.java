@@ -1,7 +1,6 @@
 package Tools;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -220,8 +219,6 @@ public class Props {
         FileOutputStream f = new FileOutputStream(propertyFileName);
         hash.store(f, header);
         return true;
-      } catch (FileNotFoundException e) {
-        return false;
       } catch (IOException e) {
         return false;
       }
@@ -242,8 +239,6 @@ public class Props {
       hash.load(f);
       f.close();
       return true;
-    } catch (FileNotFoundException e) {
-      return false;
     } catch (IOException e) {
       return false;
     }
@@ -263,8 +258,6 @@ public class Props {
       hash.load(f);
       f.close();
       return true;
-    } catch (FileNotFoundException e) {
-      return false;
     } catch (IOException e) {
       return false;
     }

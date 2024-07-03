@@ -356,10 +356,7 @@ public class Extract extends Thread {
     } catch (ExtractException ex) {
       threadException = ex;
       out(ex.getMessage());
-    } catch (Exception ex) {
-      showException(ex);
-      System.exit(1);
-    } catch (Error ex) {
+    } catch (Exception | Error ex) {
       showException(ex);
       System.exit(1);
     }

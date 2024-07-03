@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /*
@@ -1350,7 +1349,7 @@ public class GameController {
                 nextLevelNumber,
                 transitionState == TransitionState.LOAD_REPLAY);
             if (!System.getProperty("os.name").equals("Mac OS X")) {
-              ((JFrame) Core.getCmp()).setTitle("Lemmini - " + getLevel().getLevelName());
+              Core.getCmp().setTitle("Lemmini - " + getLevel().getLevelName());
             }
           } catch (ResourceException ex) {
             Core.resourceError(ex.getMessage());

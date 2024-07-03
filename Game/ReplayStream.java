@@ -2,7 +2,6 @@ package Game;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -149,13 +148,7 @@ public class ReplayStream {
       f.close();
       events = ev;
       return rli;
-    } catch (FileNotFoundException e) {
-      return null;
-    } catch (IOException e) {
-      return null;
-    } catch (NumberFormatException e) {
-      return null;
-    } catch (ArrayIndexOutOfBoundsException e) {
+    } catch (IOException | NumberFormatException | ArrayIndexOutOfBoundsException e) {
       return null;
     }
   }
@@ -186,8 +179,6 @@ public class ReplayStream {
       f.close();
 
       return true;
-    } catch (FileNotFoundException e) {
-      return false;
     } catch (IOException e) {
       return false;
     }

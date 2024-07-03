@@ -77,8 +77,7 @@ public class LegalDialog extends JDialog {
                 try {
                   if (url.sameFile(thisURL)) thisEditor.setPage(url);
                   else Desktop.getDesktop().browse(url.toURI());
-                } catch (IOException ex) {
-                } catch (URISyntaxException ex) {
+                } catch (IOException | URISyntaxException ex) {
                 }
               } else if (e.getEventType() == HyperlinkEvent.EventType.ENTERED) {
                 if (url.sameFile(thisURL)) thisEditor.setToolTipText(url.getRef());

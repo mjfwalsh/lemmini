@@ -43,22 +43,30 @@ import javax.swing.JPanel;
 public class GraphicsPane extends JPanel implements Runnable, MouseListener, MouseMotionListener {
   // step size in pixels for horizontal scrolling
   public static final int X_STEP = 4;
+
   // step size in pixels for fast horizontal scrolling
   public static final int X_STEP_FAST = 8;
+
   // size of auto scrolling range in pixels (from the left and right border)
   static final int AUTOSCROLL_RANGE = 20;
+
   // minimum sleep duration in milliseconds - values too small may cause system clock shift under
   // WinXP etc.
   static final int MIN_SLEEP = 10;
+
   // threshold for sleep - don't sleep if time to wait is shorter than this as sleep might return
   // too late
   static final int THR_SLEEP = 16;
+
   // y coordinate of score display in pixels
   static final int scoreY = Level.HEIGHT;
+
   // y coordinate of counter displays in pixels
   static final int counterY = scoreY + 40;
+
   // y coordinate of icons in pixels
   static final int iconsY = counterY + 14;
+
   // y coordinate of minimap in pixels
   static final int smallY = iconsY;
 
@@ -66,34 +74,49 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
   // start position of mouse drag (for mouse scrolling)
   private int mouseDragStartX;
+
   // x position of cursor in level
   private int xMouse;
+
   // x position of cursor on screen
   private int xMouseScreen;
+
   // y position of cursor in level
   private int yMouse;
+
   // y position of cursor on screen
   private int yMouseScreen;
+
   // mouse drag length in x direction (pixels)
   private int mouseDx;
+
   // mouse drag length in y direction (pixels)
   private int mouseDy;
+
   // flag: Shift key is pressed
   private boolean shiftPressed;
+
   // flag: left mouse button is currently pressed
   private boolean leftMousePressed;
+
   // flag: debug draw is active
   private boolean draw;
+
   // image for information string display
   private BufferedImage outStrImg;
+
   // graphics object for information string display
   private Graphics2D outStrGfx;
+
   // array of offscreen images (one is active, one is passive)
   private BufferedImage offImage[];
+
   // graphics objects for the two offscreen images
   private Graphics2D offGraphics[];
+
   // index of the active buffer in the image buffer
   private int activeBuffer;
+
   // monitoring object used for synchronized painting
   private ReentrantLock drawLock;
 
@@ -112,6 +135,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   /** max draw width */
   private static final int MAXDRAWWIDTH = 1600;
 
+  /** min draw width */
   private static final int MINDRAWWIDTH = 640;
 
   /** Constructor. */
@@ -366,7 +390,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
       // clear screen
       offGfx.setBackground(level.getBgColor());
-      offGfx.clearRect(0, 0, MAXDRAWWIDTH, level.HEIGHT);
+      offGfx.clearRect(0, 0, MAXDRAWWIDTH, Level.HEIGHT);
 
       // draw "behind" objects
       GameController.getLevel().drawBehindObjects(offGfx, internalWidth, xOfsTemp);
@@ -377,11 +401,11 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
           0,
           0,
           internalWidth,
-          level.HEIGHT,
+          Level.HEIGHT,
           xOfsTemp,
           0,
           xOfsTemp + internalWidth,
-          level.HEIGHT,
+          Level.HEIGHT,
           this);
 
       // draw "in front" objects
@@ -537,10 +561,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
           }
         }
       }
-    } catch (Exception ex) {
-      ToolBox.showException(ex);
-      System.exit(1);
-    } catch (Error ex) {
+    } catch (Exception | Error ex) {
       ToolBox.showException(ex);
       System.exit(1);
     }

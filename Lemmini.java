@@ -30,7 +30,6 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -132,10 +131,7 @@ public class Lemmini extends JFrame implements KeyListener {
     } catch (LemmException ex) {
       JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
       System.exit(1);
-    } catch (Exception ex) {
-      ToolBox.showException(ex);
-      System.exit(1);
-    } catch (Error ex) {
+    } catch (Exception | Error ex) {
       ToolBox.showException(ex);
       System.exit(1);
     }
@@ -774,7 +770,6 @@ public class Lemmini extends JFrame implements KeyListener {
         } else sw.write(s + "\n");
       }
       sw.close();
-    } catch (FileNotFoundException ex) {
     } catch (IOException ex) {
     }
   }
