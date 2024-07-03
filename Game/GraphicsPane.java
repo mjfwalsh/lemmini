@@ -204,20 +204,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   }
 
   /**
-   * Set internal Draw Width
-   *
-   * @param internal draw width
-   */
-  public void setDrawWidth(int w) {
-    drawLock.lock();
-    try {
-      internalWidth = w;
-    } finally {
-      drawLock.unlock();
-    }
-  }
-
-  /**
    * Get internal Draw Height
    *
    * @return internal draw width
@@ -226,20 +212,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     drawLock.lock();
     try {
       return DRAWHEIGHT;
-    } finally {
-      drawLock.unlock();
-    }
-  }
-
-  /**
-   * Get Zoom scale
-   *
-   * @return zoom scale
-   */
-  public double getScale() {
-    drawLock.lock();
-    try {
-      return m_scale;
     } finally {
       drawLock.unlock();
     }
