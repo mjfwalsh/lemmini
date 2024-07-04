@@ -47,6 +47,8 @@ public class GameController {
     INIT,
     /** display intro screen */
     INTRO,
+    /** start display level briefing screen */
+    START_BRIEFING,
     /** display level briefing screen */
     BRIEFING,
     /** display level */
@@ -696,7 +698,7 @@ public class GameController {
 
     GameController.rememberThisDifficultyLevel();
 
-    gameState = State.BRIEFING;
+    gameState = State.START_BRIEFING;
   }
 
   /**

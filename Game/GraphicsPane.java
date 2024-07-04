@@ -308,6 +308,11 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
           break;
 
+        case START_BRIEFING:
+          forceRedraw = true;
+          GameController.setGameState(GameController.State.BRIEFING);
+          // fall through
+
         case BRIEFING:
           TextScreen.drawBriefing(internalWidth, forceRedraw);
           forceRedraw = false;
