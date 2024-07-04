@@ -126,6 +126,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   /** internal draw width */
   private int internalWidth = 800;
 
+  /** screen changed */
+  private boolean forceRedraw = true;
+
   /** height of icon bar in pixels */
   private static final int WIN_OFS = 100;
 
@@ -172,6 +175,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     if (!drawLock.tryLock()) return;
 
     try {
+      forceRedraw = true;
+
       double newScale = (float) newSize.height / DRAWHEIGHT;
       if (newScale < 1.0f) newScale = 1.0f;
       m_scale = newScale;
@@ -225,6 +230,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   public void setScale(double s) {
     drawLock.lock();
     try {
+      forceRedraw = true;
       m_scale = s;
     } finally {
       drawLock.unlock();
@@ -297,20 +303,20 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
       switch (GameController.getGameState()) {
         case INTRO:
-          TextScreen.setMode(TextScreen.Mode.INTRO, m_scale, internalWidth);
-          TextScreen.update();
+          TextScreen.drawIntro(internalWidth, forceRedraw);
+          forceRedraw = false;
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
           break;
 
         case BRIEFING:
-          TextScreen.setMode(TextScreen.Mode.BRIEFING, m_scale, internalWidth);
-          TextScreen.update();
+          TextScreen.drawBriefing(internalWidth, forceRedraw);
+          forceRedraw = false;
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
           break;
 
         case DEBRIEFING:
-          TextScreen.setMode(TextScreen.Mode.DEBRIEFING, m_scale, internalWidth);
-          TextScreen.update();
+          TextScreen.drawDebriefing(internalWidth, forceRedraw);
+          forceRedraw = false;
           TextScreen.getDialog()
               .handleMouseMove((int) (xMouseScreen / m_scale), (int) (yMouseScreen / m_scale));
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
