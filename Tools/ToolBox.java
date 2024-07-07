@@ -10,7 +10,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -132,27 +131,15 @@ public class ToolBox {
   }
 
   /**
-   * Use the Loader to find a file.
-   *
-   * @param fname file name
-   * @return URL of the file
-   */
-  public static URL findFile(final String fname) {
-    ClassLoader loader = ToolBox.class.getClassLoader();
-    return loader.getResource(fname);
-  }
-
-  /**
    * Add (system default) path separator to string (if there isn't one already).
    *
    * @param fName String containing path name
    * @return String that ends with the (system default) path separator for sure
    */
   public static String addSeparator(final String fName) {
-    int pos = fName.lastIndexOf(File.separator);
-    if (pos != fName.length() - 1) pos = fName.lastIndexOf("/");
-    if (pos != fName.length() - 1) return fName + "/";
-    else return fName;
+    if (fName.isEmpty()) return "/";
+    else if (fName.charAt(fName.length() - 1) == '/') return fName;
+    else return fName + "/";
   }
 
   /**
@@ -162,7 +149,7 @@ public class ToolBox {
    * @return String with only Unix style path separators
    */
   public static String exchangeSeparators(final String fName) {
-    return fName.replaceAll("\\\\", "/");
+    return fName.replaceAll("\\", "/");
   }
 
   /**

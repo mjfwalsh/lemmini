@@ -266,8 +266,14 @@ public class Core {
   private static synchronized Image loadImage(
       final MediaTracker tracker, final String fName, final boolean jar) throws ResourceException {
     Image image;
-    if (jar) image = Toolkit.getDefaultToolkit().createImage(ToolBox.findFile(fName));
-    else image = Toolkit.getDefaultToolkit().createImage(fName);
+    if (jar) {
+      ClassLoader loader = Core.class.getClassLoader();
+      URL url = loader.getResource(fName);
+      image = Toolkit.getDefaultToolkit().createImage(url);
+    } else {
+      image = Toolkit.getDefaultToolkit().createImage(fName);
+    }
+
     if (image != null) {
       tracker.addImage(image, 0);
       try {

@@ -1,6 +1,7 @@
 package Extract;
 
 import Tools.Props;
+import Tools.ToolBox;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -87,7 +88,7 @@ public class Extract extends Thread {
   private static Thread thisThread;
 
   /** reference to class loader */
-  private static ClassLoader loader;
+  private static ClassLoader loader = Extract.class.getClassLoader();
 
   /**
    * Display an exception message box.
@@ -178,7 +179,7 @@ public class Extract extends Thread {
         sprite.loadPalette(sourcePath + styles[1]);
         sprite.loadSPR(sourcePath + styles[0]);
         String files[] =
-            sprite.saveAll(destinationPath + addSeparator(styles[2]) + styles[3], false);
+            sprite.saveAll(destinationPath + ToolBox.addSeparator(styles[2]) + styles[3], false);
         for (int j = 0; j < files.length; j++) createdFiles.put(files[j].toLowerCase(), null);
         checkCancel();
       }
@@ -203,9 +204,9 @@ public class Extract extends Thread {
           if (member[0] == null) break;
           // save object
           createdFiles.put(
-              (destinationPath + addSeparator(object[3]) + member[2]).toLowerCase(), null);
+              (destinationPath + ToolBox.addSeparator(object[3]) + member[2]).toLowerCase(), null);
           sprite.saveAnim(
-              destinationPath + addSeparator(object[3]) + member[2],
+              destinationPath + ToolBox.addSeparator(object[3]) + member[2],
               Integer.parseInt(member[0]),
               Integer.parseInt(member[1]));
           checkCancel();
@@ -313,7 +314,7 @@ public class Extract extends Thread {
           throw new ExtractException(
               "Copying "
                   + patchPath
-                  + getFileName(copy[0])
+                  + ToolBox.getFileName(copy[0])
                   + " to "
                   + destinationPath
                   + copy[0]
@@ -399,12 +400,10 @@ public class Extract extends Thread {
       final String pPath)
       throws ExtractException {
 
-    sourcePath = exchangeSeparators(addSeparator(srcPath));
-    destinationPath = exchangeSeparators(addSeparator(dstPath));
-    if (refPath != null) referencePath = exchangeSeparators(addSeparator(refPath));
-    patchPath = exchangeSeparators(addSeparator(pPath));
-
-    loader = Extract.class.getClassLoader();
+    sourcePath = ToolBox.exchangeSeparators(ToolBox.addSeparator(srcPath));
+    destinationPath = ToolBox.exchangeSeparators(ToolBox.addSeparator(dstPath));
+    if (refPath != null) referencePath = ToolBox.exchangeSeparators(ToolBox.addSeparator(refPath));
+    patchPath = ToolBox.exchangeSeparators(ToolBox.addSeparator(pPath));
 
     FolderDialog fDiag;
     do {
@@ -412,10 +411,10 @@ public class Extract extends Thread {
       fDiag.setParameters(sourcePath, destinationPath);
       fDiag.setVisible(true);
       if (!fDiag.getSuccess()) System.exit(0);
-      sourcePath = exchangeSeparators(addSeparator(fDiag.getSource()));
+      sourcePath = ToolBox.exchangeSeparators(ToolBox.addSeparator(fDiag.getSource()));
 
       if (!System.getProperty("os.name").equals("Mac OS X")) {
-        destinationPath = exchangeSeparators(addSeparator(fDiag.getTarget()));
+        destinationPath = ToolBox.exchangeSeparators(ToolBox.addSeparator(fDiag.getTarget()));
       }
 
       // check if source path exists
@@ -458,8 +457,8 @@ public class Extract extends Thread {
     File fRoot = new File(r);
     FilenameFilter ff = new LvlFilter();
 
-    String root = addSeparator(r);
-    String destination = addSeparator(destin);
+    String root = ToolBox.addSeparator(r);
+    String destination = ToolBox.addSeparator(destin);
     File dest = new File(destination);
     dest.mkdirs();
 
@@ -503,15 +502,15 @@ public class Extract extends Thread {
       final FileWriter fPatchList)
       throws ExtractException {
     // add separators and create missing directories
-    sourcePath = addSeparator(sPath + sDir);
+    sourcePath = ToolBox.addSeparator(sPath + sDir);
     File fSource = new File(sourcePath);
 
-    String destPath = addSeparator(dPath + sDir);
+    String destPath = ToolBox.addSeparator(dPath + sDir);
     File fDest = new File(destPath);
     fDest.mkdirs();
 
     String out;
-    patchPath = addSeparator(pPath);
+    patchPath = ToolBox.addSeparator(pPath);
     File fPatch = new File(patchPath);
     fPatch.mkdirs();
 
@@ -519,7 +518,7 @@ public class Extract extends Thread {
     if (files == null)
       throw new ExtractException("Path " + sourcePath + " doesn't exist or IO error occured.");
     Diff.setParameters(512, 4);
-    String subDir = addSeparator(sDir);
+    String subDir = ToolBox.addSeparator(sDir);
     String subDirDecorated = subDir.replace('/', '@');
 
     outerLoop:
@@ -588,47 +587,6 @@ public class Extract extends Thread {
         throw new ExtractException(ex.getMessage());
       }
     }
-  }
-
-  /**
-   * Add separator "/" to path name (if there isn't one yet)
-   *
-   * @param fName path name with or without separator
-   * @return path name with separator
-   */
-  private static String addSeparator(final String fName) {
-    int pos = fName.lastIndexOf(File.separator);
-    if (pos != fName.length() - 1) pos = fName.lastIndexOf("/");
-    if (pos != fName.length() - 1) return fName + "/";
-    else return fName;
-  }
-
-  /**
-   * Exchange all Windows style file separators ("\") with Unix style seaparators ("/")
-   *
-   * @param fName file name
-   * @return file name with only Unix style separators
-   */
-  private static String exchangeSeparators(final String fName) {
-    int pos;
-    StringBuffer sb = new StringBuffer(fName);
-    while ((pos = sb.indexOf("\\")) != -1) sb.setCharAt(pos, '/');
-    return sb.toString();
-  }
-
-  /**
-   * Get only the name of the file from an absolute path.
-   *
-   * @param path absolute path of a file
-   * @return file name without the path
-   */
-  private static String getFileName(final String path) {
-    int p1 = path.lastIndexOf("/");
-    int p2 = path.lastIndexOf("\\");
-    if (p2 > p1) p1 = p2;
-    if (p1 < 0) p1 = 0;
-    else p1++;
-    return path.substring(p1);
   }
 
   /**
@@ -787,9 +745,6 @@ public class Extract extends Thread {
     if (newFontFile.exists()) return;
 
     try {
-      if (loader == null) {
-        loader = Extract.class.getClassLoader();
-      }
       URL fontFile = findFile(from);
       copyFile(fontFile, to);
     } catch (Exception ex) {
