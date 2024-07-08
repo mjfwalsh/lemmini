@@ -69,9 +69,6 @@ public class Core {
   /** list of all players */
   private static ArrayList<String> players;
 
-  /** fullscreen boolean */
-  private static boolean fullScreen = false;
-
   /**
    * Initialize some core elements.
    *
@@ -350,24 +347,6 @@ public class Core {
   public static synchronized void addPlayer(final String name) {
     players.add(name);
     playerProps.set("player_" + (players.size() - 1), name);
-  }
-
-  /**
-   * Is fullscreen
-   *
-   * @return boolean fullScreen
-   */
-  public static synchronized boolean isFullScreen() {
-    return fullScreen;
-  }
-
-  /**
-   * Record fullscreen
-   *
-   * @param b boolean fullScreen
-   */
-  public static synchronized void setFullScreen(boolean b) {
-    fullScreen = b;
   }
 
   /**

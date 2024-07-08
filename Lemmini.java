@@ -825,7 +825,7 @@ public class Lemmini extends JFrame implements KeyListener {
   public void keyPressed(final KeyEvent keyevent) {
     int code = keyevent.getKeyCode();
     if (code == KeyEvent.VK_ESCAPE) {
-      if (!System.getProperty("os.name").equals("Mac OS X") && Core.isFullScreen()) {
+      if (!System.getProperty("os.name").equals("Mac OS X") && gp.isFullScreen()) {
         toggleFullScreen();
       }
     } else if (GameController.getGameState() == GameController.State.LEVEL) {
@@ -1037,14 +1037,14 @@ public class Lemmini extends JFrame implements KeyListener {
 
   /** Toggle in and out of fullscreen mode */
   public void toggleFullScreen() {
-    if (!Core.isFullScreen()) {
+    if (!gp.isFullScreen()) {
       // remember some stuff
       Point p = getLocation();
       Core.programProps.set("framePosX", p.x);
       Core.programProps.set("framePosY", p.y);
 
       int menuBarHeight = jMenuBar.getHeight();
-      Core.setFullScreen(true);
+      gp.setFullScreen(true);
 
       // disable menus which don't work in fullscreen
       jMenuItemManagePlayer.setEnabled(false);
@@ -1096,7 +1096,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
       jMenuBar.setVisible(true);
       setVisible(true);
-      Core.setFullScreen(false);
+      gp.setFullScreen(false);
     }
 
     // adjust canvas size

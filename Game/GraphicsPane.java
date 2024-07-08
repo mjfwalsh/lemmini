@@ -141,6 +141,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   /** min draw width */
   private static final int MINDRAWWIDTH = 640;
 
+  /** fullscreen boolean */
+  private boolean fullScreen = false;
+
   /** Constructor. */
   public GraphicsPane() {
     super();
@@ -791,10 +794,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     LemmCursor.setX((int) (xMouseScreen / m_scale));
     LemmCursor.setY((int) (yMouseScreen / m_scale));
 
-    if (!System.getProperty("os.name").equals("Mac OS X")) {
-      if (Core.isFullScreen()) {
-        getParent().getComponent(0).setVisible(y < 5);
-      }
+    if (fullScreen) {
+      getParent().getComponent(0).setVisible(y < 5);
     }
 
     switch (GameController.getGameState()) {
@@ -856,6 +857,24 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   public void toggleDebugDraw() {
     draw = !draw;
+  }
+
+  /**
+   * Is fullscreen
+   *
+   * @return boolean fullScreen
+   */
+  public synchronized boolean isFullScreen() {
+    return fullScreen;
+  }
+
+  /**
+   * Record fullscreen
+   *
+   * @param b boolean fullScreen
+   */
+  public synchronized void setFullScreen(boolean b) {
+    fullScreen = b;
   }
 
   private int getSmallX() {
