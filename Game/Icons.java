@@ -2,10 +2,8 @@ package Game;
 
 import GameUtil.Sprite;
 import Tools.ToolBox;
-import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
@@ -115,17 +113,12 @@ public class Icons {
    * @param cmp parent component
    * @throws ResourceException
    */
-  public static void init(final Component cmp) throws ResourceException {
+  public static void init() throws ResourceException {
     iconImg = ToolBox.createImage(WIDTH * (1 + LAST_DRAWN), HEIGHT, Transparency.OPAQUE);
     iconGfx = iconImg.createGraphics();
-    MediaTracker tracker = new MediaTracker(cmp);
     icons = new Sprite[15];
     for (int i = 0; i < 14; i++) {
-      Image sourceImg = Core.loadImage(tracker, "misc/icon_" + i + ".gif");
-      try {
-        tracker.waitForAll();
-      } catch (InterruptedException ex) {
-      }
+      Image sourceImg = Core.loadImage("misc/icon_" + i + ".gif");
       icons[i] = new Sprite(sourceImg, (i == Type.EMPTY.ordinal()) ? 1 : 2);
       if (i <= LAST_DRAWN) iconGfx.drawImage(icons[i].getImage(), WIDTH * i, 0, null);
     }

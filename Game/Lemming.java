@@ -2,9 +2,7 @@ package Game;
 
 import Tools.Props;
 import Tools.ToolBox;
-import java.awt.Component;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.util.EnumSet;
@@ -1192,12 +1190,10 @@ public class Lemming {
   /**
    * Load images used for Lemming animations.
    *
-   * @param cmp parent component
    * @throws ResourceException
    */
-  public static void loadLemmings(final Component cmp) throws ResourceException {
-    explodeFont = new ExplodeFont(cmp);
-    MediaTracker tracker = new MediaTracker(cmp);
+  public static void loadLemmings() throws ResourceException {
+    explodeFont = new ExplodeFont();
     // read lemmings definition file
     String fn = Core.findResource(LEMM_INI_STR);
     Props p = new Props();
@@ -1214,11 +1210,7 @@ public class Lemming {
         if (lemmings[type] == null) {
           BufferedImage sourceImg =
               ToolBox.ImageToBuffered(
-                  Core.loadImage(tracker, "misc/lemm_" + i + ".gif"), Transparency.BITMASK);
-          try {
-            tracker.waitForAll();
-          } catch (InterruptedException ex) {
-          }
+                  Core.loadImage("misc/lemm_" + i + ".gif"), Transparency.BITMASK);
           lemmings[type] = new LemmingResource(sourceImg, val[0], val[1]);
           lemmings[type].animMode = (val[2] == 0) ? Animation.LOOP : Animation.ONCE;
         }
@@ -1228,7 +1220,7 @@ public class Lemming {
       if (val.length == 3) {
         // mask_Y: frames, directions, step
         type = i;
-        Image sourceImg = Core.loadImage(tracker, "misc/mask_" + i + ".gif");
+        Image sourceImg = Core.loadImage("misc/mask_" + i + ".gif");
         Mask mask = new Mask(ToolBox.ImageToBuffered(sourceImg, Transparency.BITMASK), val[0]);
         lemmings[type].setMask(Direction.RIGHT, mask);
         int dirs = val[1];
@@ -1246,7 +1238,7 @@ public class Lemming {
       if (val.length == 2) {
         // mask_Y: type, frames, directions, step
         type = i;
-        Image sourceImg = Core.loadImage(tracker, "misc/imask_" + i + ".gif");
+        Image sourceImg = Core.loadImage("misc/imask_" + i + ".gif");
         Mask mask = new Mask(ToolBox.ImageToBuffered(sourceImg, Transparency.BITMASK), val[0]);
         lemmings[type].setImask(Direction.RIGHT, mask);
         int dirs = val[1];
@@ -1701,10 +1693,9 @@ class ExplodeFont {
   /**
    * Constructor.
    *
-   * @param cmp parent component
    * @throws ResourceException
    */
-  ExplodeFont(final Component cmp) throws ResourceException {
+  ExplodeFont() throws ResourceException {
     Image sourceImg = Core.loadImage("misc/countdown.gif");
     img = ToolBox.getAnimation(sourceImg, 5, Transparency.BITMASK);
   }

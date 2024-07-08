@@ -4,10 +4,8 @@ import GameUtil.Sprite;
 import Tools.Props;
 import Tools.ToolBox;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -256,8 +254,8 @@ public class Level {
       else throw new LemmException("Style " + strStyle + " not existing.");
     }
     // load blockset
-    tiles = loadTileSet(strStyle, Core.getCmp());
-    sprObjAvailable = loadObjects(strStyle, Core.getCmp());
+    tiles = loadTileSet(strStyle);
+    sprObjAvailable = loadObjects(strStyle);
     ready = true;
   }
 
@@ -265,11 +263,10 @@ public class Level {
    * Paint a level.
    *
    * @param bgImage background image to draw into
-   * @param cmp parent component
    * @param s stencil to reuse
    * @return stencil of this level
    */
-  Stencil paintLevel(final BufferedImage bgImage, final Component cmp, final Stencil s) {
+  Stencil paintLevel(final BufferedImage bgImage, final Stencil s) {
     // flush all resources
     sprObjFront = null;
     sprObjBehind = null;
@@ -547,22 +544,16 @@ public class Level {
    * Load tile set from a styles folder.
    *
    * @param set name of the style
-   * @param cmp parent component
    * @return array of images where each image contains one tile
    * @throws ResourceException
    */
-  private Image[] loadTileSet(final String set, final Component cmp) throws ResourceException {
+  private Image[] loadTileSet(final String set) throws ResourceException {
     ArrayList<Image> images = new ArrayList<Image>(64);
-    MediaTracker tracker = new MediaTracker(cmp);
     int tiles = props.get("tiles", 64);
     for (int n = 0; n < tiles; n++) {
       String fName = "styles/" + set + "/" + set + "_" + Integer.toString(n) + ".gif";
-      Image img = Core.loadImage(tracker, fName);
+      Image img = Core.loadImage(fName);
       images.add(img);
-    }
-    try {
-      tracker.waitForAll();
-    } catch (InterruptedException ex) {
     }
     Image ret[] = new Image[images.size()];
     ret = images.toArray(ret);
@@ -574,14 +565,10 @@ public class Level {
    * Load level sprite objects.
    *
    * @param set name of the style
-   * @param cmp parent component
    * @return array of images where each image contains one tile
    * @throws ResourceException
    */
-  private SpriteObject[] loadObjects(final String set, final Component cmp)
-      throws ResourceException {
-    // URLClassLoader urlLoader = (URLClassLoader) this.getClass().getClassLoader();
-    MediaTracker tracker = new MediaTracker(cmp);
+  private SpriteObject[] loadObjects(final String set) throws ResourceException {
     // first some global settings
     bgCol = props.get("bgColor", 0x000000) | 0xff000000;
     bgColor = new Color(bgCol);
@@ -600,11 +587,8 @@ public class Level {
       if (frames < 0) break;
       // load screenBuffer
       String fName = "styles/" + set + "/" + set + "o_" + Integer.toString(idx) + ".gif";
-      Image img = Core.loadImage(tracker, fName);
-      try {
-        tracker.waitForAll();
-      } catch (InterruptedException ex) {
-      }
+      Image img = Core.loadImage(fName);
+
       // get animation mode
       int anim = props.get("anim_" + sIdx, -1);
       if (anim < 0) break;
@@ -636,7 +620,7 @@ public class Level {
         case TRAP_DROWN:
           // load mask
           fName = "styles/" + set + "/" + set + "om_" + Integer.toString(idx) + ".gif";
-          img = Core.loadImage(tracker, fName);
+          img = Core.loadImage(fName);
           sprite.setMask(img);
           break;
       }

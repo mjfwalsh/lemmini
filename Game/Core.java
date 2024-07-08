@@ -6,12 +6,13 @@ import GUI.LegalDialog;
 import Tools.Props;
 import Tools.ToolBox;
 import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -237,66 +238,12 @@ public class Core {
   /**
    * Load an image from the resource path.
    *
-   * @param tracker media tracker
    * @param fName file name
    * @return Image
    * @throws ResourceException
    */
-  public static synchronized Image loadImage(final MediaTracker tracker, final String fName)
-      throws ResourceException {
-    String fileLoc = findResource(fName);
-    if (fileLoc == null) return null;
-    return loadImage(tracker, fileLoc, false);
-  }
-
-  /**
-   * Load an image from either the resource path or from inside the JAR (or the directory of the
-   * main class).
-   *
-   * @param tracker media tracker
-   * @param fName file name
-   * @param jar true: load from the jar/class path, false: load from resource path
-   * @return Image
-   * @throws ResourceException
-   */
-  private static synchronized Image loadImage(
-      final MediaTracker tracker, final String fName, final boolean jar) throws ResourceException {
-    Image image;
-    if (jar) {
-      ClassLoader loader = Core.class.getClassLoader();
-      URL url = loader.getResource(fName);
-      image = Toolkit.getDefaultToolkit().createImage(url);
-    } else {
-      image = Toolkit.getDefaultToolkit().createImage(fName);
-    }
-
-    if (image != null) {
-      tracker.addImage(image, 0);
-      try {
-        tracker.waitForID(0);
-        if (tracker.isErrorAny()) {
-          image = null;
-        }
-      } catch (Exception ex) {
-        image = null;
-      }
-    }
-    if (image == null) throw new ResourceException(fName);
-    return image;
-  }
-
-  /**
-   * Load an image from the resource path.
-   *
-   * @param fname file name
-   * @return Image
-   * @throws ResourceException
-   */
-  public static synchronized Image loadImage(final String fname) throws ResourceException {
-    MediaTracker tracker = new MediaTracker(cmp);
-    Image img = loadImage(tracker, fname);
-    if (img == null) throw new ResourceException(fname);
-    return img;
+  public static synchronized Image loadImage(final String fName) throws ResourceException {
+    return loadImage(fName, false);
   }
 
   /**
@@ -307,10 +254,35 @@ public class Core {
    * @throws ResourceException
    */
   public static synchronized Image loadImageJar(final String fname) throws ResourceException {
-    MediaTracker tracker = new MediaTracker(cmp);
-    Image img = loadImage(tracker, fname, true);
-    if (img == null) throw new ResourceException(fname);
-    return img;
+    return loadImage(fname, true);
+  }
+
+  /**
+   * Load an image from either the resource path or from inside the JAR (or the directory of the
+   * main class).
+   *
+   * @param fName file name
+   * @param jar true: load from the jar/class path, false: load from resource path
+   * @return Image
+   * @throws ResourceException
+   */
+  private static synchronized Image loadImage(final String fName, final boolean jar)
+      throws ResourceException {
+    Image image;
+    try {
+      if (jar) {
+        ClassLoader loader = Core.class.getClassLoader();
+        URL url = loader.getResource(fName);
+        image = ImageIO.read(url);
+      } else {
+        File file = new File(resourcePath + fName);
+        image = ImageIO.read(file);
+      }
+    } catch (IOException ex) {
+      image = null;
+    }
+    if (image == null) throw new ResourceException(fName);
+    return image;
   }
 
   /**

@@ -411,9 +411,9 @@ public class GameController {
     gameState = State.INIT;
     sound = new Sound(24, SND_MOUSEPRE);
     sound.setGain(soundGain);
-    Icons.init(Core.getCmp());
+    Icons.init();
     Explosion.init();
-    Lemming.loadLemmings(Core.getCmp());
+    Lemming.loadLemmings();
     lemmings = new LinkedList<Lemming>();
     explosions = new LinkedList<Explosion>();
     lemmsUnderCursor = new ArrayList<Lemming>(10);
@@ -651,7 +651,7 @@ public class GameController {
     bgGfx.setBackground(blankColor);
     bgGfx.clearRect(0, 0, bgImage.getWidth(), bgImage.getHeight());
 
-    stencil = getLevel().paintLevel(bgImage, Core.getCmp(), stencil);
+    stencil = getLevel().paintLevel(bgImage, stencil);
 
     lemmings.clear();
     explosions.clear();
@@ -750,7 +750,7 @@ public class GameController {
     String lvlPath =
         levelPack.get(curLevelPack).getInfo(curDiffLevel, curLevelNumber).getFileName();
     // lemmings need to be reloaded to contain pink color
-    Lemming.loadLemmings(Core.getCmp());
+    Lemming.loadLemmings();
     // loading the level will patch pink lemmings pixels to correct color
     getLevel().loadLevel(lvlPath);
 
