@@ -58,23 +58,15 @@ public class OutputDialog extends JDialog {
    * @param frame parent frame
    * @param modal create modal dialog?
    */
-  public OutputDialog(final JFrame frame, final boolean modal) {
-    super(frame, modal);
+  public OutputDialog() {
+    super((JFrame) null, true);
     initialize();
 
-    // own stuff
-    if (frame != null) {
-      Point p = frame.getLocation();
-      this.setLocation(
-          p.x + frame.getWidth() / 2 - getWidth() / 2,
-          p.y + frame.getHeight() / 2 - getHeight() / 2);
-    } else {
-      GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-      Point p = ge.getCenterPoint();
-      p.x -= this.getWidth() / 2;
-      p.y -= this.getHeight() / 2;
-      this.setLocation(p);
-    }
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    Point p = ge.getCenterPoint();
+    p.x -= getWidth() / 2;
+    p.y -= getHeight() / 2;
+    setLocation(p);
   }
 
   /**
@@ -103,9 +95,9 @@ public class OutputDialog extends JDialog {
 
   /** Initialize manually generated resources. */
   private void initialize() {
-    this.setSize(500, 352);
-    this.setTitle("Lemmini Resource Extractor");
-    this.setContentPane(getJContentPane());
+    setSize(500, 352);
+    setTitle("Lemmini Resource Extractor");
+    setContentPane(getJContentPane());
   }
 
   /**

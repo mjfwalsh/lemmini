@@ -19,6 +19,7 @@ package Extract;
 
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.io.File;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -26,6 +27,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
@@ -35,8 +37,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
  * @author Volker Oth
  */
 public class FolderDialog extends JDialog {
-
-  private javax.swing.JPanel jContentPane = null;
   private JTextField jTextFieldTrg = null;
   private JTextField jTextFieldSrc = null;
   private JButton jButtonSrc = null;
@@ -53,11 +53,8 @@ public class FolderDialog extends JDialog {
   /** source (WINLEMM) path for extraction */
   private String sourcePath; //  @jve:decl-index=0:
 
-  /** self reference to this dialog */
-  private JDialog thisDialog;
-
   /** flag that tells whether to extract or not */
-  private boolean doExtract;
+  private boolean doExtract = false;
 
   /**
    * Constructor for modal dialog in parent frame
@@ -65,25 +62,20 @@ public class FolderDialog extends JDialog {
    * @param frame parent frame
    * @param modal create modal dialog?
    */
-  public FolderDialog(final JFrame frame, final boolean modal) {
-    super(frame, modal);
-    initialize();
+  public FolderDialog() {
+    super((JFrame) null, true);
 
-    // own stuff
-    thisDialog = this;
-    doExtract = false;
-    if (frame != null) {
-      Point p = frame.getLocation();
-      this.setLocation(
-          p.x + frame.getWidth() / 2 - getWidth() / 2,
-          p.y + frame.getHeight() / 2 - getHeight() / 2);
-    } else {
-      GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-      Point p = ge.getCenterPoint();
-      p.x -= this.getWidth() / 2;
-      p.y -= this.getHeight() / 2;
-      this.setLocation(p);
-    }
+    initContentPane();
+    setTitle("Lemmini Resource Extractor");
+    setResizable(false);
+    pack();
+
+    // centre windows
+    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    Point p = ge.getCenterPoint();
+    p.x -= getWidth() / 2;
+    p.y -= getHeight() / 2;
+    setLocation(p);
   }
 
   /**
@@ -131,83 +123,73 @@ public class FolderDialog extends JDialog {
     return doExtract;
   }
 
-  /** Initialize manually generated resources. */
-  private void initialize() {
-    this.setContentPane(getJContentPane());
-    this.setTitle("Lemmini Resource Extractor");
-    this.setResizable(false);
-    this.pack();
-  }
-
   /**
    * This method initializes jContentPane
    *
    * @return javax.swing.JPanel
    */
-  private javax.swing.JPanel getJContentPane() {
-    if (jContentPane == null) {
-      jContentPane = new javax.swing.JPanel();
-      GroupLayout gl = new GroupLayout(jContentPane);
-      gl.setAutoCreateGaps(true);
-      gl.setAutoCreateContainerGaps(true);
-      jContentPane.setLayout(gl);
+  private void initContentPane() {
+    javax.swing.JPanel jContentPane = new javax.swing.JPanel();
+    GroupLayout gl = new GroupLayout(jContentPane);
+    gl.setAutoCreateGaps(true);
+    gl.setAutoCreateContainerGaps(true);
+    jContentPane.setLayout(gl);
 
-      GroupLayout.SequentialGroup h = gl.createSequentialGroup();
-      GroupLayout.SequentialGroup v = gl.createSequentialGroup();
-      GroupLayout.ParallelGroup leftAlign = gl.createParallelGroup();
-      GroupLayout.ParallelGroup rightAlign = gl.createParallelGroup();
+    GroupLayout.SequentialGroup h = gl.createSequentialGroup();
+    GroupLayout.SequentialGroup v = gl.createSequentialGroup();
+    GroupLayout.ParallelGroup leftAlign = gl.createParallelGroup();
+    GroupLayout.ParallelGroup rightAlign = gl.createParallelGroup();
 
-      JLabel title = new JLabel("Extract the resources from Lemmings for Windows");
-      leftAlign.addComponent(title);
-      v.addComponent(title);
+    JLabel title = new JLabel("Extract the resources from Lemmings for Windows");
+    leftAlign.addComponent(title);
+    v.addComponent(title);
 
-      v.addPreferredGap(ComponentPlacement.UNRELATED);
+    v.addPreferredGap(ComponentPlacement.UNRELATED);
 
-      JLabel sourceLabel = new JLabel("Source Path (\"WINLEM\" directory)");
-      leftAlign.addComponent(sourceLabel);
-      v.addComponent(sourceLabel);
+    JLabel sourceLabel = new JLabel("Source Path (\"WINLEM\" directory)");
+    leftAlign.addComponent(sourceLabel);
+    v.addComponent(sourceLabel);
+
+    v.addPreferredGap(ComponentPlacement.RELATED);
+
+    leftAlign.addComponent(getJTextFieldSrc());
+    rightAlign.addComponent(getJButtonSrc());
+    v.addGroup(
+        gl.createParallelGroup(Alignment.BASELINE)
+            .addComponent(getJTextFieldSrc())
+            .addComponent(getJButtonSrc()));
+
+    v.addPreferredGap(ComponentPlacement.UNRELATED);
+
+    if (!System.getProperty("os.name").equals("Mac OS X")) {
+      JLabel targetLabel = new JLabel("Target Path");
+      leftAlign.addComponent(targetLabel);
+      v.addComponent(targetLabel);
 
       v.addPreferredGap(ComponentPlacement.RELATED);
 
-      leftAlign.addComponent(getJTextFieldSrc());
-      rightAlign.addComponent(getJButtonSrc());
+      leftAlign.addComponent(getJTextFieldTrg());
+      rightAlign.addComponent(getJButtonTrg());
       v.addGroup(
           gl.createParallelGroup(Alignment.BASELINE)
-              .addComponent(getJTextFieldSrc())
-              .addComponent(getJButtonSrc()));
+              .addComponent(getJTextFieldTrg())
+              .addComponent(getJButtonTrg()));
 
       v.addPreferredGap(ComponentPlacement.UNRELATED);
-
-      if (!System.getProperty("os.name").equals("Mac OS X")) {
-        JLabel targetLabel = new JLabel("Target Path");
-        leftAlign.addComponent(targetLabel);
-        v.addComponent(targetLabel);
-
-        v.addPreferredGap(ComponentPlacement.RELATED);
-
-        leftAlign.addComponent(getJTextFieldTrg());
-        rightAlign.addComponent(getJButtonTrg());
-        v.addGroup(
-            gl.createParallelGroup(Alignment.BASELINE)
-                .addComponent(getJTextFieldTrg())
-                .addComponent(getJButtonTrg()));
-
-        v.addPreferredGap(ComponentPlacement.UNRELATED);
-      }
-
-      leftAlign.addComponent(getJButtonQuit());
-      rightAlign.addComponent(getJButtonExtract());
-      v.addGroup(
-          gl.createParallelGroup(Alignment.BASELINE)
-              .addComponent(getJButtonQuit())
-              .addComponent(getJButtonExtract()));
-
-      h.addGroup(leftAlign);
-      h.addGroup(rightAlign);
-      gl.setHorizontalGroup(h);
-      gl.setVerticalGroup(v);
     }
-    return jContentPane;
+
+    leftAlign.addComponent(getJButtonQuit());
+    rightAlign.addComponent(getJButtonExtract());
+    v.addGroup(
+        gl.createParallelGroup(Alignment.BASELINE)
+            .addComponent(getJButtonQuit())
+            .addComponent(getJButtonExtract()));
+
+    h.addGroup(leftAlign);
+    h.addGroup(rightAlign);
+    gl.setHorizontalGroup(h);
+    gl.setVerticalGroup(v);
+    super.setContentPane(jContentPane);
   }
 
   /**
@@ -263,7 +245,7 @@ public class FolderDialog extends JDialog {
             public void actionPerformed(java.awt.event.ActionEvent e) {
               JFileChooser jf = new JFileChooser(sourcePath);
               jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-              int returnVal = jf.showOpenDialog(thisDialog);
+              int returnVal = jf.showOpenDialog(FolderDialog.this);
               if (returnVal == JFileChooser.APPROVE_OPTION) {
                 sourcePath = jf.getSelectedFile().getAbsolutePath();
                 jTextFieldSrc.setText(sourcePath);
@@ -289,7 +271,7 @@ public class FolderDialog extends JDialog {
             public void actionPerformed(java.awt.event.ActionEvent e) {
               JFileChooser jf = new JFileChooser(targetPath);
               jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-              int returnVal = jf.showOpenDialog(thisDialog);
+              int returnVal = jf.showOpenDialog(FolderDialog.this);
               if (returnVal == JFileChooser.APPROVE_OPTION) {
                 targetPath = jf.getSelectedFile().getAbsolutePath();
                 jTextFieldTrg.setText(targetPath);
@@ -313,7 +295,7 @@ public class FolderDialog extends JDialog {
           new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-              System.exit(0);
+              dispose();
             }
           });
     }
@@ -337,8 +319,19 @@ public class FolderDialog extends JDialog {
               if (!System.getProperty("os.name").equals("Mac OS X")) {
                 targetPath = jTextFieldTrg.getText();
               }
-              doExtract = true;
-              dispose();
+
+              // check if source path exists
+              File fSrc = new File(sourcePath);
+              if (!fSrc.exists()) {
+                JOptionPane.showMessageDialog(
+                    FolderDialog.this,
+                    sourcePath + " doesn't exist!",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+              } else {
+                doExtract = true;
+                dispose();
+              }
             }
           });
     }

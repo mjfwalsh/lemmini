@@ -1,7 +1,7 @@
 package Game;
 
 import Extract.Extract;
-import Extract.ExtractException;
+import Extract.FolderDialog;
 import GUI.LegalDialog;
 import Tools.Props;
 import Tools.ToolBox;
@@ -99,7 +99,7 @@ public class Core {
         programPropsFileStr = URLDecoder.decode(url.getPath(), "UTF-8");
       } catch (UnsupportedEncodingException ex) {
       }
-      ;
+
       // special handling for JAR
       if (((pos = programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
         programPropsFileStr = programPropsFileStr.substring(pos + 5);
@@ -118,7 +118,6 @@ public class Core {
 
     // read main ini file
     programProps = new Props();
-
     if (!programProps.load(programPropsFileStr)) { // might exist or not - if not, it's created
       LegalDialog ld = new LegalDialog(null, true);
       ld.setVisible(true);
@@ -126,46 +125,46 @@ public class Core {
     }
 
     if (!System.getProperty("os.name").equals("Mac OS X")) {
-      resourcePath = programProps.get("resourcePath", "");
+      resourcePath = getFolder("resourcePath");
     }
-
-    String sourcePath = programProps.get("sourcePath", "");
+    String sourcePath = getFolder("sourcePath");
     String rev = programProps.get("revision", "");
-    GameController.setMusicOn(programProps.get("music", false));
-    GameController.setSoundOn(programProps.get("sound", true));
-    double gain;
-    gain = programProps.get("musicGain", 1.0);
-    GameController.setMusicGain(gain);
-    gain = programProps.get("soundGain", 1.0);
-    GameController.setSoundGain(gain);
-    GameController.setAdvancedSelect(programProps.get("advancedSelect", true));
-    if (sourcePath.length() == 0 || resourcePath.length() == 0 || !REVISION.equalsIgnoreCase(rev)) {
+
+    if (sourcePath.length() < 1 || resourcePath.length() < 1 || !REVISION.equalsIgnoreCase(rev)) {
+
+      // start dialog to prompt user for resource and source paths
+      FolderDialog fDiag = new FolderDialog();
+      fDiag.setParameters(sourcePath, resourcePath);
+      fDiag.setVisible(true);
+      if (!fDiag.getSuccess()) System.exit(0);
+
+      // save them
+      if (!System.getProperty("os.name").equals("Mac OS X")) {
+        resourcePath = saveFolder("resourcePath", fDiag.getTarget());
+      }
+      sourcePath = saveFolder("sourcePath", fDiag.getSource());
+
       // extract resources
-      try {
-        Extract.extract(null, sourcePath, resourcePath, null, "patch");
+      Extract extract = new Extract(sourcePath, resourcePath);
 
-        if (!System.getProperty("os.name").equals("Mac OS X")) {
-          resourcePath = Extract.getResourcePath();
-          programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
-        }
-
-        programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
+      if (extract.extractionSuccessful()) {
         programProps.set("revision", REVISION);
-        programProps.save();
-      } catch (ExtractException ex) {
-        if (!System.getProperty("os.name").equals("Mac OS X")) {
-          programProps.set("resourcePath", ToolBox.addSeparator(Extract.getResourcePath()));
-        }
-
-        programProps.set("sourcePath", ToolBox.addSeparator(Extract.getSourcePath()));
-        programProps.save();
-        throw new LemmException("Ressource extraction failed\n" + ex.getMessage());
+      } else {
+        programProps.set("revision", "invalid");
+        System.exit(1);
       }
     } else {
       // A little hacky but this saves user from having to a full extract operation for one new file
       Extract.extractSingleFile(
           "patch/misc@lemmfontscaled.gif", resourcePath + "misc/lemmfontscaled.gif");
     }
+
+    // load misc settings
+    GameController.setMusicOn(programProps.get("music", false));
+    GameController.setSoundOn(programProps.get("sound", true));
+    GameController.setMusicGain(programProps.get("musicGain", 1.0));
+    GameController.setSoundGain(programProps.get("soundGain", 1.0));
+    GameController.setAdvancedSelect(programProps.get("advancedSelect", true));
 
     System.gc(); // force garbage collection here before the game starts
 
@@ -369,5 +368,25 @@ public class Core {
    */
   public static synchronized void setFullScreen(boolean b) {
     fullScreen = b;
+  }
+
+  /**
+   * Convert path to unix path and add a trailing slash
+   *
+   * @param string folder path
+   */
+  private static String getFolder(String name) {
+    return ToolBox.exchangeSeparators(ToolBox.addSeparator(programProps.get(name, "")));
+  }
+
+  /**
+   * Convert path to unix path and add a trailing slash
+   *
+   * @param string folder path
+   */
+  private static String saveFolder(String name, String folder) {
+    String path = ToolBox.exchangeSeparators(ToolBox.addSeparator(folder));
+    programProps.set(name, path);
+    return path;
   }
 }

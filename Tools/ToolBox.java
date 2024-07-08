@@ -148,8 +148,8 @@ public class ToolBox {
    * @param fName String containing file/path name
    * @return String with only Unix style path separators
    */
-  public static String exchangeSeparators(final String fName) {
-    return fName.replaceAll("\\", "/");
+  public static String exchangeSeparators(String fName) {
+    return fName.replaceAll("\\\\", "/");
   }
 
   /**
