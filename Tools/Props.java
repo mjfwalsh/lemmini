@@ -148,7 +148,7 @@ public class Props {
     s = removeComment(s);
     String members[] = s.split(",");
     // remove trailing and leading spaces
-    for (int i = 0; i < members.length; i++) members[i] = trim(members[i]);
+    for (int i = 0; i < members.length; i++) members[i] = members[i].trim();
 
     int ret[];
     ret = new int[members.length];
@@ -170,7 +170,7 @@ public class Props {
     s = removeComment(s);
     String members[] = s.split(",");
     // remove trailing and leading spaces
-    for (int i = 0; i < members.length; i++) members[i] = trim(members[i]);
+    for (int i = 0; i < members.length; i++) members[i] = members[i].trim();
 
     return members;
   }
@@ -270,22 +270,26 @@ public class Props {
    * @return Integer value of string
    */
   private static int parseString(final String s) {
-    if (s == null || s.length() == 0) return -1;
-    if (s.charAt(0) == '0') {
-      if (s.length() == 1) return 0;
-      else if (s.length() > 2 && s.charAt(1) == 'x')
-        return Integer.parseInt(s.substring(2), 16); // hex
-      else if (s.charAt(1) == 'b') // binary
-      return Integer.parseInt(s.substring(2), 2);
-      else return Integer.parseInt(s.substring(0), 8); // octal
-    }
-    int retval;
+    if (s == null || s.isEmpty()) return -1;
+
     try {
-      retval = Integer.parseInt(s);
+      if (s.charAt(0) == '0') {
+        if (s.length() == 1) return 0;
+
+        switch (s.charAt(1)) {
+          case 'x':
+            return Integer.parseInt(s.substring(2), 16);
+          case 'b':
+            return Integer.parseInt(s.substring(2), 2);
+          default:
+            return Integer.parseInt(s, 8);
+        }
+      } else {
+        return Integer.parseInt(s);
+      }
     } catch (NumberFormatException ex) {
-      retval = 0;
+      return -1;
     }
-    return retval;
   }
 
   /**
@@ -299,20 +303,5 @@ public class Props {
     int pos = s.indexOf('#');
     if (pos != -1) return s.substring(0, pos);
     else return s;
-  }
-
-  /**
-   * Remove trailing and leading spaces from a string
-   *
-   * @param s String to process
-   * @return String without leading and trailing spaces
-   */
-  private static String trim(final String s) {
-    // search first character that is not a space
-    int spos;
-    for (spos = 0; spos < s.length(); spos++) if (s.charAt(spos) != ' ') break;
-    int epos;
-    for (epos = s.length() - 1; epos > spos; epos--) if (s.charAt(epos) != ' ') break;
-    return s.substring(spos, epos + 1);
   }
 }

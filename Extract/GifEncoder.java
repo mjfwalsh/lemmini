@@ -86,8 +86,7 @@ public class GifEncoder {
      * palette entries instead of the original one.
      * Therefore we need to "grab" the pixels manually */
     ColorModel cm = img.getColorModel();
-    if (cm instanceof IndexColorModel) {
-      IndexColorModel icm = (IndexColorModel) cm;
+    if (cm instanceof IndexColorModel icm) {
       setTransparentPixel(icm.getTransparentPixel());
     } else throw new IllegalArgumentException("Image must be 8-bit");
 
@@ -531,17 +530,4 @@ public class GifEncoder {
   }
 }
 
-class GifEncoderHashitem {
-  public int rgb;
-  public int count;
-  public int index;
-  public boolean isTransparent;
-
-  public GifEncoderHashitem(
-      final int rgb, final int count, final int index, final boolean isTransparent) {
-    this.rgb = rgb;
-    this.count = count;
-    this.index = index;
-    this.isTransparent = isTransparent;
-  }
-}
+record GifEncoderHashitem(int rgb, int count, int index, boolean isTransparent) {}

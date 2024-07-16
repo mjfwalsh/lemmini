@@ -192,30 +192,27 @@ public class PlayerDialog extends JDialog {
       jButtonNew = new JButton();
       jButtonNew.setText("New Player");
       jButtonNew.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              String player =
-                  JOptionPane.showInputDialog(
-                      Core.getCmp(), "Enter Player Name", "Input", JOptionPane.QUESTION_MESSAGE);
-              if (player != null) {
-                // check if this player already exists
-                // it it alread exists, reset the existing profile
-                boolean found = false;
-                for (int pli = 0; pli < players.size(); pli++) {
-                  if (players.get(pli).equalsIgnoreCase(player)) {
-                    player = players.get(pli);
-                    found = true;
-                    break;
-                  }
+          (java.awt.event.ActionEvent e) -> {
+            String player =
+                JOptionPane.showInputDialog(
+                    Core.getCmp(), "Enter Player Name", "Input", JOptionPane.QUESTION_MESSAGE);
+            if (player != null) {
+              // check if this player already exists
+              // it it alread exists, reset the existing profile
+              boolean found = false;
+              for (int pli = 0; pli < players.size(); pli++) {
+                if (players.get(pli).equalsIgnoreCase(player)) {
+                  player = players.get(pli);
+                  found = true;
+                  break;
                 }
-                // really a new player
-                if (!found) {
-                  players.add(player);
-                  jList.setListData(players);
-                  int i = players.size() - 1;
-                  if (i >= 0) jList.setSelectedIndex(i);
-                }
+              }
+              // really a new player
+              if (!found) {
+                players.add(player);
+                jList.setListData(players);
+                int i = players.size() - 1;
+                if (i >= 0) jList.setSelectedIndex(i);
               }
             }
           });
@@ -233,14 +230,11 @@ public class PlayerDialog extends JDialog {
       jButtonDelete = new JButton();
       jButtonDelete.setText("Delete Player");
       jButtonDelete.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              int idx = jList.getSelectedIndex();
-              if (idx != -1) {
-                players.remove(idx);
-                jList.setListData(players);
-              }
+          (java.awt.event.ActionEvent e) -> {
+            int idx = jList.getSelectedIndex();
+            if (idx != -1) {
+              players.remove(idx);
+              jList.setListData(players);
             }
           });
     }
@@ -257,11 +251,8 @@ public class PlayerDialog extends JDialog {
       jButtonOK = new JButton();
       jButtonOK.setText("Ok");
       jButtonOK.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            dispose();
           });
     }
     return jButtonOK;
@@ -277,13 +268,10 @@ public class PlayerDialog extends JDialog {
       jButtonCancel = new JButton();
       jButtonCancel.setText("Cancel");
       jButtonCancel.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              players.clear();
-              players = null;
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            players.clear();
+            players = null;
+            dispose();
           });
     }
     return jButtonCancel;

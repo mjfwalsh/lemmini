@@ -230,21 +230,12 @@ public class Micromod {
     loopcount = loopchan = 0;
     for (int n = 0; n < channels.length; n++) channels[n] = 0;
     for (int chan = 0; chan < numchan; chan++) {
-      int p = 128;
-      switch (chan & 0x3) {
-        case 0:
-          p = 64;
-          break;
-        case 1:
-          p = 192;
-          break;
-        case 2:
-          p = 192;
-          break;
-        case 3:
-          p = 64;
-          break;
-      }
+      int p =
+          switch (chan & 0x3) {
+            case 0, 3 -> 64;
+            case 1, 2 -> 192;
+            default -> 128;
+          };
       channels[chan * CH_STRUCT_LEN + CH_PANNING] = p;
     }
     row();

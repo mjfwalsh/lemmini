@@ -166,13 +166,10 @@ public class LevelCodeDialog extends JDialog {
     if (jTextFieldCode == null) {
       jTextFieldCode = new JTextField();
       jTextFieldCode.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              code = jTextFieldCode.getText();
-              levelPackIndex = jComboBoxLvlPack.getSelectedIndex() + 1;
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            code = jTextFieldCode.getText();
+            levelPackIndex = jComboBoxLvlPack.getSelectedIndex() + 1;
+            dispose();
           });
     }
     return jTextFieldCode;
@@ -187,13 +184,10 @@ public class LevelCodeDialog extends JDialog {
     if (jButtonOk == null) {
       jButtonOk = new JButton("Ok");
       jButtonOk.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              code = jTextFieldCode.getText();
-              levelPackIndex = jComboBoxLvlPack.getSelectedIndex() + 1;
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            code = jTextFieldCode.getText();
+            levelPackIndex = jComboBoxLvlPack.getSelectedIndex() + 1;
+            dispose();
           });
     }
     return jButtonOk;
@@ -208,13 +202,10 @@ public class LevelCodeDialog extends JDialog {
     if (jButtonCancel == null) {
       jButtonCancel = new JButton("Cancel");
       jButtonCancel.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              code = null;
-              levelPackIndex = -1;
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            code = null;
+            levelPackIndex = -1;
+            dispose();
           });
     }
     return jButtonCancel;

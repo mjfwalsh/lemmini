@@ -334,18 +334,13 @@ class LvlObject {
     // modifier : first byte can be 80 (do not overwrite existing terrain) or 40
     // (must have terrain underneath to be visible). 00 specifies always draw full graphic.
     // second byte can be 8F (display graphic upside-down) or 0F (display graphic normally)
-    switch (b[6] & 0xff) {
-      case 0x80:
-        paintMode = MODE_NO_OVERWRITE;
-        break;
-      case 0x40:
-      case 0xc0: // bug in original level 36: overwrite AND visible on terrain: impossible
-        paintMode = MODE_VIS_ON_TERRAIN;
-        break;
-      default:
-        paintMode = MODE_FULL;
-        break;
-    }
+    paintMode =
+        switch (b[6] & 0xff) {
+          case 0x80 -> MODE_NO_OVERWRITE;
+            // bug in original level 36: overwrite AND visible on terrain: impossible
+          case 0x40, 0xc0 -> MODE_VIS_ON_TERRAIN;
+          default -> MODE_FULL;
+        };
     upsideDown = ((b[7] & 0xff) == 0x8f);
   }
 }

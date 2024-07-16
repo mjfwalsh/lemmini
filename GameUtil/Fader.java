@@ -164,8 +164,8 @@ public class Fader {
           fadeValue = 0;
           fadeState = State.OFF;
         }
-        Fader.setAlpha(fadeValue);
-        Fader.apply(g, width, height);
+        setAlpha(fadeValue);
+        apply(g, width, height);
         // System.out.println(fadeValue);
         break;
       case OUT:
@@ -174,8 +174,8 @@ public class Fader {
           fadeValue = MAX_ALPHA;
           fadeState = State.OFF;
         }
-        Fader.setAlpha(fadeValue);
-        Fader.apply(g, width, height);
+        setAlpha(fadeValue);
+        apply(g, width, height);
         // System.out.println(fadeValue);
         break;
     }

@@ -625,9 +625,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
             GameController.requestRestartLevel(true);
             break;
           case TextScreen.BUTTON_SAVEREPLAY:
-            String replayPath =
-                ToolBox.getFileName(
-                    Core.getCmp(), Core.resourcePath, Core.REPLAY_EXTENSIONS, false);
+            String replayPath = Core.promptForReplayFile(false);
+
             if (replayPath != null) {
               try {
                 String ext = ToolBox.getExtension(replayPath);

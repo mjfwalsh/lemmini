@@ -270,8 +270,7 @@ public class TextDialog {
    * @return Button ID if button clicked, else -1
    */
   public int handleLeftClick(final int x, final int y) {
-    for (int i = 0; i < buttons.size(); i++) {
-      Button b = buttons.get(i);
+    for (Button b : buttons) {
       if (b.inside(x, y)) return b.id;
     }
     return -1;
@@ -284,15 +283,14 @@ public class TextDialog {
    * @param y Absolute y position
    */
   public void handleMouseMove(final int x, final int y) {
-    for (int i = 0; i < buttons.size(); i++) {
-      Button b = buttons.get(i);
+    for (Button b : buttons) {
       b.selected = b.inside(x, y);
     }
   }
 
   /** Draw buttons on screen. */
   public void drawButtons() {
-    for (int i = 0; i < buttons.size(); i++) buttons.get(i).draw(gScreen);
+    for (Button b : buttons) b.draw(gScreen);
   }
 
   /**
@@ -303,8 +301,7 @@ public class TextDialog {
    * @return Button ID if button clicked, else -1
    */
   public int handleRightClick(final int x, final int y) {
-    for (int i = 0; i < buttons.size(); i++) {
-      Button b = buttons.get(i);
+    for (Button b : buttons) {
       if (b.inside(x, y)) return b.id;
     }
     return -1;

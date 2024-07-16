@@ -71,41 +71,6 @@ public class Sprite {
    * @param animFrames number of frames.
    */
   public Sprite(final Image sourceImg, final int animFrames) {
-    init(sourceImg, animFrames);
-  }
-
-  /**
-   * Constructor. Create Sprite from other Sprite.
-   *
-   * @param src Sprite to clone.
-   */
-  public Sprite(final Sprite src) {
-    copyFrom(src);
-  }
-
-  /**
-   * Copy all class attributes from another Sprite to this one.
-   *
-   * @param src Sprite to copy from.
-   */
-  private void copyFrom(final Sprite src) {
-    numframes = src.numframes;
-    width = src.width;
-    height = src.height;
-    frameIdx = src.frameIdx;
-    animMode = src.animMode;
-    sound = src.sound;
-    triggered = false;
-    frames = src.frames.clone();
-  }
-
-  /**
-   * Initialized sprite with new animation.
-   *
-   * @param sourceImg Image containing animation frames one above each other.
-   * @param animFrames number of frames.
-   */
-  private void init(final Image sourceImg, final int animFrames) {
     numframes = animFrames;
     width = sourceImg.getWidth(null);
     height = sourceImg.getHeight(null) / numframes;
@@ -114,6 +79,22 @@ public class Sprite {
     triggered = false;
     // animation frames stored one above the other - now separate them into single images
     frames = ToolBox.getAnimation(sourceImg, animFrames, Transparency.BITMASK);
+  }
+
+  /**
+   * Constructor. Create Sprite from other Sprite.
+   *
+   * @param src Sprite to clone.
+   */
+  public Sprite(final Sprite src) {
+    numframes = src.numframes;
+    width = src.width;
+    height = src.height;
+    frameIdx = src.frameIdx;
+    animMode = src.animMode;
+    sound = src.sound;
+    triggered = false;
+    frames = src.frames.clone();
   }
 
   /**
@@ -182,7 +163,7 @@ public class Sprite {
    */
   public void setPixel(final int x, final int y, final int color) {
     if (x >= 0 && x < width && y >= 0 && y < height)
-      for (int i = 0; i < numframes; i++) frames[i].setRGB(x, y, color);
+      for (var frame : frames) frame.setRGB(x, y, color);
   }
 
   /**

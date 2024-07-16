@@ -235,35 +235,6 @@ public class ToolBox {
   }
 
   /**
-   * Open file dialog.
-   *
-   * @param parent parent frame
-   * @param path default file name
-   * @param ext array of allowed extensions
-   * @param load true: load, false: save
-   * @return absolute file name of selected file or null
-   */
-  public static String getFileName(
-      final Component parent, final String path, final String ext[], final boolean load) {
-    String p = path;
-    if (p.length() == 0) p = ".";
-    JFileChooser jf = new JFileChooser(p);
-    if (ext != null) {
-      JFileFilter filter = new JFileFilter();
-      for (int i = 0; i < ext.length; i++) filter.addExtension(ext[i]);
-      jf.setFileFilter(filter);
-    }
-    jf.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    if (!load) jf.setDialogType(JFileChooser.SAVE_DIALOG);
-    int returnVal = jf.showDialog(parent, null);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-      File f = jf.getSelectedFile();
-      if (f != null) return f.getAbsolutePath();
-    }
-    return null;
-  }
-
-  /**
    * Open folder dialog.
    *
    * @param parent parent frame

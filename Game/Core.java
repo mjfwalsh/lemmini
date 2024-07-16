@@ -3,6 +3,7 @@ package Game;
 import Extract.Extract;
 import Extract.FolderDialog;
 import GUI.LegalDialog;
+import Tools.JFileFilter;
 import Tools.Props;
 import Tools.ToolBox;
 import java.awt.Image;
@@ -13,6 +14,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -56,7 +58,7 @@ public class Core {
   public static Props programProps;
 
   /** path of (extracted) resources */
-  public static String resourcePath;
+  private static String resourcePath;
 
   /** current player */
   public static Player player;
@@ -81,7 +83,7 @@ public class Core {
     cmp = frame;
 
     // get ini path
-    String programPropsFileStr = "";
+    String programPropsFileStr;
 
     if (System.getProperty("os.name").equals("Mac OS X")) {
       // resourcePath and programPropsFileStr are in fixed places on Mac
@@ -96,6 +98,7 @@ public class Core {
       try {
         programPropsFileStr = URLDecoder.decode(url.getPath(), "UTF-8");
       } catch (UnsupportedEncodingException ex) {
+        throw new LemmException("File path is not utf8");
       }
 
       // special handling for JAR
@@ -339,5 +342,32 @@ public class Core {
     String path = ToolBox.exchangeSeparators(ToolBox.addSeparator(folder));
     programProps.set(name, path);
     return path;
+  }
+
+  /**
+   * Open file dialog.
+   *
+   * @param path default file name
+   * @param ext array of allowed extensions
+   * @param load true: load, false: save
+   * @return absolute file name of selected file or null
+   */
+  public static String promptForReplayFile(final boolean load) {
+    String p = System.getProperty("user.home");
+    if (p == null || p.length() == 0) p = ".";
+    JFileChooser jf = new JFileChooser(p);
+
+    JFileFilter filter = new JFileFilter();
+    for (String ext : Core.REPLAY_EXTENSIONS) filter.addExtension(ext);
+    jf.setFileFilter(filter);
+
+    jf.setFileSelectionMode(JFileChooser.FILES_ONLY);
+    if (!load) jf.setDialogType(JFileChooser.SAVE_DIALOG);
+    int returnVal = jf.showDialog(cmp, null);
+    if (returnVal == JFileChooser.APPROVE_OPTION) {
+      File f = jf.getSelectedFile();
+      if (f != null) return f.getAbsolutePath();
+    }
+    return null;
   }
 }

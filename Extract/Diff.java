@@ -57,7 +57,7 @@ public class Diff {
   private static int windowLength = 512;
 
   /** target CRC */
-  public static int targetCRC = 0;
+  private static int targetCRC = 0;
 
   /**
    * Set diff parameters
@@ -221,7 +221,7 @@ public class Diff {
     Adler32 crc = new Adler32();
     crc.update(src.getData());
     // analyze header
-    if (patch.getDWord() != Diff.HEADER_ID) throw new DiffException("No header id found in patch");
+    if (patch.getDWord() != HEADER_ID) throw new DiffException("No header id found in patch");
     int lenSrc = getLen(patch);
     if (lenSrc != src.length())
       throw new DiffException("Size of source differs from that in patch header");
@@ -235,8 +235,7 @@ public class Diff {
               + Integer.toHexString(crcPatchSrc)
               + ")");
     int crcTrg = patch.getDWord();
-    if (patch.getDWord() != Diff.DATA_ID)
-      throw new DiffException("No data id found in patch header");
+    if (patch.getDWord() != DATA_ID) throw new DiffException("No data id found in patch header");
 
     Buffer trg = new Buffer(lenTrg);
 
@@ -254,19 +253,19 @@ public class Diff {
         int cmd = patch.getByte();
         int len = getLen(patch);
         switch (cmd) {
-          case Diff.DELETE:
+          case DELETE:
             out("Delete: " + len);
             src.setIndex(src.getIndex() + len);
             break;
-          case Diff.REPLACE:
+          case REPLACE:
             out("Replace/");
             src.setIndex(src.getIndex() + len);
             // $FALL-THROUGH$
-          case Diff.INSERT:
+          case INSERT:
             out("Insert: " + len);
             for (int r = 0; r < len; r++) trg.setByte((byte) patch.getByte());
             break;
-          case Diff.SUBSTITUTE:
+          case SUBSTITUTE:
             {
               int lenT = getLen(patch);
               out("Substitute: " + len + "/" + lenT);

@@ -352,15 +352,14 @@ public class Extract extends Thread {
     File[] levels = fRoot.listFiles(ff);
     if (levels == null)
       throw new ExtractException("Path " + root + " doesn't exist or IO error occured.");
-    for (int i = 0; i < levels.length; i++) {
-      int pos;
-      String fIn = root + levels[i].getName();
-      String fOut = levels[i].getName();
-      pos = fOut.toLowerCase().indexOf(".lvl"); // MUST be there because of file filter
+    for (File level : levels) {
+      String fIn = root + level.getName();
+      String fOut = level.getName();
+      int pos = fOut.length() - 4; // file MUST end with ".lvl" because of file filter
       fOut = destination + (fOut.substring(0, pos) + ".ini").toLowerCase();
       createdFiles.put(fOut.toLowerCase(), null);
       try {
-        print(levels[i].getName());
+        print(level.getName());
         ExtractLevel.convertLevel(fIn, fOut);
       } catch (Exception ex) {
         String msg = ex.getMessage();
@@ -535,7 +534,7 @@ class LvlFilter implements FilenameFilter {
    */
   @Override
   public boolean accept(final File dir, final String name) {
-    if (name.toLowerCase().indexOf(".lvl") != -1) return true;
+    if (name.toLowerCase().endsWith(".lvl")) return true;
     else return false;
   }
 }

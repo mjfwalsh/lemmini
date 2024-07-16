@@ -437,20 +437,19 @@ public class GameController {
     level = new Level();
     // read level packs
 
-    File dir = new File(Core.resourcePath + "levels");
+    File dir = new File(Core.findResource("levels"));
     File files[] = dir.listFiles();
     // now get the names of the directories
     ArrayList<String> dirs = new ArrayList<String>();
-    for (int i = 0; i < files.length; i++) if (files[i].isDirectory()) dirs.add(files[i].getName());
+    for (File file : files) if (file.isDirectory()) dirs.add(file.getName());
+
     Collections.sort(dirs);
 
     // levelPack = new LevelPack[]; // dirs.size()+1];
     levelPack = new ArrayList<LevelPack>();
 
     levelPack.add(new LevelPack()); // dummy
-    for (int i = 0; i < dirs.size(); i++) { // read levels
-      String lvlName = dirs.get(i);
-
+    for (String lvlName : dirs) { // read levels
       LevelPack tlp = new LevelPack(Core.findResource("levels/" + lvlName + "/levelpack.ini"));
 
       if (tlp != null) {
@@ -520,7 +519,7 @@ public class GameController {
   public static synchronized void nextLevel() {
     if (curLevelNumber < (levelPack.get(curLevelPack).getLevels(curDiffLevel).length - 1)) {
       curLevelNumber++;
-      GameController.requestChangeLevel(curLevelPack, curDiffLevel, curLevelNumber, false);
+      requestChangeLevel(curLevelPack, curDiffLevel, curLevelNumber, false);
     }
   }
 
@@ -532,7 +531,7 @@ public class GameController {
       int ln =
           Core.player.getCompletedLevelNum(
               levelPack.get(1).getName(), levelPack.get(1).getDiffLevels()[0]);
-      GameController.requestChangeLevel(1, 0, ln, false);
+      requestChangeLevel(1, 0, ln, false);
       return;
     }
 
@@ -545,7 +544,7 @@ public class GameController {
         String diffs[] = levelPack.get(i).getDiffLevels();
         for (int j = 0; j < diffs.length; j++) {
           if (p[1].equalsIgnoreCase(diffs[j])) {
-            GameController.requestChangeLevel(i, j, ln, false);
+            requestChangeLevel(i, j, ln, false);
             return;
           }
         }
@@ -606,7 +605,20 @@ public class GameController {
     replayMode = false;
 
     if (!wasLost()) {
-      levelMenuUpdateListener.update();
+      if (GameController.getCurLevelPackIdx() != 0) { // 0 is the dummy pack
+        LevelPack lvlPack = GameController.getLevelPack(GameController.getCurLevelPackIdx());
+        String pack = lvlPack.getName();
+        String diff = lvlPack.getDiffLevels()[GameController.getCurDiffLevel()];
+        // get next level
+        int num = GameController.getCurLevelNumber() + 1;
+        if (num >= lvlPack.getLevels(GameController.getCurDiffLevel()).length)
+          num = GameController.getCurLevelNumber();
+        // set next level as available
+        GroupBitfield bf = Core.player.setAvailable(pack, diff, num);
+        // update the menu
+        levelMenuUpdateListener.update(pack, diff, bf);
+      }
+
       determineNextLevel();
     }
     gameState = State.DEBRIEFING;
@@ -630,7 +642,7 @@ public class GameController {
     initLevel();
     if (doReplay) {
       replayMode = true;
-      replay.save(Core.resourcePath + "/replay.rpl");
+      replay.save(Core.findResource("/replay.rpl"));
       replay.rewind();
     } else {
       replayMode = false;
@@ -651,13 +663,13 @@ public class GameController {
     bgGfx.setBackground(blankColor);
     bgGfx.clearRect(0, 0, bgImage.getWidth(), bgImage.getHeight());
 
-    stencil = getLevel().paintLevel(bgImage, stencil);
+    stencil = level.paintLevel(bgImage, stencil);
 
     lemmings.clear();
     explosions.clear();
     Icons.reset();
 
-    TrapDoor.reset(getLevel().getEntryNum());
+    TrapDoor.reset(level.getEntryNum());
     entryOpened = false;
     entryOpenCtr = 0;
     secondCtr = 0;
@@ -668,35 +680,35 @@ public class GameController {
     minus.init();
 
     numLeft = 0;
-    releaseRate = getLevel().getReleaseRate();
-    numLemmingsMax = getLevel().getNumLemmings();
+    releaseRate = level.getReleaseRate();
+    numLemmingsMax = level.getNumLemmings();
     numLemmingsOut = 0;
-    numToRecue = getLevel().getNumToRescue();
-    time = getLevel().getTimeLimitSeconds();
-    numClimbers = getLevel().getNumClimbers();
-    numFloaters = getLevel().getNumFloaters();
-    numBombers = getLevel().getNumBombers();
-    numBlockers = getLevel().getNumBlockers();
-    numBuilders = getLevel().getNumBuilders();
-    numBashers = getLevel().getNumBashers();
-    numMiners = getLevel().getNumMiners();
-    numDiggers = getLevel().getMumDiggers();
-    setxPos(getLevel().getXpos());
+    numToRecue = level.getNumToRescue();
+    time = level.getTimeLimitSeconds();
+    numClimbers = level.getNumClimbers();
+    numFloaters = level.getNumFloaters();
+    numBombers = level.getNumBombers();
+    numBlockers = level.getNumBlockers();
+    numBuilders = level.getNumBuilders();
+    numBashers = level.getNumBashers();
+    numMiners = level.getNumMiners();
+    numDiggers = level.getMumDiggers();
+    setxPos(level.getXpos());
 
     calcReleaseBase();
 
-    mapPreview = getLevel().createMiniMap(mapPreview, bgImage, 4, 4, false);
+    mapPreview = level.createMiniMap(mapPreview, bgImage, 4, 4, false);
 
-    setSuperLemming(getLevel().isSuperLemming());
+    setSuperLemming(level.isSuperLemming());
 
     replayFrame = 0;
     stopReplayMode = false;
     releaseRateOld = releaseRate;
     lemmSkillOld = lemmSkill;
     nukeOld = false;
-    xPosOld = getLevel().getXpos();
+    xPosOld = level.getXpos();
 
-    GameController.rememberThisDifficultyLevel();
+    rememberThisDifficultyLevel();
 
     gameState = State.START_BRIEFING;
   }
@@ -752,7 +764,7 @@ public class GameController {
     // lemmings need to be reloaded to contain pink color
     Lemming.loadLemmings();
     // loading the level will patch pink lemmings pixels to correct color
-    getLevel().loadLevel(lvlPath);
+    level.loadLevel(lvlPath);
 
     // if with and height would be stored inside the level, the bgImage etc. would have to
     // be recreated here
@@ -769,7 +781,7 @@ public class GameController {
       replay.clear();
     }
 
-    return getLevel();
+    return level;
   }
 
   /**
@@ -801,8 +813,7 @@ public class GameController {
    */
   public static synchronized Lemming lemmUnderCursor(final LemmCursor.Type type) {
     // search for level without the skill
-    for (int i = 0; i < getLemmsUnderCursor().size(); i++) {
-      Lemming l = getLemmsUnderCursor().get(i);
+    for (Lemming l : lemmsUnderCursor) {
       // Walker only cursor: ignore non-walkers
       if (type == LemmCursor.Type.WALKER && l.getSkill() != Lemming.Type.WALKER) continue;
       if (type == LemmCursor.Type.LEFT && l.getDirection() != Lemming.Direction.LEFT) continue;
@@ -822,8 +833,8 @@ public class GameController {
       }
       break;
     }
-    if (type == LemmCursor.Type.NORMAL && getLemmsUnderCursor().size() > 0) {
-      Lemming l = getLemmsUnderCursor().get(0);
+    if (type == LemmCursor.Type.NORMAL && lemmsUnderCursor.size() > 0) {
+      Lemming l = lemmsUnderCursor.get(0);
       if (l.getName().length() == 0) return null;
       // System.out.println(((Lemming)lemmsUnderCursor.get(0)).getName());
       return l;
@@ -874,8 +885,8 @@ public class GameController {
 
     fired = minus.fired();
     if (fired != KeyRepeat.Event.NONE) {
-      if (releaseRate > getLevel().getReleaseRate()) {
-        if (fired == KeyRepeat.Event.DOUBLE_CLICK) releaseRate = getLevel().getReleaseRate();
+      if (releaseRate > level.getReleaseRate()) {
+        if (fired == KeyRepeat.Event.DOUBLE_CLICK) releaseRate = level.getReleaseRate();
         else releaseRate -= 1;
         calcReleaseBase();
         sound.playPitched(releaseRate);
@@ -1027,13 +1038,13 @@ public class GameController {
     if (entryOpened
         && !nukeTemp
         && !isPaused()
-        && numLemmingsOut < getNumLemmingsMax()
+        && numLemmingsOut < numLemmingsMax
         && ++releaseCtr >= releaseBase) {
       releaseCtr = 0;
       // LemmingResource ls = Lemming.getResource(Lemming.TYPE_FALLER);
       try {
-        if (getLevel().getEntryNum() != 0) {
-          Entry e = getLevel().getEntry(TrapDoor.getNext());
+        if (level.getEntryNum() != 0) {
+          Entry e = level.getEntry(TrapDoor.getNext());
           Lemming l = new Lemming(e.xPos + 2, e.yPos + 20);
           synchronized (lemmings) {
             lemmings.add(l);
@@ -1060,8 +1071,8 @@ public class GameController {
     // open trap doors ?
     if (!entryOpened) {
       if (++entryOpenCtr == MAX_ENTRY_OPEN_CTR) {
-        for (int i = 0; i < getLevel().getEntryNum(); i++)
-          getLevel().getSprObject(getLevel().getEntry(i).id).setAnimMode(Sprite.Animation.ONCE);
+        for (int i = 0; i < level.getEntryNum(); i++)
+          level.getSprObject(level.getEntry(i).id).setAnimMode(Sprite.Animation.ONCE);
         sound.play(SND_DOOR);
       } else if (entryOpenCtr == MAX_ENTRY_OPEN_CTR + 10 * MAX_ANIM_CTR) {
         // System.out.println("opened");
@@ -1071,7 +1082,7 @@ public class GameController {
       }
     }
     // end of game conditions
-    if ((nukeTemp || numLemmingsOut == getNumLemmingsMax())
+    if ((nukeTemp || numLemmingsOut == numLemmingsMax)
         && explosions.size() == 0
         && lemmings.size() == 0) {
       endLevel();
@@ -1101,8 +1112,8 @@ public class GameController {
     // animate level objects
     if (++animCtr > MAX_ANIM_CTR) {
       animCtr -= MAX_ANIM_CTR;
-      for (int n = 0; n < getLevel().getSprObjectNum(); n++) {
-        SpriteObject spr = getLevel().getSprObject(n);
+      for (int n = 0; n < level.getSprObjectNum(); n++) {
+        SpriteObject spr = level.getSprObject(n);
         spr.getImageAnim(); // just to animate
       }
     }
@@ -1321,14 +1332,11 @@ public class GameController {
           gameState = State.INTRO;
           break;
         case TO_LEVEL:
-          GameController.sound.play(SND_LETSGO);
+          sound.play(SND_LETSGO);
           try {
             Music.load(
                 "music/"
-                    + GameController.levelPack
-                        .get(GameController.curLevelPack)
-                        .getInfo(GameController.curDiffLevel, GameController.curLevelNumber)
-                        .getMusic());
+                    + levelPack.get(curLevelPack).getInfo(curDiffLevel, curLevelNumber).getMusic());
           } catch (ResourceException ex) {
             Core.resourceError(ex.getMessage());
           } catch (LemmException ex) {
@@ -1351,7 +1359,7 @@ public class GameController {
                 nextLevelNumber,
                 transitionState == TransitionState.LOAD_REPLAY);
             if (!System.getProperty("os.name").equals("Mac OS X")) {
-              Core.getCmp().setTitle("Lemmini - " + getLevel().getLevelName());
+              Core.getCmp().setTitle("Lemmini - " + level.getLevelName());
             }
           } catch (ResourceException ex) {
             Core.resourceError(ex.getMessage());
@@ -1395,8 +1403,8 @@ public class GameController {
    */
   public static synchronized void addExplosion(final int x, final int y) {
     // create particle explosion
-    synchronized (GameController.explosions) {
-      GameController.explosions.add(new Explosion(x, y));
+    synchronized (explosions) {
+      explosions.add(new Explosion(x, y));
     }
   }
 

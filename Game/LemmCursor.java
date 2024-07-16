@@ -88,17 +88,13 @@ public class LemmCursor {
             .createCustomCursor(
                 new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "");
     cursor[Type.NORMAL.ordinal()] =
-        Toolkit.getDefaultToolkit()
-            .createCustomCursor(LemmCursor.getImage(Type.NORMAL), new Point(w, h), "");
+        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.NORMAL), new Point(w, h), "");
     cursor[Type.LEFT.ordinal()] =
-        Toolkit.getDefaultToolkit()
-            .createCustomCursor(LemmCursor.getImage(Type.LEFT), new Point(w, h), "");
+        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.LEFT), new Point(w, h), "");
     cursor[Type.RIGHT.ordinal()] =
-        Toolkit.getDefaultToolkit()
-            .createCustomCursor(LemmCursor.getImage(Type.RIGHT), new Point(w, h), "");
+        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.RIGHT), new Point(w, h), "");
     cursor[Type.WALKER.ordinal()] =
-        Toolkit.getDefaultToolkit()
-            .createCustomCursor(LemmCursor.getImage(Type.WALKER), new Point(w, h), "");
+        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.WALKER), new Point(w, h), "");
     type = Type.NORMAL;
     setX(0);
     setY(0);
@@ -148,23 +144,14 @@ public class LemmCursor {
    * @return boxed version of image for the current cursor type
    */
   public static BufferedImage getBoxImage() {
-    Type t;
-    switch (type) {
-      case NORMAL:
-        t = Type.BOX_NORMAL;
-        break;
-      case LEFT:
-        t = Type.BOX_LEFT;
-        break;
-      case RIGHT:
-        t = Type.BOX_RIGHT;
-        break;
-      case WALKER:
-        t = Type.BOX_WALKER;
-        break;
-      default:
-        t = type; // should never happen
-    }
+    Type t =
+        switch (type) {
+          case NORMAL -> Type.BOX_NORMAL;
+          case LEFT -> Type.BOX_LEFT;
+          case RIGHT -> Type.BOX_RIGHT;
+          case WALKER -> Type.BOX_WALKER;
+          default -> type; // should never happen
+        };
     return getImage(t);
   }
 
@@ -225,8 +212,8 @@ public class LemmCursor {
    *
    * @param x x position in pixels.
    */
-  public static void setX(final int x) {
-    LemmCursor.x = x;
+  public static void setX(final int nx) {
+    x = nx;
   }
 
   /**
@@ -243,8 +230,8 @@ public class LemmCursor {
    *
    * @param y y position in pixels
    */
-  public static void setY(final int y) {
-    LemmCursor.y = y;
+  public static void setY(final int ny) {
+    y = ny;
   }
 
   /**

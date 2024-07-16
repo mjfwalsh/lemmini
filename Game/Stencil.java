@@ -67,8 +67,7 @@ public class Stencil {
   public static final int MSK_NO_DIG = MSK_NO_DIG_LEFT | MSK_NO_DIG_RIGHT;
 
   /** mask used to erase stencil properties when a pixel is erased */
-  public static final int MSK_ERASE =
-      ~(Stencil.MSK_WALK_ON | Stencil.MSK_STAIR | Stencil.MSK_NO_DIG);
+  public static final int MSK_ERASE = ~(MSK_WALK_ON | MSK_STAIR | MSK_NO_DIG);
 
   /** a trap triggering the drowning animation - i.e. water */
   public static final int MSK_TRAP_DROWN = 128;

@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
@@ -68,15 +67,12 @@ public class MidiMusic {
         sequencer.setSequence(mySeq);
         canPlay = true;
         sequencer.addMetaEventListener(
-            new MetaEventListener() {
-              @Override
-              public void meta(MetaMessage event) {
-                int type = event.getType();
-                // System.out.println("midi message: "+type+" "+event.toString());
-                if (type == 47) {
-                  sequencer.setTickPosition(0);
-                  sequencer.start();
-                }
+            (MetaMessage event) -> {
+              int type = event.getType();
+              // System.out.println("midi message: "+type+" "+event.toString());
+              if (type == 47) {
+                sequencer.setTickPosition(0);
+                sequencer.start();
               }
             });
       }
@@ -117,8 +113,7 @@ public class MidiMusic {
     if (gn > 1.0) gain = 1.0;
     else if (gn < 0) gain = 0;
     else gain = gn;
-    if (sequencer != null && sequencer instanceof Synthesizer) {
-      Synthesizer synthesizer = (Synthesizer) sequencer;
+    if (sequencer != null && sequencer instanceof Synthesizer synthesizer) {
       MidiChannel[] channels = synthesizer.getChannels();
 
       for (int i = 0; i < channels.length; i++) {

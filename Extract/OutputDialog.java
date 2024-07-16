@@ -144,11 +144,8 @@ public class OutputDialog extends JDialog {
       jButtonOk.setText("Ok");
       jButtonOk.setEnabled(false);
       jButtonOk.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            dispose();
           });
     }
     return jButtonOk;
@@ -177,12 +174,9 @@ public class OutputDialog extends JDialog {
       jButtonCancel = new JButton();
       jButtonCancel.setText("Cancel");
       jButtonCancel.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              cancel = true;
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            cancel = true;
+            dispose();
           });
     }
     return jButtonCancel;

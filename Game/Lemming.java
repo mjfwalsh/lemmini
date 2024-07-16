@@ -297,14 +297,11 @@ public class Lemming {
    * @return resource number for type
    */
   public static int getOrdinal(final Type t) {
-    switch (t) {
-      case BOMBER_STOPPER:
-        return Type.BOMBER.ordinal();
-      case FLOATER_START:
-        return Type.FLOATER.ordinal();
-      default:
-        return t.ordinal();
-    }
+    return switch (t) {
+      case BOMBER_STOPPER -> Type.BOMBER.ordinal();
+      case FLOATER_START -> Type.FLOATER.ordinal();
+      default -> t.ordinal();
+    };
   }
 
   /** Update animation, move Lemming, check state transitions. */
@@ -1266,17 +1263,12 @@ public class Lemming {
    * @return display name of this Lemming
    */
   public String getName() {
-    Type t;
-    switch (type) {
-      case BOMBER_STOPPER:
-        t = Type.BOMBER;
-        break;
-      case FLOATER_START:
-        t = Type.FLOATER;
-        break;
-      default:
-        t = type;
-    }
+    Type t =
+        switch (type) {
+          case BOMBER_STOPPER -> Type.BOMBER;
+          case FLOATER_START -> Type.FLOATER;
+          default -> type;
+        };
     String n = LEMM_NAMES[getOrdinal(t)];
     if (n.length() > 0) {
       if (canFloat) {
@@ -1380,7 +1372,7 @@ public class Lemming {
           }
         case STOPPER:
           {
-            Mask m = Lemming.getResource(Type.STOPPER).getMask(Direction.LEFT);
+            Mask m = getResource(Type.STOPPER).getMask(Direction.LEFT);
             maskX = screenX();
             maskY = screenY();
             if (m.checkType(maskX, maskY, 0, Stencil.MSK_STOPPER))

@@ -201,11 +201,8 @@ public class FolderDialog extends JDialog {
     if (jTextFieldTrg == null) {
       jTextFieldTrg = new JTextField();
       jTextFieldTrg.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              targetPath = jTextFieldTrg.getText();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            targetPath = jTextFieldTrg.getText();
           });
     }
     return jTextFieldTrg;
@@ -220,11 +217,8 @@ public class FolderDialog extends JDialog {
     if (jTextFieldSrc == null) {
       jTextFieldSrc = new JTextField();
       jTextFieldSrc.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              sourcePath = jTextFieldSrc.getText();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            sourcePath = jTextFieldSrc.getText();
           });
     }
     return jTextFieldSrc;
@@ -240,16 +234,13 @@ public class FolderDialog extends JDialog {
       jButtonSrc = new JButton();
       jButtonSrc.setText("Browse");
       jButtonSrc.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              JFileChooser jf = new JFileChooser(sourcePath);
-              jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-              int returnVal = jf.showOpenDialog(FolderDialog.this);
-              if (returnVal == JFileChooser.APPROVE_OPTION) {
-                sourcePath = jf.getSelectedFile().getAbsolutePath();
-                jTextFieldSrc.setText(sourcePath);
-              }
+          (java.awt.event.ActionEvent e) -> {
+            JFileChooser jf = new JFileChooser(sourcePath);
+            jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = jf.showOpenDialog(FolderDialog.this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+              sourcePath = jf.getSelectedFile().getAbsolutePath();
+              jTextFieldSrc.setText(sourcePath);
             }
           });
     }
@@ -266,16 +257,13 @@ public class FolderDialog extends JDialog {
       jButtonTrg = new JButton();
       jButtonTrg.setText("Browse");
       jButtonTrg.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              JFileChooser jf = new JFileChooser(targetPath);
-              jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-              int returnVal = jf.showOpenDialog(FolderDialog.this);
-              if (returnVal == JFileChooser.APPROVE_OPTION) {
-                targetPath = jf.getSelectedFile().getAbsolutePath();
-                jTextFieldTrg.setText(targetPath);
-              }
+          (java.awt.event.ActionEvent e) -> {
+            JFileChooser jf = new JFileChooser(targetPath);
+            jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = jf.showOpenDialog(FolderDialog.this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+              targetPath = jf.getSelectedFile().getAbsolutePath();
+              jTextFieldTrg.setText(targetPath);
             }
           });
     }
@@ -292,11 +280,8 @@ public class FolderDialog extends JDialog {
       jButtonQuit = new JButton();
       jButtonQuit.setText("Quit");
       jButtonQuit.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            dispose();
           });
     }
     return jButtonQuit;
@@ -312,26 +297,23 @@ public class FolderDialog extends JDialog {
       jButtonExtract = new JButton();
       jButtonExtract.setText("Extract");
       jButtonExtract.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              sourcePath = jTextFieldSrc.getText();
-              if (!System.getProperty("os.name").equals("Mac OS X")) {
-                targetPath = jTextFieldTrg.getText();
-              }
+          (java.awt.event.ActionEvent e) -> {
+            sourcePath = jTextFieldSrc.getText();
+            if (!System.getProperty("os.name").equals("Mac OS X")) {
+              targetPath = jTextFieldTrg.getText();
+            }
 
-              // check if source path exists
-              File fSrc = new File(sourcePath);
-              if (!fSrc.exists()) {
-                JOptionPane.showMessageDialog(
-                    FolderDialog.this,
-                    sourcePath + " doesn't exist!",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-              } else {
-                doExtract = true;
-                dispose();
-              }
+            // check if source path exists
+            File fSrc = new File(sourcePath);
+            if (!fSrc.exists()) {
+              JOptionPane.showMessageDialog(
+                  FolderDialog.this,
+                  sourcePath + " doesn't exist!",
+                  "Error",
+                  JOptionPane.ERROR_MESSAGE);
+            } else {
+              doExtract = true;
+              dispose();
             }
           });
     }

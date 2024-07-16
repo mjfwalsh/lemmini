@@ -172,8 +172,7 @@ public class ReplayStream {
               + ", "
               + GameController.getCurLevelNumber()
               + "\n");
-      for (int i = 0; i < events.size(); i++) {
-        ReplayEvent r = events.get(i);
+      for (ReplayEvent r : events) {
         f.write(r.toString() + "\n"); // will use toString of the correct child object
       }
       f.close();

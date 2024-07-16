@@ -66,24 +66,16 @@ public class SpriteObject extends Sprite {
    * @return Type
    */
   public static Type getType(final int t) {
-    switch (t) {
-      case 3:
-        return Type.NO_DIG_LEFT;
-      case 4:
-        return Type.NO_DIG_RIGHT;
-      case 5:
-        return Type.TRAP_DROWN;
-      case 6:
-        return Type.TRAP_REPLACE;
-      case 7:
-        return Type.TRAP_DIE;
-      case 8:
-        return Type.EXIT;
-      case 32:
-        return Type.ENTRY;
-      default:
-        return Type.PASSIVE;
-    }
+    return switch (t) {
+      case 3 -> Type.NO_DIG_LEFT;
+      case 4 -> Type.NO_DIG_RIGHT;
+      case 5 -> Type.TRAP_DROWN;
+      case 6 -> Type.TRAP_REPLACE;
+      case 7 -> Type.TRAP_DIE;
+      case 8 -> Type.EXIT;
+      case 32 -> Type.ENTRY;
+      default -> Type.PASSIVE;
+    };
   }
 
   /**
@@ -134,21 +126,15 @@ public class SpriteObject extends Sprite {
    * @return mask as used in Stencil
    */
   int getMaskType() {
-    switch (type) {
-      case NO_DIG_LEFT:
-        return Stencil.MSK_NO_DIG_LEFT;
-      case NO_DIG_RIGHT:
-        return Stencil.MSK_NO_DIG_RIGHT;
-      case TRAP_DROWN:
-        return Stencil.MSK_TRAP_DROWN;
-      case TRAP_REPLACE:
-        return Stencil.MSK_TRAP_REPLACE;
-      case TRAP_DIE:
-        return Stencil.MSK_TRAP_DIE;
-      case EXIT:
-        return Stencil.MSK_EXIT;
-    }
-    return -1;
+    return switch (type) {
+      case NO_DIG_LEFT -> Stencil.MSK_NO_DIG_LEFT;
+      case NO_DIG_RIGHT -> Stencil.MSK_NO_DIG_RIGHT;
+      case TRAP_DROWN -> Stencil.MSK_TRAP_DROWN;
+      case TRAP_REPLACE -> Stencil.MSK_TRAP_REPLACE;
+      case TRAP_DIE -> Stencil.MSK_TRAP_DIE;
+      case EXIT -> Stencil.MSK_EXIT;
+      default -> -1;
+    };
   }
 
   /**

@@ -152,11 +152,8 @@ public class GainDialog extends JDialog {
       jSliderMusic.setPaintTicks(true);
       jSliderMusic.setValue(100);
       jSliderMusic.addChangeListener(
-          new javax.swing.event.ChangeListener() {
-            @Override
-            public void stateChanged(javax.swing.event.ChangeEvent e) {
-              Music.setGain(jSliderMusic.getValue() / 100.0);
-            }
+          (javax.swing.event.ChangeEvent e) -> {
+            Music.setGain(jSliderMusic.getValue() / 100.0);
           });
     }
     return jSliderMusic;
@@ -176,11 +173,8 @@ public class GainDialog extends JDialog {
       jSliderSound.setValue(100);
       jSliderSound.setMajorTickSpacing(10);
       jSliderSound.addChangeListener(
-          new javax.swing.event.ChangeListener() {
-            @Override
-            public void stateChanged(javax.swing.event.ChangeEvent e) {
-              GameController.sound.setGain(jSliderSound.getValue() / 100.0);
-            }
+          (javax.swing.event.ChangeEvent e) -> {
+            GameController.sound.setGain(jSliderSound.getValue() / 100.0);
           });
     }
     return jSliderSound;
@@ -196,11 +190,8 @@ public class GainDialog extends JDialog {
       jButtonDone = new JButton();
       jButtonDone.setText("Done");
       jButtonDone.addActionListener(
-          new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-              dispose();
-            }
+          (java.awt.event.ActionEvent e) -> {
+            dispose();
           });
     }
     return jButtonDone;
@@ -215,20 +206,17 @@ public class GainDialog extends JDialog {
     if (jCheckMusicMute == null) {
       jCheckMusicMute = new JCheckBox("Mute");
       jCheckMusicMute.addChangeListener(
-          new javax.swing.event.ChangeListener() {
-            @Override
-            public void stateChanged(javax.swing.event.ChangeEvent e) {
-              boolean selected = jCheckMusicMute.isSelected();
+          (javax.swing.event.ChangeEvent e) -> {
+            boolean selected = jCheckMusicMute.isSelected();
 
-              GameController.setMusicOn(!selected);
-              jSliderMusic.setEnabled(!selected);
+            GameController.setMusicOn(!selected);
+            jSliderMusic.setEnabled(!selected);
 
-              if (GameController.getLevel() != null) {
-                if (!selected) {
-                  Music.play();
-                } else {
-                  Music.stop();
-                }
+            if (GameController.getLevel() != null) {
+              if (!selected) {
+                Music.play();
+              } else {
+                Music.stop();
               }
             }
           });
@@ -245,13 +233,10 @@ public class GainDialog extends JDialog {
     if (jCheckSoundMute == null) {
       jCheckSoundMute = new JCheckBox("Mute");
       jCheckSoundMute.addChangeListener(
-          new javax.swing.event.ChangeListener() {
-            @Override
-            public void stateChanged(javax.swing.event.ChangeEvent e) {
-              boolean selected = jCheckSoundMute.isSelected();
-              GameController.setSoundOn(!selected);
-              jSliderSound.setEnabled(!selected);
-            }
+          (javax.swing.event.ChangeEvent e) -> {
+            boolean selected = jCheckSoundMute.isSelected();
+            GameController.setSoundOn(!selected);
+            jSliderSound.setEnabled(!selected);
           });
     }
     return jCheckSoundMute;

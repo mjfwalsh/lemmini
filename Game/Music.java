@@ -60,7 +60,7 @@ public class Music {
     modMusic = new ModMusic();
 
     // read available musicfiles for random mode
-    File dir = new File(Core.resourcePath + "music");
+    File dir = new File(Core.findResource("music"));
     File files[] = dir.listFiles(new MusicFileFilter());
     musicFiles = new String[files.length];
     for (int i = 0; i < files.length; i++) musicFiles[i] = files[i].getName();
@@ -74,12 +74,12 @@ public class Music {
    * @throws LemmException
    */
   public static void load(final String fName) throws ResourceException, LemmException {
-    if (fName.toLowerCase().indexOf(".mid") != -1) {
+    if (fName.toLowerCase().endsWith(".mid")) {
       // MIDI
       midiMusic = new MidiMusic(fName);
       if (type == Type.MOD) modMusic.close();
       type = Type.MIDI;
-    } else if (fName.toLowerCase().indexOf(".mod") != -1) {
+    } else if (fName.toLowerCase().endsWith(".mod")) {
       // MOD
       modMusic.load(fName);
       if (type == Type.MIDI) midiMusic.close();
@@ -200,8 +200,8 @@ class MusicFileFilter implements FileFilter {
   @Override
   public boolean accept(final File f) {
     if (!f.isFile()) return false;
-    if (f.getName().toLowerCase().indexOf(".mid") != -1) return true;
-    if (f.getName().toLowerCase().indexOf(".mod") != -1) return true;
+    if (f.getName().toLowerCase().endsWith(".mid")) return true;
+    if (f.getName().toLowerCase().endsWith(".mod")) return true;
     return false;
   }
 }

@@ -23,5 +23,5 @@ package Game;
  */
 public interface UpdateListener {
   /** Action to perform if Listener is called */
-  public void update();
+  public void update(String pack, String diff, GroupBitfield bf);
 }
