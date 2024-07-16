@@ -13,6 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -92,29 +94,7 @@ public class Core {
       // ini path
       programPropsFileStr = resourcePath + INI_NAME;
     } else {
-      String s = frame.getClass().getName().replace('.', '/') + ".class";
-      URL url = frame.getClass().getClassLoader().getResource(s);
-      int pos;
-      try {
-        programPropsFileStr = URLDecoder.decode(url.getPath(), "UTF-8");
-      } catch (UnsupportedEncodingException ex) {
-        throw new LemmException("File path is not utf8");
-      }
-
-      // special handling for JAR
-      if (((pos = programPropsFileStr.toLowerCase().indexOf("file:")) != -1))
-        programPropsFileStr = programPropsFileStr.substring(pos + 5);
-      if ((pos = programPropsFileStr.toLowerCase().indexOf(s.toLowerCase())) != -1)
-        programPropsFileStr = programPropsFileStr.substring(0, pos);
-
-      // @todo doesn't work if JAR is renamed...
-      // Maybe it would be a better idea to search only for ".JAR" and then
-      // for the first path separator...
-
-      s = (frame.getClass().getName().replace('.', '/') + ".jar").toLowerCase();
-      if ((pos = programPropsFileStr.toLowerCase().indexOf(s)) != -1)
-        programPropsFileStr = programPropsFileStr.substring(0, pos);
-      programPropsFileStr += INI_NAME;
+      programPropsFileStr = getBaseDir() + INI_NAME;
     }
 
     // read main ini file
@@ -185,6 +165,36 @@ public class Core {
       playerProps.set("player_0", "default");
     }
     player = new Player(defaultPlayer);
+  }
+
+  /**
+   * Get parent folder.
+   *
+   * @return path
+   */
+  private static String getBaseDir() throws LemmException {
+    String absClassPath;
+    String relClassPath = Core.class.getName().replace('.', '/') + ".class";
+    URL url = Core.class.getClassLoader().getResource(relClassPath);
+    try {
+      absClassPath = URLDecoder.decode(url.getPath(), "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      throw new LemmException("File path is not utf8");
+    }
+
+    // get path to jar file (if it's a jar file)
+    Pattern jarPattern = Pattern.compile("^file:(/.*/)[^/]+\\.jar!/", Pattern.CASE_INSENSITIVE);
+    Matcher jarMatcher = jarPattern.matcher(absClassPath);
+    if (jarMatcher.find()) return jarMatcher.group(1);
+
+    // not a jar, so get path of parent folder
+    Pattern classPattern = Pattern.compile("^(/.*/)" + relClassPath, Pattern.CASE_INSENSITIVE);
+    Matcher classMatcher = classPattern.matcher(absClassPath);
+
+    if (!classMatcher.find()) throw new LemmException("Bad file path");
+
+    // Avoid placing the lemmings.ini file in the build folder
+    return classMatcher.group(1).replaceFirst("/build/$", "/");
   }
 
   /**
