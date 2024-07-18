@@ -53,7 +53,7 @@ IF NOT EXIST build (
 )
 
 ECHO Running Java Compiler...
-javac -encoding UTF8 -d ./build Lemmini.java
+javac -d ./build Lemmini.java
 if %ERRORLEVEL% NEQ 0 (
 	ECHO failed
 	EXIT /B

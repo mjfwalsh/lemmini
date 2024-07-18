@@ -266,17 +266,16 @@ public class ExtractLevel {
     fo.write("\n#Name" + "\n");
     char cName[] = new char[32];
     for (int j = 0; j < 32; j++) {
+      byte c = b.getByte();
+
       // replace wrong apostrophes
-      char c = (char) (b.getByte() & 0xff);
-      if (c == '´' || c == '`') c = '\'';
-      cName[j] = c;
+      if (c == -76 || c == 96) cName[j] = '\'';
+
+      // ignore all control and non-ascii chars
+      else if (c >= 32 && c <= 126) cName[j] = (char) c;
+      else cName[j] = ' ';
     }
 
-    //	int pos = fnIn.lastIndexOf("\\");
-    //	if (pos == -1)
-    //		pos = fnIn.lastIndexOf("/");
-    //	if (pos > -1)
-    //		fnIn = fnIn.substring(pos+1);
     lvlName = String.valueOf(cName);
     fo.write("name = " + lvlName + "\n");
     fo.close();

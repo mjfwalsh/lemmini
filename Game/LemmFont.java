@@ -48,9 +48,8 @@ public class LemmFont {
   /** default width of one character in pixels */
   private static final int SPACING = 15;
 
-  /** character map */
-  private static final String CHARS =
-      "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_´abcdefghijklmnopqrstuvwxyz{|}~";
+  /** ascii chars from ! to ~ inclusive */
+  private static final int NUM_FONT_CHARS = 94;
 
   /** width of one character in pixels */
   private static int width;
@@ -71,7 +70,7 @@ public class LemmFont {
         ToolBox.ImageToBuffered(Core.loadImage("misc/lemmfontscaled.gif"), Transparency.BITMASK);
 
     width = SPACING; // sourceImg.getWidth(null);
-    height = sourceImg.getHeight(null) / CHARS.length();
+    height = sourceImg.getHeight(null) / NUM_FONT_CHARS;
     BufferedImage redImg =
         ToolBox.createImage(sourceImg.getWidth(), sourceImg.getHeight(), Transparency.BITMASK);
     BufferedImage blueImg =
@@ -83,7 +82,7 @@ public class LemmFont {
     BufferedImage violetImg =
         ToolBox.createImage(sourceImg.getWidth(), sourceImg.getHeight(), Transparency.BITMASK);
     img = new BufferedImage[7][];
-    img[0] = ToolBox.getAnimation(sourceImg, CHARS.length(), Transparency.BITMASK, width);
+    img[0] = ToolBox.getAnimation(sourceImg, NUM_FONT_CHARS, Transparency.BITMASK, width);
     for (int xp = 0; xp < sourceImg.getWidth(null); xp++)
       for (int yp = 0; yp < sourceImg.getHeight(null); yp++) {
         int col = sourceImg.getRGB(xp, yp); // A R G B
@@ -108,15 +107,15 @@ public class LemmFont {
         violetImg.setRGB(xp, yp, col);
       }
     img[Color.RED.ordinal()] =
-        ToolBox.getAnimation(redImg, CHARS.length(), Transparency.BITMASK, width);
+        ToolBox.getAnimation(redImg, NUM_FONT_CHARS, Transparency.BITMASK, width);
     img[Color.BLUE.ordinal()] =
-        ToolBox.getAnimation(blueImg, CHARS.length(), Transparency.BITMASK, width);
+        ToolBox.getAnimation(blueImg, NUM_FONT_CHARS, Transparency.BITMASK, width);
     img[Color.TURQUOISE.ordinal()] =
-        ToolBox.getAnimation(turquoiseImg, CHARS.length(), Transparency.BITMASK, width);
+        ToolBox.getAnimation(turquoiseImg, NUM_FONT_CHARS, Transparency.BITMASK, width);
     img[Color.BROWN.ordinal()] =
-        ToolBox.getAnimation(brownImg, CHARS.length(), Transparency.BITMASK, width);
+        ToolBox.getAnimation(brownImg, NUM_FONT_CHARS, Transparency.BITMASK, width);
     img[Color.VIOLET.ordinal()] =
-        ToolBox.getAnimation(violetImg, CHARS.length(), Transparency.BITMASK, width);
+        ToolBox.getAnimation(violetImg, NUM_FONT_CHARS, Transparency.BITMASK, width);
   }
 
   /**
@@ -131,14 +130,11 @@ public class LemmFont {
   public static void strImage(
       final Graphics2D g, final String s, final int sx, final int sy, final Color color) {
     for (int i = 0, x = sx; i < s.length(); i++, x += SPACING) {
-      char c = s.charAt(i);
-      if (c == ' ') continue;
-      int pos = CHARS.indexOf(c);
-      if (pos > -1 && pos < CHARS.length()) {
+      int pos = s.codePointAt(i) - 33;
+      if (pos > -1 && pos < NUM_FONT_CHARS) {
         g.drawImage(img[color.ordinal()][pos], x, sy, null);
       }
     }
-    return;
   }
 
   /**
@@ -173,7 +169,6 @@ public class LemmFont {
    */
   public static void strImage(final Graphics2D g, final String s, final Color color) {
     strImage(g, s, 0, 0, color);
-    return;
   }
 
   /**

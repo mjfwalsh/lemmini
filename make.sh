@@ -19,7 +19,7 @@
 compile_java()
 {
 	echo Running Java Compiler...
-	mkdir -p build && javac -encoding UTF8 -d ./build Lemmini.java
+	mkdir -p build && javac -d ./build Lemmini.java
 
 	if [ "$?" != "0" ]; then
 		echo Build Failed
