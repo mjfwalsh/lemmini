@@ -370,7 +370,7 @@ public class Core {
     if (p == null || p.length() == 0) p = ".";
     JFileChooser jf = new JFileChooser(p);
 
-    JFileFilter filter = new JFileFilter(Core.REPLAY_EXTENSIONS);
+    JFileFilter filter = new JFileFilter("Replay Files", Core.REPLAY_EXTENSIONS);
     jf.setFileFilter(filter);
 
     jf.setFileSelectionMode(JFileChooser.FILES_ONLY);
