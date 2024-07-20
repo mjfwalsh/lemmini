@@ -54,9 +54,6 @@ public class Extract extends Thread {
   /** output dialog */
   private OutputDialog outputDiag;
 
-  /** monitor the files created without erasing the target dir */
-  private HashMap<String, Object> createdFiles;
-
   /** source path (WINLEMM) for extraction */
   private String sourcePath;
 
@@ -79,9 +76,6 @@ public class Extract extends Thread {
    */
   @Override
   public void run() {
-    // to monitor the files created without erasing the target dir
-    createdFiles = new HashMap<String, Object>();
-
     try {
       // read ini file
       Props props = new Props();
@@ -141,7 +135,7 @@ public class Extract extends Thread {
         sprite.loadSPR(sourcePath + styles[0]);
         String files[] =
             sprite.saveAll(destinationPath + ToolBox.addSeparator(styles[2]) + styles[3], false);
-        for (int j = 0; j < files.length; j++) createdFiles.put(files[j].toLowerCase(), null);
+
         if (outputDiag.isCancelled()) return;
       }
 
@@ -164,8 +158,6 @@ public class Extract extends Thread {
           member = props.get(object[2] + "_" + Integer.toString(j), member);
           if (member[0] == null) break;
           // save object
-          createdFiles.put(
-              (destinationPath + ToolBox.addSeparator(object[3]) + member[2]).toLowerCase(), null);
           sprite.saveAnim(
               destinationPath + ToolBox.addSeparator(object[3]) + member[2],
               Integer.parseInt(member[0]),
@@ -197,7 +189,6 @@ public class Extract extends Thread {
         if (copy[0] == null) break;
         try {
           copyFile(sourcePath + copy[0], destinationPath + copy[1]);
-          createdFiles.put((destinationPath + copy[1]).toLowerCase(), null);
         } catch (Exception ex) {
           throw new ExtractException(
               "Copying " + sourcePath + copy[0] + " to " + destinationPath + copy[1] + " failed");
@@ -214,7 +205,6 @@ public class Extract extends Thread {
         if (clone[0] == null) break;
         try {
           copyFile(destinationPath + clone[0], destinationPath + clone[1]);
-          createdFiles.put((destinationPath + clone[1]).toLowerCase(), null);
         } catch (Exception ex) {
           throw new ExtractException(
               "Cloning "
@@ -357,7 +347,6 @@ public class Extract extends Thread {
       String fOut = level.getName();
       int pos = fOut.length() - 4; // file MUST end with ".lvl" because of file filter
       fOut = destination + (fOut.substring(0, pos) + ".ini").toLowerCase();
-      createdFiles.put(fOut.toLowerCase(), null);
       try {
         print(level.getName());
         ExtractLevel.convertLevel(fIn, fOut);
