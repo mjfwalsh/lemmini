@@ -33,8 +33,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -349,14 +347,6 @@ public class Lemmini extends JFrame implements KeyListener {
           else GameController.requestRestartLevel(false);
         });
     jMenuLevel.add(jMenuItemRestart);
-
-    jMenuItemLoad = new JMenuItem();
-    jMenuItemLoad.setText("Add Level Pack");
-    jMenuItemLoad.addActionListener(
-        (java.awt.event.ActionEvent e) -> {
-          addLevelPack();
-        });
-    jMenuLevel.add(jMenuItemLoad);
 
     jMenuItemReplay = new JMenuItem();
     jMenuItemReplay.setText("Load Replay");
@@ -721,53 +711,6 @@ public class Lemmini extends JFrame implements KeyListener {
       }
       sw.close();
     } catch (IOException ex) {
-    }
-  }
-
-  /** Add a level pack taken from a folder */
-  private void addLevelPack() {
-    // Run a popup for user to give directory
-    Path sourceDirectory = ToolBox.getFolderName(this);
-    if (sourceDirectory == null) return;
-
-    // Have we added this before?
-    Path name = sourceDirectory.getName(sourceDirectory.getNameCount() - 1);
-    Path targetDirectory = Core.findResource("levels/" + name.toString()).toPath();
-    if (Files.exists(targetDirectory)) {
-      JOptionPane.showMessageDialog(
-          Lemmini.this,
-          "Error!",
-          "Target directory already exists",
-          JOptionPane.INFORMATION_MESSAGE);
-      return;
-    }
-
-    // Add the level pack to the live application
-    try {
-      GameController.addLevelPack(sourceDirectory.toFile());
-    } catch (Exception ex) {
-      JOptionPane.showMessageDialog(
-          Lemmini.this,
-          "Error!",
-          "Failed to load level pack. Bad formatting?",
-          JOptionPane.INFORMATION_MESSAGE);
-      return;
-    }
-
-    // Add to menu
-    int lp = GameController.getLevelPackNum() - 1;
-    jMenuLevel.insert(makeLevelPackMenu(lp), lp - 1);
-
-    // copy source to target using Files Class
-    try {
-      ToolBox.copyFolder(sourceDirectory, targetDirectory);
-    } catch (Exception ex) {
-      JOptionPane.showMessageDialog(
-          Lemmini.this,
-          "Error!",
-          "Failed to copy pack to resource directory",
-          JOptionPane.INFORMATION_MESSAGE);
-      return;
     }
   }
 

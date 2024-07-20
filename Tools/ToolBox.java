@@ -10,7 +10,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import javax.swing.JFileChooser;
@@ -200,35 +199,5 @@ public class ToolBox {
       if (f != null) return f.getAbsoluteFile().toPath();
     }
     return null;
-  }
-
-  /**
-   * Copy folder and contents to destination folder.
-   *
-   * @param from an existing folder
-   * @param to folder to be created
-   */
-  public static void copyFolder(Path from, Path to) {
-    copyFolder(from.toFile(), to);
-  }
-
-  public static void copyFolder(File from, Path to) {
-    to.toFile().mkdirs();
-
-    File dir[] = from.listFiles();
-    for (int i = 0; i < dir.length; i++) {
-      Path f = dir[i].toPath();
-      Path t = to.resolve(dir[i].getName());
-
-      if (dir[i].isFile()) {
-        try {
-          Files.copy(f, t);
-        } catch (Exception ex) {
-          System.out.println("Failed: " + ex);
-        }
-      } else if (dir[i].isDirectory() && !Files.isSymbolicLink(f)) {
-        copyFolder(dir[i], t);
-      }
-    }
   }
 }
