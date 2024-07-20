@@ -58,20 +58,20 @@ public class ModMusic implements Runnable {
    */
   public void load(final String fn) throws ResourceException {
     if (mmThread != null) close();
-    String fName = Core.findResource(fn);
-    int datalen = (int) (new File(fName).length());
-    if (datalen < 0) throw new ResourceException(fName);
+    File file = Core.findResource(fn);
+    int datalen = (int) file.length();
+    if (datalen < 0) throw new ResourceException(file);
     try {
-      FileInputStream f = new FileInputStream(fName);
+      FileInputStream f = new FileInputStream(file);
       byte[] songdata = new byte[datalen];
       f.read(songdata);
       f.close();
       micromod = new Micromod(songdata, SAMPLE_RATE);
       setloop(true);
     } catch (FileNotFoundException ex) {
-      throw new ResourceException(fName);
+      throw new ResourceException(file);
     } catch (IOException ex) {
-      throw new ResourceException(fName + " (IO exception)");
+      throw new ResourceException(file.getAbsolutePath() + " (IO exception)");
     }
     mmThread = new Thread(this);
     mmThread.start();

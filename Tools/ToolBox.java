@@ -131,54 +131,18 @@ public class ToolBox {
   }
 
   /**
-   * Add (system default) path separator to string (if there isn't one already).
-   *
-   * @param fName String containing path name
-   * @return String that ends with the (system default) path separator for sure
-   */
-  public static String addSeparator(final String fName) {
-    if (fName.isEmpty()) return "/";
-    else if (fName.charAt(fName.length() - 1) == '/') return fName;
-    else return fName + "/";
-  }
-
-  /**
-   * Exchange any DOS style path separator ("\") with a Unix style separator ("/").
-   *
-   * @param fName String containing file/path name
-   * @return String with only Unix style path separators
-   */
-  public static String exchangeSeparators(String fName) {
-    return fName.replaceAll("\\\\", "/");
-  }
-
-  /**
-   * Return file name from path.
-   *
-   * @param path String of a path with a file name
-   * @return String containing only the file name
-   */
-  public static String getFileName(final String path) {
-    int p1 = path.lastIndexOf("/");
-    int p2 = path.lastIndexOf("\\");
-    if (p2 > p1) p1 = p2;
-    if (p1 < 0) p1 = 0;
-    else p1++;
-    return path.substring(p1);
-  }
-
-  /**
    * Returns the extension (".XXX") of a filename without the dot.
    *
    * @param path String containing file name
    * @return String containing only the extension (without the dot) or null (if no extension found)
    */
-  public static String getExtension(final String path) {
-    int p1 = path.lastIndexOf("/");
-    int p2 = path.lastIndexOf("\\");
-    int p = path.lastIndexOf(".");
-    if (p == -1 || p < p1 || p < p2) return null;
-    return path.substring(p + 1);
+  public static String getExtension(final File file) {
+    String filename = file.getName();
+    int i = filename.lastIndexOf('.');
+    if (i > 0 && i < filename.length() - 1) {
+      return filename.substring(i + 1).toLowerCase();
+    }
+    return null;
   }
 
   /**
@@ -200,20 +164,6 @@ public class ToolBox {
       return null;
     }
     return buf;
-  }
-
-  /**
-   * Get path name from absolute file name.
-   *
-   * @param path absolute file name
-   * @return path name without the separator
-   */
-  public static String getPathName(final String path) {
-    int p1 = path.lastIndexOf("/");
-    int p2 = path.lastIndexOf("\\");
-    if (p2 > p1) p1 = p2;
-    if (p1 < 0) p1 = 0;
-    return path.substring(0, p1);
   }
 
   /**

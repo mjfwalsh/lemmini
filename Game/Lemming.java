@@ -5,6 +5,7 @@ import Tools.ToolBox;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -1192,9 +1193,9 @@ public class Lemming {
   public static void loadLemmings() throws ResourceException {
     explodeFont = new ExplodeFont();
     // read lemmings definition file
-    String fn = Core.findResource(LEMM_INI_STR);
+    File file = Core.findResource(LEMM_INI_STR);
     Props p = new Props();
-    if (!p.load(fn)) throw new ResourceException(LEMM_INI_STR);
+    if (!p.load(file)) throw new ResourceException(LEMM_INI_STR);
     lemmings = new LemmingResource[NUM_RESOURCES];
     // read lemmings
     int def[] = {-1};

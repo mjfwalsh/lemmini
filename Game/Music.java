@@ -60,7 +60,7 @@ public class Music {
     modMusic = new ModMusic();
 
     // read available musicfiles for random mode
-    File dir = new File(Core.findResource("music"));
+    File dir = Core.findResource("music");
     File files[] = dir.listFiles(new MusicFileFilter());
     musicFiles = new String[files.length];
     for (int i = 0; i < files.length; i++) musicFiles[i] = files[i].getName();

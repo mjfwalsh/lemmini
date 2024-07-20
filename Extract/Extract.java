@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.zip.Adler32;
 
 /*
@@ -55,10 +54,10 @@ public class Extract extends Thread {
   private OutputDialog outputDiag;
 
   /** source path (WINLEMM) for extraction */
-  private String sourcePath;
+  private File sourcePath;
 
   /** destination path (Lemmini resource) for extraction */
-  private String destinationPath;
+  private File destinationPath;
 
   /** path of the DIF files */
   private static final String patchPath = "patch/";
@@ -97,14 +96,20 @@ public class Extract extends Thread {
         crcbuf = cprops.get("crc_" + Integer.toString(i), crcbuf);
         if (crcbuf[0] == null) break;
         print(crcbuf[0]);
-        long len = new File(sourcePath + crcbuf[0]).length();
-        if (len != Long.parseLong(crcbuf[1]))
-          throw new ExtractException("CRC error for file " + sourcePath + crcbuf[0] + ".\n");
-        byte src[] = readFile(sourcePath + crcbuf[0]);
+
+        File f = new File(sourcePath, crcbuf[0]);
+        if (!f.exists())
+          throw new ExtractException("File not found: " + f.getAbsolutePath() + ".\n");
+
+        if (f.length() != Long.parseLong(crcbuf[1]))
+          throw new ExtractException("CRC error for file " + f.getAbsolutePath() + ".\n");
+
+        byte src[] = readFile(f);
         Adler32 crc32 = new Adler32();
         crc32.update(src);
         if (Long.toHexString(crc32.getValue()).compareToIgnoreCase(crcbuf[2].substring(2)) != 0)
-          throw new ExtractException("CRC error for file " + sourcePath + crcbuf[0] + ".\n");
+          throw new ExtractException("CRC error for file " + f.getAbsolutePath() + ".\n");
+
         if (outputDiag.isCancelled()) return;
       }
 
@@ -115,7 +120,7 @@ public class Extract extends Thread {
         // 0: srcPath, 1: destPath
         lvls = props.get("level_" + Integer.toString(i), lvls);
         if (lvls[0] == null) break;
-        extractLevels(sourcePath + lvls[0], destinationPath + lvls[1]);
+        extractLevels(new File(sourcePath, lvls[0]), new File(destinationPath, lvls[1]));
         if (outputDiag.isCancelled()) return;
       }
 
@@ -128,13 +133,12 @@ public class Extract extends Thread {
         styles = props.get("style_" + Integer.toString(i), styles);
         if (styles[0] == null) break;
         print(styles[3]);
-        File dest = new File(destinationPath + styles[2]);
+        File dest = new File(destinationPath, styles[2]);
         dest.mkdirs();
         // load palette and sprite
-        sprite.loadPalette(sourcePath + styles[1]);
-        sprite.loadSPR(sourcePath + styles[0]);
-        String files[] =
-            sprite.saveAll(destinationPath + ToolBox.addSeparator(styles[2]) + styles[3], false);
+        sprite.loadPalette(sourcePath, styles[1]);
+        sprite.loadSPR(sourcePath, styles[0]);
+        sprite.saveAll(dest, styles[3], false);
 
         if (outputDiag.isCancelled()) return;
       }
@@ -147,11 +151,11 @@ public class Extract extends Thread {
         object = props.get("objects_" + Integer.toString(i), object);
         if (object[0] == null) break;
         print(object[0]);
-        File dest = new File(destinationPath + object[3]);
+        File dest = new File(destinationPath, object[3]);
         dest.mkdirs();
         // load palette and sprite
-        sprite.loadPalette(sourcePath + object[1]);
-        sprite.loadSPR(sourcePath + object[0]);
+        sprite.loadPalette(sourcePath, object[1]);
+        sprite.loadSPR(sourcePath, object[0]);
         for (int j = 0; true; j++) {
           String member[] = {null, null, null};
           // 0:idx, 1:frames, 2:name
@@ -159,9 +163,7 @@ public class Extract extends Thread {
           if (member[0] == null) break;
           // save object
           sprite.saveAnim(
-              destinationPath + ToolBox.addSeparator(object[3]) + member[2],
-              Integer.parseInt(member[0]),
-              Integer.parseInt(member[1]));
+              new File(dest, member[2]), Integer.parseInt(member[0]), Integer.parseInt(member[1]));
           if (outputDiag.isCancelled()) return;
         }
       }
@@ -175,7 +177,7 @@ public class Extract extends Thread {
         String path = props.get("mkdir_" + Integer.toString(i), "");
         if (path.length() == 0) break;
         print(path);
-        File dest = new File(destinationPath + path);
+        File dest = new File(destinationPath, path);
         dest.mkdirs();
         if (outputDiag.isCancelled()) return;
       }
@@ -187,12 +189,7 @@ public class Extract extends Thread {
         // 0: srcName, 1: destName
         copy = props.get("copy_" + Integer.toString(i), copy);
         if (copy[0] == null) break;
-        try {
-          copyFile(sourcePath + copy[0], destinationPath + copy[1]);
-        } catch (Exception ex) {
-          throw new ExtractException(
-              "Copying " + sourcePath + copy[0] + " to " + destinationPath + copy[1] + " failed");
-        }
+        copyFile(new File(sourcePath, copy[0]), new File(destinationPath, copy[1]));
         if (outputDiag.isCancelled()) return;
       }
 
@@ -203,18 +200,7 @@ public class Extract extends Thread {
         // 0: srcName, 1: destName
         clone = props.get("clone_" + Integer.toString(i), clone);
         if (clone[0] == null) break;
-        try {
-          copyFile(destinationPath + clone[0], destinationPath + clone[1]);
-        } catch (Exception ex) {
-          throw new ExtractException(
-              "Cloning "
-                  + destinationPath
-                  + clone[0]
-                  + " to "
-                  + destinationPath
-                  + clone[1]
-                  + " failed");
-        }
+        copyFile(new File(destinationPath, clone[0]), new File(destinationPath, clone[1]));
         if (outputDiag.isCancelled()) return;
       }
 
@@ -234,19 +220,8 @@ public class Extract extends Thread {
         if (copy[0] == null) break;
         print(copy[0]);
         String fnDecorated = copy[0].replace('/', '@');
-        URL fnc = findFile(patchPath + fnDecorated /*, pprops*/);
-        try {
-          copyFile(fnc, destinationPath + copy[0]);
-        } catch (Exception ex) {
-          throw new ExtractException(
-              "Copying "
-                  + patchPath
-                  + ToolBox.getFileName(copy[0])
-                  + " to "
-                  + destinationPath
-                  + copy[0]
-                  + " failed");
-        }
+        URL fnc = findFile(patchPath + fnDecorated);
+        copyFile(fnc, new File(destinationPath, copy[0]));
         if (outputDiag.isCancelled()) return;
       }
       // patch
@@ -261,19 +236,28 @@ public class Extract extends Thread {
         int pos = fnDif.toLowerCase().lastIndexOf('.');
         if (pos == -1) pos = fnDif.length();
         fnDif = fnDif.substring(0, pos) + ".dif";
+
         URL urlDif = findFile(patchPath + fnDif);
+        File fileSrc = new File(destinationPath, ppath[0]);
+
         if (urlDif == null)
           throw new ExtractException(
-              "Patching of file " + destinationPath + ppath[0] + " failed.\n");
+              "Patching of file " + fileSrc.getAbsolutePath() + " failed.\n");
         byte dif[] = readFile(urlDif);
-        byte src[] = readFile(destinationPath + ppath[0]);
+        byte src[] = readFile(fileSrc);
+
         try {
           byte trg[] = Diff.patchbuffers(src, dif);
           // write new file
-          writeFile(destinationPath + ppath[0], trg);
+          writeFile(new File(destinationPath, ppath[0]), trg);
         } catch (DiffException ex) {
           throw new ExtractException(
-              "Patching of file " + destinationPath + ppath[0] + " failed.\n" + ex.getMessage());
+              "Patching of file "
+                  + destinationPath.getAbsolutePath()
+                  + "/"
+                  + ppath[0]
+                  + " failed.\n"
+                  + ex.getMessage());
         }
         if (outputDiag.isCancelled()) return;
       }
@@ -304,7 +288,7 @@ public class Extract extends Thread {
    * @param srcPath WINLEMM directory
    * @param dstPath target (installation) directory. May also be a relative path inside JAR
    */
-  public Extract(final String srcPath, final String dstPath) {
+  public Extract(final File srcPath, final File dstPath) {
     sourcePath = srcPath;
     destinationPath = dstPath;
 
@@ -329,27 +313,23 @@ public class Extract extends Thread {
    * @param dest destination folder for extraction (resource folder)
    * @throws ExtractException
    */
-  private void extractLevels(final String r, final String destin) throws ExtractException {
+  private void extractLevels(final File root, final File dest) throws ExtractException {
     // first extract the levels
-    File fRoot = new File(r);
     FilenameFilter ff = new LvlFilter();
-
-    String root = ToolBox.addSeparator(r);
-    String destination = ToolBox.addSeparator(destin);
-    File dest = new File(destination);
     dest.mkdirs();
 
-    File[] levels = fRoot.listFiles(ff);
+    File[] levels = root.listFiles(ff);
     if (levels == null)
       throw new ExtractException("Path " + root + " doesn't exist or IO error occured.");
     for (File level : levels) {
-      String fIn = root + level.getName();
-      String fOut = level.getName();
-      int pos = fOut.length() - 4; // file MUST end with ".lvl" because of file filter
-      fOut = destination + (fOut.substring(0, pos) + ".ini").toLowerCase();
+      String n = level.getName();
+      int pos = n.length() - 4; // file MUST end with ".lvl" because of file filter
+      n = n.substring(0, pos).toLowerCase() + ".ini";
+      File fOut = new File(dest, n);
+
       try {
         print(level.getName());
-        ExtractLevel.convertLevel(fIn, fOut);
+        ExtractLevel.convertLevel(level, fOut);
       } catch (Exception ex) {
         String msg = ex.getMessage();
         if (msg != null && msg.length() > 0) print(ex.getMessage());
@@ -367,16 +347,20 @@ public class Extract extends Thread {
    * @throws FileNotFoundException
    * @throws IOException
    */
-  private static void copyFile(final URL source, final String destination)
-      throws FileNotFoundException, IOException {
-    InputStream fSrc = source.openStream();
-    FileOutputStream fDest = new FileOutputStream(destination);
-    byte buffer[] = new byte[4096];
-    int len;
+  private static void copyFile(final URL source, final File destination) throws ExtractException {
+    try {
+      InputStream fSrc = source.openStream();
+      FileOutputStream fDest = new FileOutputStream(destination);
+      byte buffer[] = new byte[4096];
+      int len;
 
-    while ((len = fSrc.read(buffer)) != -1) fDest.write(buffer, 0, len);
-    fSrc.close();
-    fDest.close();
+      while ((len = fSrc.read(buffer)) != -1) fDest.write(buffer, 0, len);
+      fSrc.close();
+      fDest.close();
+    } catch (Exception ex) {
+      throw new ExtractException(
+          "Copying " + source.toString() + " to " + destination.getAbsolutePath() + " failed");
+    }
   }
 
   /**
@@ -387,16 +371,24 @@ public class Extract extends Thread {
    * @throws FileNotFoundException
    * @throws IOException
    */
-  private static void copyFile(final String source, final String destination)
-      throws FileNotFoundException, IOException {
-    FileInputStream fSrc = new FileInputStream(source);
-    FileOutputStream fDest = new FileOutputStream(destination);
-    byte buffer[] = new byte[4096];
-    int len;
+  private static void copyFile(final File source, final File destination) throws ExtractException {
+    try {
+      FileInputStream fSrc = new FileInputStream(source);
+      FileOutputStream fDest = new FileOutputStream(destination);
+      byte buffer[] = new byte[4096];
+      int len;
 
-    while ((len = fSrc.read(buffer)) != -1) fDest.write(buffer, 0, len);
-    fSrc.close();
-    fDest.close();
+      while ((len = fSrc.read(buffer)) != -1) fDest.write(buffer, 0, len);
+      fSrc.close();
+      fDest.close();
+    } catch (Exception ex) {
+      throw new ExtractException(
+          "Copying "
+              + source.getAbsolutePath()
+              + " to "
+              + destination.getAbsolutePath()
+              + " failed");
+    }
   }
 
   /**
@@ -406,19 +398,19 @@ public class Extract extends Thread {
    * @return array of byte
    * @throws ExtractException
    */
-  private static byte[] readFile(final String fname) throws ExtractException {
+  private static byte[] readFile(final File file) throws ExtractException {
     byte buf[] = null;
     try {
-      int len = (int) (new File(fname).length());
-      FileInputStream f = new FileInputStream(fname);
+      int len = (int) file.length();
+      FileInputStream f = new FileInputStream(file);
       buf = new byte[len];
       f.read(buf);
       f.close();
       return buf;
     } catch (FileNotFoundException ex) {
-      throw new ExtractException("File " + fname + " not found");
+      throw new ExtractException("File " + file.getAbsolutePath() + " not found");
     } catch (IOException ex) {
-      throw new ExtractException("IO exception while reading file " + fname);
+      throw new ExtractException("IO exception while reading file " + file.getAbsolutePath());
     }
   }
 
@@ -462,13 +454,13 @@ public class Extract extends Thread {
    * @param buf array of byte
    * @throws ExtractException
    */
-  private static void writeFile(final String fname, final byte buf[]) throws ExtractException {
+  private static void writeFile(final File fname, final byte buf[]) throws ExtractException {
     try {
       FileOutputStream f = new FileOutputStream(fname);
       f.write(buf);
       f.close();
     } catch (IOException ex) {
-      throw new ExtractException("IO exception while writing file " + fname);
+      throw new ExtractException("IO exception while writing file " + fname.getAbsolutePath());
     }
   }
 
@@ -478,7 +470,7 @@ public class Extract extends Thread {
    * @param fname File name (without absolute path)
    * @return URL to file
    */
-  public static URL findFile(final String fname) {
+  private static URL findFile(final String fname) {
     URL retval = loader.getResource(fname);
     try {
       if (retval == null) retval = new File(fname).toURI().toURL();
@@ -499,13 +491,12 @@ public class Extract extends Thread {
   }
 
   /** Extract a single file from the jar where necessary */
-  public static void extractSingleFile(String from, String to) {
-    File newFontFile = new File(to);
+  public static void extractSingleFile(String from, File newFontFile) {
     if (newFontFile.exists()) return;
 
     try {
       URL fontFile = findFile(from);
-      copyFile(fontFile, to);
+      copyFile(fontFile, newFontFile);
     } catch (Exception ex) {
     }
   }

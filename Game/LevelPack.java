@@ -1,7 +1,7 @@
 package Game;
 
 import Tools.Props;
-import Tools.ToolBox;
+import java.io.File;
 import java.util.ArrayList;
 
 /*
@@ -41,7 +41,7 @@ public class LevelPack {
   private LevelInfo lvlInfo[][];
 
   /** path of level pack - where the INI files for the level are located */
-  private String path;
+  private File path;
 
   /** maximum number of pixels a Lemming can fall before he dies */
   private int maxFallDistance;
@@ -52,7 +52,7 @@ public class LevelPack {
   /** Constructor for dummy level pack. Needed for loading single levels. */
   public LevelPack() {
     name = "test";
-    path = "";
+    path = new File("");
     codeSeed = "AAAAAAAAAA";
     maxFallDistance = 126;
     codeOffset = 0;
@@ -71,15 +71,15 @@ public class LevelPack {
   /**
    * Constructor for loading a level pack.
    *
-   * @param fname file name of level pack ini
+   * @param file File of level pack ini
    * @throws ResourceException
    */
-  public LevelPack(final String fname) throws ResourceException {
+  public LevelPack(final File file) throws ResourceException {
     // extract path from descriptor file
-    path = ToolBox.getPathName(fname);
+    path = file.getParentFile();
     // load the descriptor file
     Props props = new Props();
-    if (!props.load(fname)) {
+    if (!props.load(file)) {
       name = "empty";
       return;
     }
@@ -122,14 +122,15 @@ public class LevelPack {
         levelStr = props.get(diffLevel.toLowerCase() + "_" + Integer.toString(idx), def);
         // filename, music number
         if (levelStr.length == 2) {
+          File iniFile = new File(path, levelStr[0]);
+
           // get name from ini file
           Props lvlProps = new Props();
-          lvlProps.load(path + "/" /*+lvlPath+"/"*/ + levelStr[0]);
+          lvlProps.load(iniFile);
           // Now put everything together
           LevelInfo info = new LevelInfo();
-          info.setFileName(path + "/" /*+lvlPath+"/"*/ + levelStr[0]);
-          info.setMusic(music.get(Integer.parseInt(levelStr[1 /*2*/])));
-          // info.code = levelStr[1];
+          info.setFileName(iniFile.getAbsolutePath());
+          info.setMusic(music.get(Integer.parseInt(levelStr[1])));
           info.setName(lvlProps.get("name", "")); // only used in menu
           levels.add(info);
         }

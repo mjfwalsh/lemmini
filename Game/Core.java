@@ -5,7 +5,6 @@ import Extract.FolderDialog;
 import GUI.LegalDialog;
 import Tools.JFileFilter;
 import Tools.Props;
-import Tools.ToolBox;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +59,7 @@ public class Core {
   public static Props programProps;
 
   /** path of (extracted) resources */
-  private static String resourcePath;
+  private static File resourcePath;
 
   /** current player */
   public static Player player;
@@ -85,21 +84,22 @@ public class Core {
     cmp = frame;
 
     // get ini path
-    String programPropsFileStr;
+    File programPropsFile;
 
     if (System.getProperty("os.name").equals("Mac OS X")) {
       // resourcePath and programPropsFileStr are in fixed places on Mac
-      resourcePath = System.getProperty("user.home") + "/Library/Application Support/Lemmini/";
+      resourcePath =
+          new File(System.getProperty("user.home"), "Library/Application Support/Lemmini");
 
       // ini path
-      programPropsFileStr = resourcePath + INI_NAME;
+      programPropsFile = new File(resourcePath, INI_NAME);
     } else {
-      programPropsFileStr = getBaseDir() + INI_NAME;
+      programPropsFile = new File(getBaseDir(), INI_NAME);
     }
 
     // read main ini file
     programProps = new Props();
-    if (!programProps.load(programPropsFileStr)) { // might exist or not - if not, it's created
+    if (!programProps.load(programPropsFile)) { // might exist or not - if not, it's created
       LegalDialog ld = new LegalDialog(null, true);
       ld.setVisible(true);
       if (!ld.isOk()) System.exit(0);
@@ -108,14 +108,13 @@ public class Core {
     if (!System.getProperty("os.name").equals("Mac OS X")) {
       resourcePath = getFolder("resourcePath");
     }
-    String sourcePath = getFolder("sourcePath");
+    File sourcePath = getFolder("sourcePath");
     String rev = programProps.get("revision", "");
 
-    if (sourcePath.length() < 1 || resourcePath.length() < 1 || !REVISION.equalsIgnoreCase(rev)) {
+    if (sourcePath == null || resourcePath == null || !REVISION.equalsIgnoreCase(rev)) {
 
       // start dialog to prompt user for resource and source paths
-      FolderDialog fDiag = new FolderDialog();
-      fDiag.setParameters(sourcePath, resourcePath);
+      FolderDialog fDiag = new FolderDialog(sourcePath, resourcePath);
       fDiag.setVisible(true);
       if (!fDiag.getSuccess()) System.exit(0);
 
@@ -137,7 +136,7 @@ public class Core {
     } else {
       // A little hacky but this saves user from having to a full extract operation for one new file
       Extract.extractSingleFile(
-          "patch/misc@lemmfontscaled.gif", resourcePath + "misc/lemmfontscaled.gif");
+          "patch/misc@lemmfontscaled.gif", new File(resourcePath, "misc/lemmfontscaled.gif"));
     }
 
     // load misc settings
@@ -151,7 +150,7 @@ public class Core {
 
     // read player names
     playerProps = new Props();
-    playerProps.load(resourcePath + "players.ini");
+    playerProps.load(new File(resourcePath, "players.ini"));
     String defaultPlayer = playerProps.get("defaultPlayer", "default");
     players = new ArrayList<String>();
     for (int idx = 0; true; idx++) {
@@ -172,7 +171,7 @@ public class Core {
    *
    * @return path
    */
-  private static String getBaseDir() throws LemmException {
+  private static File getBaseDir() throws LemmException {
     String absClassPath;
     String relClassPath = Core.class.getName().replace('.', '/') + ".class";
     URL url = Core.class.getClassLoader().getResource(relClassPath);
@@ -185,7 +184,7 @@ public class Core {
     // get path to jar file (if it's a jar file)
     Pattern jarPattern = Pattern.compile("^file:(/.*/)[^/]+\\.jar!/", Pattern.CASE_INSENSITIVE);
     Matcher jarMatcher = jarPattern.matcher(absClassPath);
-    if (jarMatcher.find()) return jarMatcher.group(1);
+    if (jarMatcher.find()) return new File(jarMatcher.group(1));
 
     // not a jar, so get path of parent folder
     Pattern classPattern = Pattern.compile("^(/.*/)" + relClassPath, Pattern.CASE_INSENSITIVE);
@@ -193,8 +192,11 @@ public class Core {
 
     if (!classMatcher.find()) throw new LemmException("Bad file path");
 
+    File baseDir = new File(classMatcher.group(1));
+
     // Avoid placing the lemmings.ini file in the build folder
-    return classMatcher.group(1).replaceFirst("/build/$", "/");
+    if (baseDir.getName().equals("build")) return baseDir.getParentFile();
+    else return baseDir;
   }
 
   /**
@@ -212,8 +214,8 @@ public class Core {
    * @param fname file name (without path)
    * @return absolute path to resource
    */
-  public static synchronized String findResource(final String fname) {
-    return resourcePath + fname;
+  public static synchronized File findResource(final String fname) {
+    return new File(resourcePath, fname);
   }
 
   /** Save properties */
@@ -288,7 +290,7 @@ public class Core {
         URL url = loader.getResource(fName);
         image = ImageIO.read(url);
       } else {
-        File file = new File(resourcePath + fName);
+        File file = new File(resourcePath, fName);
         image = ImageIO.read(file);
       }
     } catch (IOException ex) {
@@ -339,8 +341,10 @@ public class Core {
    *
    * @param string folder path
    */
-  private static String getFolder(String name) {
-    return ToolBox.exchangeSeparators(ToolBox.addSeparator(programProps.get(name, "")));
+  private static File getFolder(String name) {
+    String path = programProps.get(name, "");
+    if (path.isEmpty()) return null;
+    else return new File(path);
   }
 
   /**
@@ -348,10 +352,9 @@ public class Core {
    *
    * @param string folder path
    */
-  private static String saveFolder(String name, String folder) {
-    String path = ToolBox.exchangeSeparators(ToolBox.addSeparator(folder));
-    programProps.set(name, path);
-    return path;
+  private static File saveFolder(String name, File folder) {
+    programProps.set(name, folder.toString());
+    return folder;
   }
 
   /**
@@ -362,21 +365,19 @@ public class Core {
    * @param load true: load, false: save
    * @return absolute file name of selected file or null
    */
-  public static String promptForReplayFile(final boolean load) {
+  public static File promptForReplayFile(final boolean load) {
     String p = System.getProperty("user.home");
     if (p == null || p.length() == 0) p = ".";
     JFileChooser jf = new JFileChooser(p);
 
-    JFileFilter filter = new JFileFilter();
-    for (String ext : Core.REPLAY_EXTENSIONS) filter.addExtension(ext);
+    JFileFilter filter = new JFileFilter(Core.REPLAY_EXTENSIONS);
     jf.setFileFilter(filter);
 
     jf.setFileSelectionMode(JFileChooser.FILES_ONLY);
     if (!load) jf.setDialogType(JFileChooser.SAVE_DIALOG);
     int returnVal = jf.showDialog(cmp, null);
     if (returnVal == JFileChooser.APPROVE_OPTION) {
-      File f = jf.getSelectedFile();
-      if (f != null) return f.getAbsolutePath();
+      return jf.getSelectedFile();
     }
     return null;
   }

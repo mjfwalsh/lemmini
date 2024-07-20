@@ -119,7 +119,7 @@ public class Sound {
     try {
       for (int i = 0; i < sampleNum; i++) {
         fName = "sound/sound_" + Integer.toString(i) + ".wav";
-        File fs = new File(Core.findResource(fName));
+        File fs = Core.findResource(fName);
         AudioInputStream f = AudioSystem.getAudioInputStream(fs.toURI().toURL());
         format[i] = f.getFormat();
         info[i] = new DataLine.Info(Clip.class, format[i]);

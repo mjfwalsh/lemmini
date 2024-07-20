@@ -48,10 +48,10 @@ public class FolderDialog extends JDialog {
   private static final long serialVersionUID = 0x01;
 
   /** target (Lemmini resource) path for extraction */
-  private String targetPath;
+  private File targetPath;
 
   /** source (WINLEMM) path for extraction */
-  private String sourcePath; //  @jve:decl-index=0:
+  private File sourcePath; //  @jve:decl-index=0:
 
   /** flag that tells whether to extract or not */
   private boolean doExtract = false;
@@ -59,10 +59,10 @@ public class FolderDialog extends JDialog {
   /**
    * Constructor for modal dialog in parent frame
    *
-   * @param frame parent frame
-   * @param modal create modal dialog?
+   * @param srcPath source (WINLEMM) path for extraction
+   * @param trgPath target (Lemmini resource) path for extraction
    */
-  public FolderDialog() {
+  public FolderDialog(final File srcPath, final File trgPath) {
     super((JFrame) null, true);
 
     initContentPane();
@@ -76,20 +76,12 @@ public class FolderDialog extends JDialog {
     p.x -= getWidth() / 2;
     p.y -= getHeight() / 2;
     setLocation(p);
-  }
 
-  /**
-   * Set parameters for text edit boxes.
-   *
-   * @param srcPath source (WINLEMM) path for extraction
-   * @param trgPath target (Lemmini resource) path for extraction
-   */
-  public void setParameters(final String srcPath, final String trgPath) {
-    jTextFieldSrc.setText(srcPath);
+    if (srcPath != null) jTextFieldSrc.setText(srcPath.getAbsolutePath());
     sourcePath = srcPath;
 
     if (!System.getProperty("os.name").equals("Mac OS X")) {
-      jTextFieldTrg.setText(trgPath);
+      if (trgPath != null) jTextFieldTrg.setText(trgPath.getAbsolutePath());
       targetPath = trgPath;
     }
   }
@@ -99,9 +91,8 @@ public class FolderDialog extends JDialog {
    *
    * @return target (Lemmini resource) path for extraction
    */
-  public String getTarget() {
-    if (targetPath != null) return targetPath;
-    else return "";
+  public File getTarget() {
+    return targetPath;
   }
 
   /**
@@ -109,9 +100,8 @@ public class FolderDialog extends JDialog {
    *
    * @return source (WINLEMM) path for extraction
    */
-  public String getSource() {
-    if (sourcePath != null) return sourcePath;
-    else return "";
+  public File getSource() {
+    return sourcePath;
   }
 
   /**
@@ -202,7 +192,7 @@ public class FolderDialog extends JDialog {
       jTextFieldTrg = new JTextField();
       jTextFieldTrg.addActionListener(
           (java.awt.event.ActionEvent e) -> {
-            targetPath = jTextFieldTrg.getText();
+            targetPath = new File(jTextFieldTrg.getText());
           });
     }
     return jTextFieldTrg;
@@ -218,7 +208,7 @@ public class FolderDialog extends JDialog {
       jTextFieldSrc = new JTextField();
       jTextFieldSrc.addActionListener(
           (java.awt.event.ActionEvent e) -> {
-            sourcePath = jTextFieldSrc.getText();
+            sourcePath = new File(jTextFieldSrc.getText());
           });
     }
     return jTextFieldSrc;
@@ -239,8 +229,8 @@ public class FolderDialog extends JDialog {
             jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int returnVal = jf.showOpenDialog(FolderDialog.this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-              sourcePath = jf.getSelectedFile().getAbsolutePath();
-              jTextFieldSrc.setText(sourcePath);
+              sourcePath = jf.getSelectedFile().getAbsoluteFile();
+              jTextFieldSrc.setText(sourcePath.getAbsolutePath());
             }
           });
     }
@@ -262,8 +252,8 @@ public class FolderDialog extends JDialog {
             jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int returnVal = jf.showOpenDialog(FolderDialog.this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-              targetPath = jf.getSelectedFile().getAbsolutePath();
-              jTextFieldTrg.setText(targetPath);
+              targetPath = jf.getSelectedFile().getAbsoluteFile();
+              jTextFieldTrg.setText(targetPath.getAbsolutePath());
             }
           });
     }
@@ -298,17 +288,16 @@ public class FolderDialog extends JDialog {
       jButtonExtract.setText("Extract");
       jButtonExtract.addActionListener(
           (java.awt.event.ActionEvent e) -> {
-            sourcePath = jTextFieldSrc.getText();
+            sourcePath = new File(jTextFieldSrc.getText());
             if (!System.getProperty("os.name").equals("Mac OS X")) {
-              targetPath = jTextFieldTrg.getText();
+              targetPath = new File(jTextFieldTrg.getText());
             }
 
             // check if source path exists
-            File fSrc = new File(sourcePath);
-            if (!fSrc.exists()) {
+            if (!sourcePath.exists()) {
               JOptionPane.showMessageDialog(
                   FolderDialog.this,
-                  sourcePath + " doesn't exist!",
+                  sourcePath.getAbsolutePath() + " doesn't exist!",
                   "Error",
                   JOptionPane.ERROR_MESSAGE);
             } else {

@@ -35,7 +35,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -279,7 +278,7 @@ public class Lemmini extends JFrame implements KeyListener {
             for (int i = 0; i < Core.getPlayerNum(); i++) {
               String p = Core.getPlayer(i);
               if (!players.contains(p)) {
-                File f = new File(Core.findResource("players/" + p + ".ini"));
+                File f = Core.findResource("players/" + p + ".ini");
                 f.delete();
                 if (p.equals(player)) player = "default";
               }
@@ -363,7 +362,7 @@ public class Lemmini extends JFrame implements KeyListener {
     jMenuItemReplay.setText("Load Replay");
     jMenuItemReplay.addActionListener(
         (java.awt.event.ActionEvent e) -> {
-          String replayPath = Core.promptForReplayFile(true);
+          File replayPath = Core.promptForReplayFile(true);
           if (replayPath != null) {
             try {
               if (ToolBox.getExtension(replayPath).equalsIgnoreCase("rpl")) {
@@ -733,7 +732,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
     // Have we added this before?
     Path name = sourceDirectory.getName(sourceDirectory.getNameCount() - 1);
-    Path targetDirectory = Paths.get(Core.findResource("levels/" + name.toString()));
+    Path targetDirectory = Core.findResource("levels/" + name.toString()).toPath();
     if (Files.exists(targetDirectory)) {
       JOptionPane.showMessageDialog(
           Lemmini.this,
@@ -745,7 +744,7 @@ public class Lemmini extends JFrame implements KeyListener {
 
     // Add the level pack to the live application
     try {
-      GameController.addLevelPack(sourceDirectory.toString());
+      GameController.addLevelPack(sourceDirectory.toFile());
     } catch (Exception ex) {
       JOptionPane.showMessageDialog(
           Lemmini.this,
@@ -837,7 +836,7 @@ public class Lemmini extends JFrame implements KeyListener {
             GameController.setSuperLemming(!GameController.isSuperLemming());
           else {
             try {
-              File file = new File(Core.findResource("/level.png"));
+              File file = Core.findResource("level.png");
               BufferedImage tmp =
                   GameController.getLevel()
                       .createMiniMap(null, GameController.getBgImage(), 1, 1, false);

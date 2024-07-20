@@ -56,7 +56,7 @@ public class Player {
     // read main ini file
     props = new Props();
     // create players directory if it doesn't exist
-    File dest = new File(Core.findResource("players"));
+    File dest = Core.findResource("players");
     dest.mkdirs();
 
     // might exist or not - if not, it's created

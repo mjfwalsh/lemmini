@@ -95,13 +95,13 @@ public class ReplayStream {
   /**
    * Load replay buffer from file.
    *
-   * @param fname file name
+   * @param file file
    * @return replay information
    */
-  public ReplayLevelInfo load(final String fname) {
+  public ReplayLevelInfo load(final File file) {
     try {
       ArrayList<ReplayEvent> ev = new ArrayList<ReplayEvent>();
-      BufferedReader f = new BufferedReader(new FileReader(fname));
+      BufferedReader f = new BufferedReader(new FileReader(file));
       String line = f.readLine();
       if (!line.equals("#REPLAY")) {
         f.close();
@@ -159,9 +159,9 @@ public class ReplayStream {
    * @param fname file name
    * @return true if save ok, false otherwise
    */
-  public boolean save(final String fname) {
+  public boolean save(final File file) {
     try {
-      FileWriter f = new FileWriter(new File(fname));
+      FileWriter f = new FileWriter(file);
       f.write("#REPLAY\n");
       LevelPack lp = GameController.getCurLevelPack();
       f.write(

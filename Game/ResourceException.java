@@ -1,5 +1,7 @@
 package Game;
 
+import java.io.File;
+
 /*
  * Copyright 2009 Volker Oth
  *
@@ -27,6 +29,15 @@ public class ResourceException extends Exception {
   /** Constructor. */
   public ResourceException() {
     super();
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param f Exception file
+   */
+  public ResourceException(final File s) {
+    super(s.getAbsolutePath());
   }
 
   /**

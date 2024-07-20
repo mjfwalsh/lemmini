@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /*
@@ -49,14 +48,15 @@ public class ExtractSPR {
    * @return ColorModel representation of Palette
    * @throws ExtractException
    */
-  Palette loadPalette(final String fname) throws ExtractException {
+  Palette loadPalette(final File folder, final String file) throws ExtractException {
     byte buffer[];
+    File f = new File(folder, file);
 
     // read file into buffer
     int paletteSize = 0;
+    String fname = f.getAbsolutePath();
     try {
-      File f = new File(fname);
-      FileInputStream fi = new FileInputStream(fname);
+      FileInputStream fi = new FileInputStream(f);
       buffer = new byte[(int) f.length()];
       fi.read(buffer);
       fi.close();
@@ -67,7 +67,7 @@ public class ExtractSPR {
     }
     // check header
     if (buffer[0] != 0x20 || buffer[1] != 0x4c || buffer[2] != 0x41 || buffer[3] != 0x50)
-      throw new ExtractException("File " + fname + " ist not a lemmings palette file");
+      throw new ExtractException("File " + fname + " is not a lemmings palette file");
 
     paletteSize = unsigned(buffer[4]) + unsigned(buffer[5]) * 256; // number of palette entries
 
@@ -144,15 +144,17 @@ public class ExtractSPR {
    * @return Array of Images representing all images stored in the SPR file
    * @throws ExtractException
    */
-  GIFImage[] loadSPR(final String fname) throws ExtractException {
+  GIFImage[] loadSPR(final File folder, final String file) throws ExtractException {
     byte buffer[];
+
+    File f = new File(folder, file);
+    String fname = f.getAbsolutePath();
 
     if (palette == null) throw new ExtractException("Load Palette first!");
 
     // read file into buffer
     try {
-      File f = new File(fname);
-      FileInputStream fi = new FileInputStream(fname);
+      FileInputStream fi = new FileInputStream(f);
       buffer = new byte[(int) f.length()];
       fi.read(buffer);
       fi.close();
@@ -272,12 +274,12 @@ public class ExtractSPR {
    * @return Array of all the filenames stored
    * @throws ExtractException
    */
-  String[] saveAll(final String fname, final boolean keepAnims) throws ExtractException {
+  public void saveAll(final File folder, final String prefix, final boolean keepAnims)
+      throws ExtractException {
     int width = images[0].getWidth();
     int height = images[0].getHeight();
     int startIdx = 0;
     int animNum = 0;
-    ArrayList<String> files = new ArrayList<String>();
 
     for (int idx = 1; idx <= images.length; idx++) {
       // search for first image with different size
@@ -300,18 +302,16 @@ public class ExtractSPR {
 
       startIdx = idx;
       // construct filename
-      String fn = fname + "_" + Integer.toString(animNum++) + ".gif";
+      File f = new File(folder, String.format("%s_%d.gif", prefix, animNum++));
       // save gif
-      saveGif(anim, fn);
-      files.add(fn.toLowerCase());
+      saveGif(anim, f);
+
       // remember new size
       if (idx < images.length) {
         width = images[idx].getWidth();
         height = images[idx].getHeight();
       }
     }
-    String[] fileArray = new String[files.size()];
-    return files.toArray(fileArray);
   }
 
   /**
@@ -322,7 +322,7 @@ public class ExtractSPR {
    * @param frames Number of frames to store
    * @throws ExtractException
    */
-  void saveAnim(final String fname, final int startIdx, final int frames) throws ExtractException {
+  void saveAnim(final File fname, final int startIdx, final int frames) throws ExtractException {
     int width = images[startIdx].getWidth();
     int height = images[startIdx].getHeight();
 
@@ -346,7 +346,7 @@ public class ExtractSPR {
    * @param fname Name of GIF file to create (".gif" will NOT be appended)
    * @throws ExtractException
    */
-  public static void saveGif(final GIFImage img, final String fname) throws ExtractException {
+  public static void saveGif(final GIFImage img, final File fname) throws ExtractException {
     GifEncoder gifEnc =
         new GifEncoder(
             img.getWidth(),
@@ -361,9 +361,9 @@ public class ExtractSPR {
       gifEnc.write(f);
       f.close();
     } catch (FileNotFoundException ex) {
-      throw new ExtractException("Can't open file " + fname + " for writing.");
+      throw new ExtractException("Can't open file " + fname.getAbsolutePath() + " for writing.");
     } catch (IOException ex) {
-      throw new ExtractException("I/O error while writing file " + fname);
+      throw new ExtractException("I/O error while writing file " + fname.getAbsolutePath());
     }
   }
 

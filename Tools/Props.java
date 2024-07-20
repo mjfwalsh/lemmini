@@ -1,5 +1,6 @@
 package Tools;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -236,6 +237,25 @@ public class Props {
 
     try {
       InputStream f = file.openStream();
+      hash.load(f);
+      f.close();
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
+  }
+
+  /**
+   * Load property file
+   *
+   * @param fname File name of property file
+   * @return True if OK, false if exception occurred
+   */
+  public boolean load(final File fname) {
+    propertyFileName = fname.toString();
+
+    try {
+      FileInputStream f = new FileInputStream(fname);
       hash.load(f);
       f.close();
       return true;

@@ -437,7 +437,7 @@ public class GameController {
     level = new Level();
     // read level packs
 
-    File dir = new File(Core.findResource("levels"));
+    File dir = Core.findResource("levels");
     File files[] = dir.listFiles();
     // now get the names of the directories
     ArrayList<String> dirs = new ArrayList<String>();
@@ -642,7 +642,7 @@ public class GameController {
     initLevel();
     if (doReplay) {
       replayMode = true;
-      replay.save(Core.findResource("/replay.rpl"));
+      replay.save(Core.findResource("replay.rpl"));
       replay.rewind();
     } else {
       replayMode = false;
@@ -1570,8 +1570,8 @@ public class GameController {
    * @param fn file name
    * @return replay level info object
    */
-  public static synchronized ReplayLevelInfo loadReplay(final String fn) {
-    return replay.load(fn);
+  public static synchronized ReplayLevelInfo loadReplay(final File f) {
+    return replay.load(f);
   }
 
   /**
@@ -1580,8 +1580,8 @@ public class GameController {
    * @param fn file name
    * @return true if saved successfully, false otherwise
    */
-  public static synchronized boolean saveReplay(final String fn) {
-    return replay.save(fn);
+  public static synchronized boolean saveReplay(final File f) {
+    return replay.save(f);
   }
 
   /**
@@ -1889,8 +1889,8 @@ public class GameController {
    *
    * @param absolute path of level pack folder
    */
-  public static synchronized void addLevelPack(String folder) throws ResourceException {
-    levelPack.add(new LevelPack(folder + "/levelpack.ini"));
+  public static synchronized void addLevelPack(File folder) throws ResourceException {
+    levelPack.add(new LevelPack(new File(folder, "levelpack.ini")));
   }
 }
 

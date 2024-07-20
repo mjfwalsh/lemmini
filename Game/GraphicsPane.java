@@ -12,6 +12,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -625,13 +626,14 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
             GameController.requestRestartLevel(true);
             break;
           case TextScreen.BUTTON_SAVEREPLAY:
-            String replayPath = Core.promptForReplayFile(false);
+            File replayFile = Core.promptForReplayFile(false);
 
-            if (replayPath != null) {
+            if (replayFile != null) {
               try {
-                String ext = ToolBox.getExtension(replayPath);
-                if (ext == null) replayPath += ".rpl";
-                if (GameController.saveReplay(replayPath)) return;
+                String ext = ToolBox.getExtension(replayFile);
+                if (ext == null) replayFile = new File(replayFile.getAbsolutePath() + ".rpl");
+
+                if (GameController.saveReplay(replayFile)) return;
                 // else: no success
                 JOptionPane.showMessageDialog(
                     Core.getCmp(),

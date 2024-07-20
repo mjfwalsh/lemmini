@@ -108,34 +108,28 @@ public class ExtractLevel {
    * @param fnOut Name of target text file
    * @throws Exception
    */
-  public static void convertLevel(final String fnIn, final String fnOut) throws Exception {
+  public static void convertLevel(final File fnIn, final File fnOut) throws Exception {
     // read file into buffer
     LevelBuffer b;
     try {
-      File f = new File(fnIn);
-      if (f.length() != 2048)
+      if (fnIn.length() != 2048)
         throw new Exception("Lemmings level files must be 2048 bytes in size!");
       FileInputStream fi = new FileInputStream(fnIn);
-      byte buffer[] = new byte[(int) f.length()];
+      byte buffer[] = new byte[(int) fnIn.length()];
       fi.read(buffer);
       b = new LevelBuffer(buffer);
       fi.close();
     } catch (FileNotFoundException e) {
-      throw new Exception("File " + fnIn + " not found");
+      throw new Exception("File " + fnIn.getAbsolutePath() + " not found");
     } catch (IOException e) {
-      throw new Exception("I/O error while reading " + fnIn);
+      throw new Exception("I/O error while reading " + fnIn.getAbsolutePath());
     }
     // output file
     FileWriter fo = new FileWriter(fnOut);
     // add only file name without the path in the first line
-    int p1 = fnIn.lastIndexOf("/");
-    int p2 = fnIn.lastIndexOf("\\");
-    if (p2 > p1) p1 = p2;
-    if (p1 < 0) p1 = 0;
-    else p1++;
-    String fn = fnIn.substring(p1);
+
     // analyze buffer
-    fo.write("# LVL extracted by Lemmini # " + fn + "\n");
+    fo.write("# LVL extracted by Lemmini # " + fnIn.getName() + "\n");
     // read configuration in big endian word
     releaseRate = b.getWord();
     fo.write("releaseRate = " + releaseRate + "\n");

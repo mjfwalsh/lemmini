@@ -12,6 +12,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.PixelGrabber;
 import java.awt.image.WritableRaster;
+import java.io.File;
 import java.util.ArrayList;
 
 /*
@@ -247,7 +248,7 @@ public class Level {
     // load objects
     sprObjAvailable = null;
     // first load the data from object descriptor file xxx.ini
-    String fnames = Core.findResource("styles/" + strStyle + "/" + strStyle + ".ini");
+    File fnames = Core.findResource("styles/" + strStyle + "/" + strStyle + ".ini");
     props = new Props();
     if (!props.load(fnames)) {
       if (style != -1) throw new ResourceException(fnames);
