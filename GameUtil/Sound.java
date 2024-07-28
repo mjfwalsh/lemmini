@@ -211,7 +211,7 @@ public class Sound {
    * @param idx index of the sound to be played
    */
   public synchronized void play(final int idx) {
-    if (!GameController.isSoundOn() || simulSounds >= MAX_SIMUL_SOUNDS /*|| clips==null*/) return;
+    if (!GameController.isSoundOn() || simulSounds >= MAX_SIMUL_SOUNDS) return;
 
     try {
       Clip c = (Clip) mixers[mixerIdx].getLine(info[idx]);

@@ -125,7 +125,7 @@ public class ReplayStream {
         int i[] = new int[e.length];
         for (int j = 0; j < e.length; j++) i[j] = Integer.parseInt(e[j].trim());
 
-        switch (i[1] /* type*/) {
+        switch (i[1]) {
           case ASSIGN_SKILL:
             ev.add(new ReplayAssignSkillEvent(i[0], Lemming.Type.get(i[2]), i[3]));
             break;

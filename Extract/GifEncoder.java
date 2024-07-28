@@ -358,7 +358,7 @@ public class GifEncoder {
 
   void compress(final int init_bits, final OutputStream outs) throws IOException {
     int fcode;
-    int i /* = 0 */;
+    int i;
     int c;
     int ent;
     int disp;

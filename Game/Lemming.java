@@ -1365,8 +1365,8 @@ public class Lemming {
           {
             // int fa = freeAbove(4);
             int fb = freeBelow(FALLER_STEP);
-            if (/*fa <= 0 ||*/ fb != 0) return false;
-            // x = x & ~1; // start building at even positions
+            if (fb != 0) return false;
+            // start building at even positions
             changeType(type, skill);
             counter = 0;
             return true;

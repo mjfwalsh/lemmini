@@ -207,8 +207,7 @@ public class Extract extends Thread {
       // step eight: use patch.ini to extract/patch all files
       // read patch.ini file
       Props pprops = new Props();
-      URL fnp =
-          findFile(patchPath + patchIniName /*, this*/); // if it's in the JAR or local directory
+      URL fnp = findFile(patchPath + patchIniName); // if it's in the JAR or local directory
       if (!pprops.load(fnp))
         throw new ExtractException("File " + patchIniName + " not found or error while reading");
       // copy

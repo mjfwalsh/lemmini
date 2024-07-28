@@ -94,18 +94,18 @@ public class LevelCodeDialog extends JDialog {
 
     // own stuff
     Point p = frame.getLocation();
-    this.setLocation(
+    setLocation(
         p.x + frame.getWidth() / 2 - getWidth() / 2, p.y + frame.getHeight() / 2 - getHeight() / 2);
     init();
 
-    this.pack();
+    pack();
   }
 
   /** Automatically generated init. */
   private void initialize() {
-    this.setTitle("Enter Level Code");
-    this.setContentPane(getJContentPane());
-    this.setResizable(false);
+    setTitle("Enter Level Code");
+    setContentPane(getJContentPane());
+    setResizable(false);
   }
 
   /**

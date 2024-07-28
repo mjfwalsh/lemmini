@@ -95,7 +95,7 @@ public class Mask {
     int xMax = Math.min(x0 + width, bgImage.getWidth());
     int yMax = Math.min(y0 + height, bgImage.getHeight());
 
-    int bgCol = 0 /*GameController.level.bgCol*/;
+    int bgCol = 0;
 
     for (int y = y0; y < yMax; y++, pos += width, sPos += bgImage.getWidth()) {
       if (y < 0) continue;
@@ -157,7 +157,7 @@ public class Mask {
         if (x < 0) continue;
         boolean drawSmallX = (x % scaleX) <= 0;
         int s = stencil.get(sPos + x);
-        if (m[pos + x - x0] != 0 /*&& (s & Stencil.MSK_WALK_ON) == 0*/) {
+        if (m[pos + x - x0] != 0) {
           // mask pixel set
           if ((s & Stencil.MSK_WALK_ON) == 0) s |= Stencil.MSK_BRICK;
           stencil.set(sPos + x, s | Stencil.MSK_STAIR); // set type in stencil

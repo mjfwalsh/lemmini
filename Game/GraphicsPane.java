@@ -122,7 +122,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   private ReentrantLock drawLock;
 
   /** Zoom scale */
-  private double m_scale = 1.0;
+  private double scale = 1.0;
 
   /** internal draw width */
   private int internalWidth = 800;
@@ -150,10 +150,10 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     super();
 
     drawLock = new ReentrantLock();
-    this.requestFocus();
-    this.setCursor(LemmCursor.getCursor());
-    this.addMouseListener(this);
-    this.addMouseMotionListener(this);
+    requestFocus();
+    setCursor(LemmCursor.getCursor());
+    addMouseListener(this);
+    addMouseMotionListener(this);
 
     offImage = new BufferedImage[2];
     offGraphics = new Graphics2D[2];
@@ -183,16 +183,16 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
       double newScale = (float) newSize.height / DRAWHEIGHT;
       if (newScale < 1.0f) newScale = 1.0f;
-      m_scale = newScale;
+      scale = newScale;
 
-      double new_draw_width = (float) newSize.width / m_scale;
+      double new_draw_width = (float) newSize.width / scale;
       if (new_draw_width < MINDRAWWIDTH) new_draw_width = MINDRAWWIDTH;
       else if (new_draw_width > MAXDRAWWIDTH) new_draw_width = MAXDRAWWIDTH;
       internalWidth = (int) new_draw_width;
 
-      double scaledWidth = m_scale * (double) internalWidth;
-      double scaledHeight = m_scale * (double) DRAWHEIGHT;
-      this.setSize((int) scaledWidth, (int) scaledHeight);
+      double scaledWidth = scale * (double) internalWidth;
+      double scaledHeight = scale * (double) DRAWHEIGHT;
+      setSize((int) scaledWidth, (int) scaledHeight);
     } finally {
       drawLock.unlock();
     }
@@ -235,7 +235,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     drawLock.lock();
     try {
       forceRedraw = true;
-      m_scale = s;
+      scale = s;
     } finally {
       drawLock.unlock();
     }
@@ -248,7 +248,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   public void setCursor(final LemmCursor.Type c) {
     LemmCursor.setType(c);
-    this.setCursor(LemmCursor.getCursor());
+    setCursor(LemmCursor.getCursor());
   }
 
   /**
@@ -258,7 +258,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   public void enableCursor(boolean en) {
     LemmCursor.setEnabled(en);
-    this.setCursor(LemmCursor.getCursor());
+    setCursor(LemmCursor.getCursor());
   }
 
   /* (non-Javadoc)
@@ -270,9 +270,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     try {
       if (offImage != null) {
         int w = internalWidth;
-        int scaledWidth = (int) (w * m_scale);
+        int scaledWidth = (int) (w * scale);
         int h = DRAWHEIGHT;
-        int scaledHeight = (int) (h * m_scale);
+        int scaledHeight = (int) (h * scale);
         g.drawImage(offImage[activeBuffer], 0, 0, scaledWidth, scaledHeight, 0, 0, w, h, null);
       }
     } finally {
@@ -327,13 +327,13 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
           TextScreen.drawDebriefing(internalWidth, forceRedraw);
           forceRedraw = false;
           TextScreen.getDialog()
-              .handleMouseMove((int) (xMouseScreen / m_scale), (int) (yMouseScreen / m_scale));
+              .handleMouseMove((int) (xMouseScreen / scale), (int) (yMouseScreen / scale));
           offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
           break;
 
         case LEVEL:
         case LEVEL_END:
-          drawLevelEnd(offGfx);
+          drawLevel(offGfx);
           break;
       }
 
@@ -348,21 +348,20 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     }
   }
 
-  /** draw the level end */
-  private void drawLevelEnd(Graphics2D offGfx) {
+  /** draw the level */
+  private void drawLevel(Graphics2D offGfx) {
     BufferedImage bgImage = GameController.getBgImage();
     if (bgImage == null) return;
 
     GameController.update();
     // mouse movement
-    if (yMouseScreen > 40
-        && yMouseScreen < scoreY * m_scale) { // avoid scrolling if menu is selected
+    if (yMouseScreen > 40 && yMouseScreen < scoreY * scale) { // avoid scrolling if menu is selected
       int xOfsTemp;
-      if (xMouseScreen > this.getWidth() - AUTOSCROLL_RANGE * m_scale) {
+      if (xMouseScreen > getWidth() - AUTOSCROLL_RANGE * scale) {
         xOfsTemp = GameController.getxPos() + ((shiftPressed) ? X_STEP_FAST : X_STEP);
-        if (xOfsTemp < Level.WIDTH - this.getWidth() / m_scale) GameController.setxPos(xOfsTemp);
-        else GameController.setxPos((int) (Level.WIDTH - this.getWidth() / m_scale));
-      } else if (xMouseScreen < AUTOSCROLL_RANGE * m_scale) {
+        if (xOfsTemp < Level.WIDTH - getWidth() / scale) GameController.setxPos(xOfsTemp);
+        else GameController.setxPos((int) (Level.WIDTH - getWidth() / scale));
+      } else if (xMouseScreen < AUTOSCROLL_RANGE * scale) {
         xOfsTemp = GameController.getxPos() - ((shiftPressed) ? X_STEP_FAST : X_STEP);
         if (xOfsTemp > 0) GameController.setxPos(xOfsTemp);
         else GameController.setxPos(0);
@@ -455,7 +454,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       Stencil stencil = GameController.getStencil();
       if (stencil != null) {
         int pos = xMouse + yMouse * Level.WIDTH;
-        pos = (int) (pos / m_scale);
+        pos = (int) (pos / scale);
         int stencilVal = stencil.get(pos);
         String test =
             "x: "
@@ -496,12 +495,12 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     BufferedImage replayImage = GameController.getReplayImage();
     if (replayImage != null)
       offGfx.drawImage(
-          replayImage, this.getWidth() - 2 * replayImage.getWidth(), replayImage.getHeight(), null);
+          replayImage, getWidth() - 2 * replayImage.getWidth(), replayImage.getHeight(), null);
     // draw cursor
     if (lemmUnderCursor != null) {
       int lx, ly;
-      lx = (int) (xMouseScreen / m_scale);
-      ly = (int) (yMouseScreen / m_scale);
+      lx = (int) (xMouseScreen / scale);
+      ly = (int) (yMouseScreen / scale);
       enableCursor(false);
       BufferedImage cursorImg = LemmCursor.getBoxImage();
       lx -= cursorImg.getWidth() / 2;
@@ -559,8 +558,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   @Override
   public void mouseReleased(final MouseEvent mouseevent) {
-    int x = (int) (mouseevent.getX() / m_scale);
-    int y = (int) (mouseevent.getY() / m_scale);
+    int x = (int) (mouseevent.getX() / scale);
+    int y = (int) (mouseevent.getY() / scale);
     mouseDx = 0;
     mouseDy = 0;
     if (mouseevent.getButton() == MouseEvent.BUTTON1) leftMousePressed = false;
@@ -595,8 +594,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   @Override
   public void mousePressed(final MouseEvent mouseevent) {
-    int x = (int) (mouseevent.getX() / m_scale);
-    int y = (int) (mouseevent.getY() / m_scale);
+    int x = (int) (mouseevent.getX() / scale);
+    int y = (int) (mouseevent.getY() / scale);
     mouseDx = 0;
     mouseDy = 0;
     if (mouseevent.getButton() == MouseEvent.BUTTON1) leftMousePressed = true;
@@ -662,7 +661,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
             if (l != null) GameController.requestSkill(l);
           }
           // check minimap mouse move
-          int ofs = MiniMap.move(x, y, (int) (this.getWidth() / m_scale), getSmallX());
+          int ofs = MiniMap.move(x, y, (int) (getWidth() / scale), getSmallX());
           if (ofs != -1) GameController.setxPos(ofs);
           mouseevent.consume();
         }
@@ -701,8 +700,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   public void mouseEntered(final MouseEvent mouseevent) {
     mouseDx = 0;
     mouseDy = 0;
-    int x = (int) (mouseevent.getX() / m_scale);
-    int y = (int) (mouseevent.getY() / m_scale);
+    int x = (int) (mouseevent.getX() / scale);
+    int y = (int) (mouseevent.getY() / scale);
     LemmCursor.setX(x);
     LemmCursor.setY(y);
   }
@@ -717,16 +716,16 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case BRIEFING:
       case DEBRIEFING:
       case LEVEL:
-        if (x >= this.getWidth()) x = this.getWidth() - 1;
+        if (x >= getWidth()) x = getWidth() - 1;
         if (x < 0) x = 0;
         xMouseScreen = x;
-        x += GameController.getxPos() * m_scale;
+        x += GameController.getxPos() * scale;
         if (x >= Level.WIDTH) x = Level.WIDTH - 1;
         xMouse = x;
-        LemmCursor.setX((int) (xMouseScreen / m_scale));
+        LemmCursor.setX((int) (xMouseScreen / scale));
 
         int y = yMouseScreen + mouseDy;
-        if (y >= this.getHeight()) y = this.getHeight() - 1;
+        if (y >= getHeight()) y = getHeight() - 1;
         if (y < 0) y = 0;
         yMouseScreen = y;
 
@@ -734,7 +733,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
         if (y >= Level.HEIGHT) y = Level.HEIGHT - 1;
         if (y < 0) y = 0;
         yMouse = y;
-        LemmCursor.setY((int) (yMouseScreen / m_scale));
+        LemmCursor.setY((int) (yMouseScreen / scale));
         mouseevent.consume();
         break;
     }
@@ -750,16 +749,16 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     // check minimap mouse move
     switch (GameController.getGameState()) {
       case LEVEL:
-        int x = (int) (mouseevent.getX() / m_scale);
-        int y = (int) (mouseevent.getY() / m_scale);
+        int x = (int) (mouseevent.getX() / scale);
+        int y = (int) (mouseevent.getY() / scale);
         if (leftMousePressed) {
-          int ofs = MiniMap.move(x, y, (int) (this.getWidth() / m_scale), getSmallX());
+          int ofs = MiniMap.move(x, y, (int) (getWidth() / scale), getSmallX());
           if (ofs != -1) GameController.setxPos(ofs);
         } else {
           int xOfsTemp = GameController.getxPos() + (x - mouseDragStartX);
           if (xOfsTemp < 0) xOfsTemp = 0;
-          else if (xOfsTemp >= Level.WIDTH - this.getWidth() / m_scale)
-            GameController.setxPos((int) (Level.WIDTH - this.getWidth() / m_scale));
+          else if (xOfsTemp >= Level.WIDTH - getWidth() / scale)
+            GameController.setxPos((int) (Level.WIDTH - getWidth() / scale));
           else GameController.setxPos(xOfsTemp);
         }
         // debug drawing
@@ -778,22 +777,22 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     int oldX = xMouse;
     int oldY = yMouse;
 
-    int x = (int) ((mouseevent.getX() / m_scale + GameController.getxPos()));
-    int y = (int) (mouseevent.getY() / m_scale);
+    int x = (int) ((mouseevent.getX() / scale + GameController.getxPos()));
+    int y = (int) (mouseevent.getY() / scale);
     if (x >= Level.WIDTH) x = Level.WIDTH - 1;
     if (y >= Level.HEIGHT) y = Level.HEIGHT - 1;
-    xMouse = (int) (x * m_scale);
-    yMouse = (int) (y * m_scale);
+    xMouse = (int) (x * scale);
+    yMouse = (int) (y * scale);
 
     // LemmCursor
     xMouseScreen = mouseevent.getX();
-    if (xMouseScreen >= this.getWidth()) xMouseScreen = this.getWidth();
+    if (xMouseScreen >= getWidth()) xMouseScreen = getWidth();
     else if (xMouseScreen < 0) xMouseScreen = 0;
     yMouseScreen = mouseevent.getY();
-    if (yMouseScreen >= this.getHeight()) yMouseScreen = this.getHeight();
+    if (yMouseScreen >= getHeight()) yMouseScreen = getHeight();
     else if (yMouseScreen < 0) yMouseScreen = 0;
-    LemmCursor.setX((int) (xMouseScreen / m_scale));
-    LemmCursor.setY((int) (yMouseScreen / m_scale));
+    LemmCursor.setX((int) (xMouseScreen / scale));
+    LemmCursor.setY((int) (yMouseScreen / scale));
 
     if (fullScreen) {
       getParent().getComponent(0).setVisible(y < 5);
@@ -804,12 +803,12 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case BRIEFING:
       case DEBRIEFING:
         TextScreen.getDialog()
-            .handleMouseMove((int) (xMouseScreen / m_scale), (int) (yMouseScreen / m_scale));
+            .handleMouseMove((int) (xMouseScreen / scale), (int) (yMouseScreen / scale));
         // $FALL-THROUGH$
       case LEVEL:
         mouseDx = (xMouse - oldX);
         mouseDy = (yMouse - oldY);
-        mouseDragStartX = (int) (mouseevent.getX() / m_scale);
+        mouseDragStartX = (int) (mouseevent.getX() / scale);
         mouseevent.consume();
         break;
     }

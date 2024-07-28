@@ -95,16 +95,16 @@ public class PlayerDialog extends JDialog {
 
     // own stuff
     Point p = frame.getLocation();
-    this.setLocation(
+    setLocation(
         p.x + frame.getWidth() / 2 - getWidth() / 2, p.y + frame.getHeight() / 2 - getHeight() / 2);
     init();
   }
 
   /** Automatically generated init. */
   private void initialize() {
-    this.setSize(442, 199);
-    this.setTitle("Manage Players");
-    this.setContentPane(getJContentPane());
+    setSize(442, 199);
+    setTitle("Manage Players");
+    setContentPane(getJContentPane());
   }
 
   /**

@@ -164,41 +164,28 @@ public class Level {
 
     // read name
     lvlName = p.get("name", "");
-    // out(fname + " - " + lvlName);
+
     maxFallDistance =
         p.get("maxFallDistance", GameController.getCurLevelPack().getMaxFallDistance());
     // read configuration in big endian word
     releaseRate = p.get("releaseRate", -1);
-    // out("releaseRate = " + releaseRate);
     numLemmings = p.get("numLemmings", -1);
-    // out("numLemmings = " + numLemmings);
     numToRescue = p.get("numToRescue", -1);
-    // out("numToRescue = " + numToRescue);
     timeLimitSeconds = p.get("timeLimitSeconds", -1);
     if (timeLimitSeconds == -1) {
       int timeLimit = p.get("timeLimit", -1);
       timeLimitSeconds = timeLimit * 60;
     }
 
-    // out("timeLimit = " + timeLimit);
     numClimbers = p.get("numClimbers", -1);
-    // out("numClimbers = " + numClimbers);
     numFloaters = p.get("numFloaters", -1);
-    // out("numFloaters = " + numFloaters);
     numBombers = p.get("numBombers", -1);
-    // out("numBombers = " + numBombers);
     numBlockers = p.get("numBlockers", -1);
-    // out("numBlockers = " + numBlockers);
     numBuilders = p.get("numBuilders", -1);
-    // out("numBuilders = " + numBuilders);
     numBashers = p.get("numBashers", -1);
-    // out("numBashers = " + numBashers);
     numMiners = p.get("numMiners", -1);
-    // out("numMiners = " + numMiners);
     numDiggers = p.get("numDiggers", -1);
-    // out("numDiggers = " + numDiggers);
     xPos = p.get("xPos", -1);
-    // out("xPos = " + xPos);
     String strStyle = p.get("style", "");
     int style;
     style = -1;
@@ -207,46 +194,39 @@ public class Level {
         style = i;
         break;
       }
-    // out("style = " + styles[style]);
     superlemming = p.get("superlemming", false);
 
     // read objects
-    // out("\n[Objects]");
     objects = new ArrayList<LvlObject>();
     int def[] = {-1};
-    for (int i = 0; true /*i < 32*/; i++) {
+    for (int i = 0; true; i++) {
       int[] val = p.get("object_" + i, def);
       if (val.length == 5) {
         LvlObject obj = new LvlObject(val);
         objects.add(obj);
-        // out("" + obj.id + ", " + obj.xPos + ", " + obj.yPos + ", "+ obj.paintMode + ", " +
-        // obj.upsideDown);
       } else break;
     }
     // read terrain
-    // out("\n[Terrain]");
     terrain = new ArrayList<Terrain>();
-    for (int i = 0; true /*i < 400*/; i++) {
+    for (int i = 0; true; i++) {
       int[] val = p.get("terrain_" + i, def);
       if (val.length == 4) {
         Terrain ter = new Terrain(val);
         terrain.add(ter);
-        // out("" + ter.id + ", " + ter.xPos + ", " + ter.yPos + ", " + ter.modifier);
       } else break;
     }
     // read steel blocks
-    // out("\n[Steel]");
     steel = new ArrayList<Steel>();
-    for (int i = 0; true /*i < 32*/; i++) {
+    for (int i = 0; true; i++) {
       int[] val = p.get("steel_" + i, def);
       if (val.length == 4) {
         Steel stl = new Steel(val);
         steel.add(stl);
-        // out("" + stl.xPos + ", " + stl.yPos + ", " + stl.width + ", " + stl.height);
       } else break;
     }
     // load objects
     sprObjAvailable = null;
+
     // first load the data from object descriptor file xxx.ini
     File fnames = Core.findResource("styles/" + strStyle + "/" + strStyle + ".ini");
     props = new Props();
@@ -319,7 +299,7 @@ public class Level {
               // don't overwrite -> only paint if background is transparent
               if (stencil.get(yLineStencil + tx + x) == Stencil.MSK_EMPTY) paint = true;
             } else if (remove) {
-              bgImage.setRGB(x + tx, y + ty, 0 /*bgCol*/);
+              bgImage.setRGB(x + tx, y + ty, 0);
               stencil.set(yLineStencil + tx + x, Stencil.MSK_EMPTY);
             } else paint = true;
             if (paint) {
@@ -719,7 +699,7 @@ public class Level {
             if (sum != 0) sum += 0x60;
             // sum *= 3; // make lighter
             if (sum > 0xff) sum = 0xff;
-            c = 0xff000000 + /*((sum<<16)&0xff0000)*/ +((sum << 8) & 0xff00) /*+ sum*/;
+            c = 0xff000000 + ((sum << 8) & 0xff00);
           }
           img.setRGB(x, y, c);
         }

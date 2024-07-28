@@ -68,7 +68,7 @@ public class GainDialog extends JDialog {
 
     // dialogue window position
     Point p = frame.getLocation();
-    this.setLocation(
+    setLocation(
         p.x + frame.getWidth() / 2 - getWidth() / 2, p.y + frame.getHeight() / 2 - getHeight() / 2);
 
     // start values
@@ -80,15 +80,15 @@ public class GainDialog extends JDialog {
     jSliderSound.setEnabled(GameController.isSoundOn());
 
     // finish window
-    this.pack();
+    pack();
   }
 
   /** Automatically generated init. */
   private void initialize() {
-    this.setMinimumSize(new Dimension(300, 10));
-    this.setResizable(false);
-    this.setTitle("Volume Controls");
-    this.setContentPane(getJContentPane());
+    setMinimumSize(new Dimension(300, 10));
+    setResizable(false);
+    setTitle("Volume Controls");
+    setContentPane(getJContentPane());
   }
 
   /**

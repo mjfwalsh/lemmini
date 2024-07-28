@@ -103,24 +103,24 @@ public class LegalDialog extends JDialog {
     // own stuff
     if (frame != null) {
       Point p = frame.getLocation();
-      this.setLocation(
+      setLocation(
           p.x + frame.getWidth() / 2 - getWidth() / 2,
           p.y + frame.getHeight() / 2 - getHeight() / 2);
     } else {
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       Point p = ge.getCenterPoint();
-      p.x -= this.getWidth() / 2;
-      p.y -= this.getHeight() / 2;
-      this.setLocation(p);
+      p.x -= getWidth() / 2;
+      p.y -= getHeight() / 2;
+      setLocation(p);
     }
     init();
   }
 
   /** Automatically generated init. */
   private void initialize() {
-    this.setSize(675, 480);
-    this.setTitle("Lemmini - Disclaimer");
-    this.setContentPane(getJContentPane());
+    setSize(675, 480);
+    setTitle("Lemmini - Disclaimer");
+    setContentPane(getJContentPane());
   }
 
   /**
