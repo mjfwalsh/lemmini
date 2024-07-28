@@ -4,7 +4,6 @@ import GUI.PlayerDialog;
 import Game.Core;
 import Game.GameController;
 import Game.GraphicsPane;
-import Game.GroupBitfield;
 import Game.Icons;
 import Game.LemmCursor;
 import Game.LemmException;
@@ -33,6 +32,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -661,7 +661,7 @@ public class Lemmini extends JFrame implements KeyListener {
       String difficulties[] = lPack.getDiffLevels();
       for (int i = 0; i < difficulties.length; i++) {
         // get activated levels for this group
-        GroupBitfield bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
+        BigInteger bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
         updateLevelMenu(lPack.getName(), difficulties[i], bf);
       }
     }
@@ -674,7 +674,7 @@ public class Lemmini extends JFrame implements KeyListener {
    * @param diff name of difficulty level
    * @param bf bitmap containing availability flags for each level
    */
-  private void updateLevelMenu(final String pack, final String diff, final GroupBitfield bf) {
+  private void updateLevelMenu(final String pack, final String diff, final BigInteger bf) {
     ArrayList<LvlMenuItem> menuItems = diffLevelMenus.get(LevelPack.getID(pack, diff));
     for (int k = 0; k < menuItems.size(); k++) {
       // select level, e.g. "All fall down"
@@ -1011,7 +1011,7 @@ public class Lemmini extends JFrame implements KeyListener {
     String difficulties[] = lPack.getDiffLevels();
     for (int i = 0; i < difficulties.length; i++) {
       // get activated levels for this group
-      GroupBitfield bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
+      BigInteger bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
       String names[] = lPack.getLevels(i);
       JMenu jMenuDiff = new JMenu(difficulties[i]);
       // store menus to access them later
@@ -1041,7 +1041,7 @@ public class Lemmini extends JFrame implements KeyListener {
      * @see Game.UpdateListener#update()
      */
     @Override
-    public void update(String pack, String diff, GroupBitfield bf) {
+    public void update(String pack, String diff, BigInteger bf) {
       // update the menu
       updateLevelMenu(pack, diff, bf);
     }

@@ -12,6 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -614,7 +615,7 @@ public class GameController {
         if (num >= lvlPack.getLevels(GameController.getCurDiffLevel()).length)
           num = GameController.getCurLevelNumber();
         // set next level as available
-        GroupBitfield bf = Core.player.setAvailable(pack, diff, num);
+        BigInteger bf = Core.player.setAvailable(pack, diff, num);
         // update the menu
         levelMenuUpdateListener.update(pack, diff, bf);
       }

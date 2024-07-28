@@ -2,6 +2,7 @@ package Game;
 
 import Tools.Props;
 import java.io.File;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class Player {
   private Props props;
 
   /** used to store level progress */
-  private HashMap<String, GroupBitfield> lvlGroup;
+  private HashMap<String, BigInteger> lvlGroup;
 
   /** cheat mode enabled? */
   private boolean cheat;
@@ -52,7 +53,7 @@ public class Player {
    */
   public Player(final String n) {
     name = n;
-    lvlGroup = new HashMap<String, GroupBitfield>();
+    lvlGroup = new HashMap<String, BigInteger>();
     // read main ini file
     props = new Props();
     // create players directory if it doesn't exist
@@ -67,8 +68,8 @@ public class Player {
         String s[] = props.get("group" + Integer.toString(idx), sdef);
         if (s == null || s.length != 2 || s[0] == null) break;
         // first string is the level group key identifier
-        // second string is a GroupBitfield used as bitfield to store won levels
-        lvlGroup.put(s[0], new GroupBitfield(s[1]));
+        // second string is a BigInteger used as bitfield to store won levels
+        lvlGroup.put(s[0], new BigInteger(s[1]));
       }
     }
 
@@ -92,7 +93,7 @@ public class Player {
     int idx = 0;
     while (it.hasNext()) {
       String s = it.next();
-      GroupBitfield bf = lvlGroup.get(s);
+      BigInteger bf = lvlGroup.get(s);
       String sout = s + ", " + bf.toString();
       props.set("group" + Integer.toString(idx++), sout);
     }
@@ -107,12 +108,12 @@ public class Player {
    * @param num level number
    * @return updated bitfield
    */
-  public GroupBitfield setAvailable(final String pack, final String diff, final int num) {
+  public BigInteger setAvailable(final String pack, final String diff, final int num) {
     // get current bitfield
     String id = LevelPack.getID(pack, diff);
-    GroupBitfield bf = lvlGroup.get(id);
-    if (bf == null) bf = GroupBitfield.ONE; // first level is always available
-    bf = new GroupBitfield(bf.setBit(num)); // set bit in bitfield (just overwrite existing bit)
+    BigInteger bf = lvlGroup.get(id);
+    if (bf == null) bf = BigInteger.ONE; // first level is always available
+    bf = bf.setBit(num); // set bit in bitfield (just overwrite existing bit)
     // store new value
     lvlGroup.put(id, bf);
     return bf;
@@ -130,8 +131,8 @@ public class Player {
     if (isCheat()) return true;
     // get current bitfield
     String id = LevelPack.getID(pack, diff);
-    GroupBitfield bf = lvlGroup.get(id);
-    if (bf == null) bf = GroupBitfield.ONE; // first level is always available
+    BigInteger bf = lvlGroup.get(id);
+    if (bf == null) bf = BigInteger.ONE; // first level is always available
     return (bf.testBit(num));
   }
 
@@ -142,7 +143,7 @@ public class Player {
    * @param num number of level
    * @return true if allowed, false if not
    */
-  public boolean isAvailable(final GroupBitfield bf, final int num) {
+  public boolean isAvailable(final BigInteger bf, final int num) {
     if (isCheat()) return true;
     return (bf.testBit(num));
   }
@@ -154,14 +155,14 @@ public class Player {
    * @param diff difficulty level
    * @return bitfield containing the approval information for all levels of this pack/difficulty
    */
-  public GroupBitfield getBitField(final String pack, final String diff) {
+  public BigInteger getBitField(final String pack, final String diff) {
     if (isCheat())
-      return new GroupBitfield(
+      return new BigInteger(
           "18446744073709551615"); // 0xffffffffffffffff (8 bytes with all bits set)
 
     String id = LevelPack.getID(pack, diff);
-    GroupBitfield bf = lvlGroup.get(id);
-    if (bf == null) return GroupBitfield.ONE;
+    BigInteger bf = lvlGroup.get(id);
+    if (bf == null) return BigInteger.ONE;
     return bf;
   }
 
@@ -173,7 +174,7 @@ public class Player {
    * @return bitfield containing the approval information for all levels of this pack/difficulty
    */
   public int getCompletedLevelNum(final String pack, final String diff) {
-    GroupBitfield bf = getBitField(pack, diff);
+    BigInteger bf = getBitField(pack, diff);
     return bf.bitLength() - 1;
   }
 

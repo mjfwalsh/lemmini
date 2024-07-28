@@ -1,5 +1,7 @@
 package Game;
 
+import java.math.BigInteger;
+
 /*
  * Copyright 2009 Volker Oth
  *
@@ -23,5 +25,5 @@ package Game;
  */
 public interface UpdateListener {
   /** Action to perform if Listener is called */
-  public void update(String pack, String diff, GroupBitfield bf);
+  public void update(String pack, String diff, BigInteger bf);
 }
