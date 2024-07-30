@@ -545,6 +545,9 @@ public class GameController {
         String diffs[] = levelPack.get(i).getDiffLevels();
         for (int j = 0; j < diffs.length; j++) {
           if (p[1].equalsIgnoreCase(diffs[j])) {
+            int total = levelPack.get(i).getLevelCount(j);
+            if (ln >= total) ln = total - 1;
+
             requestChangeLevel(i, j, ln, false);
             return;
           }

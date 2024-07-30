@@ -209,6 +209,17 @@ public class LevelPack {
   }
 
   /**
+   * Get level info for a certain level.
+   *
+   * @param diffLvl difficulty level
+   * @param level level number
+   * @return LevelInfo for the given level
+   */
+  public int getLevelCount(final int diffLvl) {
+    return lvlInfo[diffLvl].length;
+  }
+
+  /**
    * Return all levels for a given difficulty
    *
    * @param diffLevel number of difficulty level
