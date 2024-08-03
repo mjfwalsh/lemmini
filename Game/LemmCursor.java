@@ -29,10 +29,6 @@ import java.awt.image.BufferedImage;
  * @author Volker Oth
  */
 public class LemmCursor {
-
-  /** distance from center of cursor to be used to detect Lemmings under the cursor */
-  private static final int HIT_DISTANCE = 12;
-
   /** cursor type */
   public enum Type {
     /** empty image to hide cursor */
@@ -96,8 +92,6 @@ public class LemmCursor {
     cursor[Type.WALKER.ordinal()] =
         Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.WALKER), new Point(w, h), "");
     type = Type.NORMAL;
-    setX(0);
-    setY(0);
     enabled = true;
   }
 
@@ -181,65 +175,5 @@ public class LemmCursor {
    */
   public static void setType(final Type t) {
     type = t;
-  }
-
-  /**
-   * Check if a Lemming is under the cursor.
-   *
-   * @param l Lemming to check
-   * @param xOfs screen x offset
-   * @return true if the Lemming is under the Cursor, else false.
-   */
-  public static boolean doesCollide(final Lemming l, final int xOfs) {
-    // get center of lemming
-    int lx = l.midX() - xOfs;
-    int ly = l.midY();
-
-    // calculate center of cursor
-    int cx = getX();
-    int cy = getY();
-
-    // calculate distance
-    int dx = Math.abs(lx - cx);
-    int dy = Math.abs(ly - cy);
-
-    if (dx <= HIT_DISTANCE && dy <= HIT_DISTANCE) return true;
-    else return false;
-  }
-
-  /**
-   * Set x position in pixels.
-   *
-   * @param x x position in pixels.
-   */
-  public static void setX(final int nx) {
-    x = nx;
-  }
-
-  /**
-   * Get x position in pixels.
-   *
-   * @return x position in pixels
-   */
-  public static int getX() {
-    return x;
-  }
-
-  /**
-   * Set y position in pixels.
-   *
-   * @param y y position in pixels
-   */
-  public static void setY(final int ny) {
-    y = ny;
-  }
-
-  /**
-   * Get y position in pixels.
-   *
-   * @return y position in pixels
-   */
-  public static int getY() {
-    return y;
   }
 }
