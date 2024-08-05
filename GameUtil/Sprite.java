@@ -4,6 +4,7 @@ import Tools.ToolBox;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /*
  * Copyright 2009 Volker Oth
@@ -62,7 +63,7 @@ public class Sprite {
   private boolean triggered;
 
   /** array of animation frames */
-  private BufferedImage frames[];
+  private ArrayList<BufferedImage> frames;
 
   /**
    * Constructor.
@@ -94,7 +95,8 @@ public class Sprite {
     animMode = src.animMode;
     sound = src.sound;
     triggered = false;
-    frames = src.frames.clone();
+    frames = new ArrayList<BufferedImage>(src.frames.size());
+    for (BufferedImage frame : src.frames) frames.add(frame);
   }
 
   /**
@@ -104,7 +106,7 @@ public class Sprite {
    * @return animation frame at position idx.
    */
   public BufferedImage getImage(final int idx) {
-    return frames[idx];
+    return frames.get(idx);
   }
 
   /**
@@ -113,7 +115,7 @@ public class Sprite {
    * @return current animation frame.
    */
   public BufferedImage getImage() {
-    return frames[frameIdx];
+    return frames.get(frameIdx);
   }
 
   /**
@@ -124,7 +126,7 @@ public class Sprite {
    * @param img image to use for this animation frame
    */
   public void setImage(final int idx, final BufferedImage img) {
-    frames[idx] = img;
+    frames.set(idx, img);
   }
 
   /**
@@ -133,7 +135,7 @@ public class Sprite {
    * @return current animation frame (before increasing the animation step).
    */
   public BufferedImage getImageAnim() {
-    BufferedImage i = frames[frameIdx];
+    BufferedImage i = frames.get(frameIdx);
     switch (animMode) {
       case LOOP:
         if (++frameIdx >= numframes) frameIdx = 0;

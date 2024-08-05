@@ -2,6 +2,7 @@ package Extract;
 
 import Tools.Props;
 import Tools.ToolBox;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.zip.Adler32;
 
 /*
@@ -421,24 +421,18 @@ public class Extract extends Thread {
    * @throws ExtractException
    */
   private static byte[] readFile(final URL fname) throws ExtractException {
-    byte buf[] = null;
     try {
       InputStream f = fname.openStream();
-      byte buffer[] = new byte[4096];
-      // URLs/InputStreams suck: we can't read a length
-      int len;
-      ArrayList<Byte> lbuf = new ArrayList<Byte>();
+      ByteArrayOutputStream lbuf = new ByteArrayOutputStream();
 
+      int len;
+      byte buffer[] = new byte[4096];
       while ((len = f.read(buffer)) != -1) {
-        for (int i = 0; i < len; i++) lbuf.add(Byte.valueOf(buffer[i]));
+        lbuf.write(buffer, 0, len);
       }
       f.close();
 
-      // reconstruct byte array from ArrayList
-      buf = new byte[lbuf.size()];
-      for (int i = 0; i < lbuf.size(); i++) buf[i] = lbuf.get(i).byteValue();
-
-      return buf;
+      return lbuf.toByteArray();
     } catch (FileNotFoundException ex) {
       throw new ExtractException("File " + fname + " not found");
     } catch (IOException ex) {

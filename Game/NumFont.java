@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /*
  * Copyright 2009 Volker Oth
@@ -45,15 +46,15 @@ public class NumFont {
    */
   public static void init() throws ResourceException {
     Image sourceImg = Core.loadImage("misc/numfont.gif");
-    BufferedImage img[] = ToolBox.getAnimation(sourceImg, 10, Transparency.OPAQUE);
+    ArrayList<BufferedImage> img = ToolBox.getAnimation(sourceImg, 10, Transparency.OPAQUE);
     width = sourceImg.getWidth(null);
     height = sourceImg.getHeight(null) / 10;
     numImg = new BufferedImage[100];
     for (int i = 0; i < 100; i++) {
       numImg[i] = ToolBox.createImage(width * 2, height, Transparency.OPAQUE);
       Graphics2D g = numImg[i].createGraphics();
-      g.drawImage(img[i / 10], 0, 0, null);
-      g.drawImage(img[i % 10], width, 0, null);
+      g.drawImage(img.get(i / 10), 0, 0, null);
+      g.drawImage(img.get(i % 10), width, 0, null);
       g.dispose();
     }
   }

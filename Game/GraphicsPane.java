@@ -13,7 +13,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JOptionPane;
@@ -424,10 +423,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     // draw lemmings
     GameController.getLemmsUnderCursor().clear();
     List<Lemming> lemmings = GameController.getLemmings();
-    synchronized (GameController.getLemmings()) {
-      Iterator<Lemming> it = lemmings.iterator();
-      while (it.hasNext()) {
-        Lemming l = it.next();
+    synchronized (lemmings) {
+      for (Lemming l : lemmings) {
         final int lx = l.screenX();
         final int ly = l.screenY();
         final int mx = l.midX() - 16;

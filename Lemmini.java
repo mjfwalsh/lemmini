@@ -413,7 +413,7 @@ public class Lemmini extends JFrame implements KeyListener {
               int l[] = GameController.relLevelNum(lvlPack, lvlAbs);
               int diffLvl = l[0];
               int lvlRel = l[1];
-              Core.player.setAvailable(lpack.getName(), lpack.getDiffLevels()[diffLvl], lvlRel);
+              Core.player.setAvailable(lpack.getName(), lpack.getDiffLevels().get(diffLvl), lvlRel);
               GameController.requestChangeLevel(lvlPack, diffLvl, lvlRel, false);
               updateLevelMenus();
               return;
@@ -454,7 +454,7 @@ public class Lemmini extends JFrame implements KeyListener {
     jMenuSound.add(jMenuItemSound);
 
     JMenu jMenuSFX = new JMenu("SFX Mixer");
-    String mixerNames[] = GameController.sound.getMixers();
+    ArrayList<String> mixerNames = GameController.sound.getMixers();
     ButtonGroup mixerGroup = new ButtonGroup();
     String lastMixerName = Core.programProps.get("mixerName", "Java Sound Audio Engine");
 
@@ -468,23 +468,18 @@ public class Lemmini extends JFrame implements KeyListener {
     }
     if (!found) lastMixerName = "Java Sound Audio Engine";
 
-    for (int i = 0; i < mixerNames.length; i++) {
+    for (String mixerName : mixerNames) {
       JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-      item.setText(mixerNames[i]);
+      item.setText(mixerName);
       item.addActionListener(
           (java.awt.event.ActionEvent e) -> {
-            String mixerName = e.getActionCommand();
-            for (int j = 0; j < mixerNames.length; j++) {
-              if (mixerNames[j].equals(mixerName)) {
-                GameController.sound.setMixer(j);
-                Core.programProps.set("mixerName", mixerName);
-                break;
-              }
-            }
+            String mn = e.getActionCommand();
+            GameController.sound.setMixer(mn);
+            Core.programProps.set("mixerName", mn);
           });
-      if (mixerNames[i].equals(lastMixerName)) { // default setting
+      if (mixerName.equals(lastMixerName)) { // default setting
         item.setState(true);
-        GameController.sound.setMixer(i);
+        GameController.sound.setMixer(lastMixerName);
       }
 
       jMenuSFX.add(item);
@@ -658,11 +653,10 @@ public class Lemmini extends JFrame implements KeyListener {
     // update level menus
     for (int lp = 1; lp < GameController.getLevelPackNum(); lp++) { // skip dummy level pack
       LevelPack lPack = GameController.getLevelPack(lp);
-      String difficulties[] = lPack.getDiffLevels();
-      for (int i = 0; i < difficulties.length; i++) {
+      for (String difficulty : lPack.getDiffLevels()) {
         // get activated levels for this group
-        BigInteger bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
-        updateLevelMenu(lPack.getName(), difficulties[i], bf);
+        BigInteger bf = Core.player.getBitField(lPack.getName(), difficulty);
+        updateLevelMenu(lPack.getName(), difficulty, bf);
       }
     }
   }
@@ -1008,16 +1002,17 @@ public class Lemmini extends JFrame implements KeyListener {
   private JMenu makeLevelPackMenu(int lp) {
     LevelPack lPack = GameController.getLevelPack(lp);
     JMenu jMenuPack = new JMenu(lPack.getName());
-    String difficulties[] = lPack.getDiffLevels();
-    for (int i = 0; i < difficulties.length; i++) {
+
+    int i = 0;
+    for (String difficulty : lPack.getDiffLevels()) {
       // get activated levels for this group
-      BigInteger bf = Core.player.getBitField(lPack.getName(), difficulties[i]);
-      String names[] = lPack.getLevels(i);
-      JMenu jMenuDiff = new JMenu(difficulties[i]);
+      BigInteger bf = Core.player.getBitField(lPack.getName(), difficulty);
+      ArrayList<String> names = lPack.getLevels(i);
+      JMenu jMenuDiff = new JMenu(difficulty);
       // store menus to access them later
       ArrayList<LvlMenuItem> menuItems = new ArrayList<LvlMenuItem>();
-      for (int n = 0; n < names.length; n++) {
-        LvlMenuItem jMenuLvl = new LvlMenuItem(names[n], lp, i, n);
+      for (int n = 0; n < names.size(); n++) {
+        LvlMenuItem jMenuLvl = new LvlMenuItem(names.get(n), lp, i, n);
         jMenuLvl.addActionListener(lvlListener);
         if (Core.player.isAvailable(bf, n)) jMenuLvl.setEnabled(true);
         else jMenuLvl.setEnabled(false);
@@ -1026,7 +1021,8 @@ public class Lemmini extends JFrame implements KeyListener {
       }
       jMenuPack.add(jMenuDiff);
       // store menus to access them later
-      diffLevelMenus.put(LevelPack.getID(lPack.getName(), difficulties[i]), menuItems);
+      diffLevelMenus.put(LevelPack.getID(lPack.getName(), difficulty), menuItems);
+      i++;
     }
     return jMenuPack;
   }

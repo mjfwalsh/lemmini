@@ -192,9 +192,8 @@ public class TextScreen {
         out += SCROLL_TEXT.substring(0, scrollCharCtr + SCROLL_WIDTH + 1 - SCROLL_TEXT.length());
       scrollerGfx.clearRect(0, 0, scrollerImg.getWidth(), scrollerImg.getHeight());
       LemmFont.strImage(scrollerGfx, out, BLUE);
-      int w = SCROLL_WIDTH * LemmFont.getWidth();
 
-      textDialog.drawScroller(w, SCROLL_HEIGHT, SCROLL_Y, scrollerImg, scrollPixCtr);
+      textDialog.drawScroller(SCROLL_WIDTH, SCROLL_HEIGHT, SCROLL_Y, scrollerImg, scrollPixCtr);
 
       scrollPixCtr += SCROLL_STEP;
       if (scrollPixCtr >= LemmFont.getWidth()) {
@@ -223,7 +222,8 @@ public class TextScreen {
         textDialog.print(
             "Difficulty  "
                 + GameController.getCurLevelPack()
-                    .getDiffLevels()[GameController.getCurDiffLevel()],
+                    .getDiffLevels()
+                    .get(GameController.getCurDiffLevel()),
             -19,
             -2,
             VIOLET);
@@ -332,7 +332,7 @@ public class TextScreen {
           }
           LevelPack lp = GameController.getCurLevelPack();
           int ln = GameController.getCurLevelNumber();
-          if (lp.getLevels(GameController.getCurDiffLevel()).length > ln + 1) {
+          if (lp.getLevelCount(GameController.getCurDiffLevel()) > ln + 1) {
             int absLevel =
                 GameController.absLevelNum(
                     GameController.getCurLevelPackIdx(), GameController.getCurDiffLevel(), ln + 1);
@@ -346,7 +346,7 @@ public class TextScreen {
             textDialog.printCentered("Congratulations!", 2, BROWN);
             textDialog.printCentered(
                 "You finished all the "
-                    + lp.getDiffLevels()[GameController.getCurDiffLevel()]
+                    + lp.getDiffLevels().get(GameController.getCurDiffLevel())
                     + " levels!",
                 3,
                 GREEN);

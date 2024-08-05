@@ -47,7 +47,7 @@ public class MiscGfx {
   }
 
   /** array of images */
-  private static BufferedImage image[];
+  private static ArrayList<BufferedImage> images;
 
   /**
    * Initialization.
@@ -55,7 +55,7 @@ public class MiscGfx {
    * @throws ResourceException
    */
   public static void init() throws ResourceException {
-    ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+    images = new ArrayList<BufferedImage>();
     BufferedImage img;
     /* 0: BORDER */
     img = ToolBox.ImageToBuffered(Core.loadImage("misc/border.gif"), Transparency.OPAQUE);
@@ -85,17 +85,14 @@ public class MiscGfx {
       }
     images.add(brownImg);
     /* 4: REPLAY_1 */
-    BufferedImage anim[] =
+    ArrayList<BufferedImage> anim =
         ToolBox.getAnimation(Core.loadImage("misc/replay.gif"), 2, Transparency.BITMASK);
-    images.add(anim[0]);
+    images.add(anim.get(0));
     /* 5: REPLAY_2 */
-    images.add(anim[1]);
+    images.add(anim.get(1));
     /* 6: SELECT */
     img = ToolBox.ImageToBuffered(Core.loadImage("misc/select.gif"), Transparency.BITMASK);
     images.add(img);
-
-    image = new BufferedImage[images.size()];
-    image = images.toArray(image);
   }
 
   /**
@@ -105,6 +102,6 @@ public class MiscGfx {
    * @return image of the given index
    */
   public static BufferedImage getImage(Index idx) {
-    return image[idx.ordinal()];
+    return images.get(idx.ordinal());
   }
 }

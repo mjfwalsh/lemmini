@@ -141,9 +141,7 @@ public class TextDialog {
    * @param col LemmFont color
    */
   public void print(final String s, final int x0, final int y0, final LemmFont.Color col) {
-    int x = x0 * LemmFont.getWidth();
-    int y = y0 * (LemmFont.getHeight() + 4);
-    LemmFont.strImage(gScreen, s, centerX + x, centerY + y, col);
+    LemmFont.strImage(gScreen, s, centerX, centerY, x0, y0, col);
   }
 
   /**
@@ -172,13 +170,9 @@ public class TextDialog {
    * @param s String
    * @param y0 Y position relative to center expressed in character heights
    * @param col LemmFont color
-   * @return Absolute x position
    */
-  public int printCentered(final String s, final int y0, final LemmFont.Color col) {
-    int y = y0 * (LemmFont.getHeight() + 4);
-    int x = centerX - s.length() * LemmFont.getWidth() / 2;
-    LemmFont.strImage(gScreen, s, x, centerY + y, col);
-    return x;
+  public void printCentered(final String s, final int y0, final LemmFont.Color col) {
+    LemmFont.strImage(gScreen, s, centerX, centerY, -s.length() / 2, y0, col);
   }
 
   /**
@@ -186,10 +180,9 @@ public class TextDialog {
    *
    * @param s String
    * @param y Y position relative to center expressed in character heights
-   * @return Absolute x position
    */
-  public int printCentered(final String s, final int y) {
-    return printCentered(s, y, LemmFont.Color.GREEN);
+  public void printCentered(final String s, final int y) {
+    printCentered(s, y, LemmFont.Color.GREEN);
   }
 
   /**
@@ -308,7 +301,9 @@ public class TextDialog {
   }
 
   /** Draw Scroller */
-  public void drawScroller(int w, int h, int scrollY, BufferedImage scrollerImg, int scrollPixCtr) {
+  public void drawScroller(
+      int charWidth, int h, int scrollY, BufferedImage scrollerImg, int scrollPixCtr) {
+    int w = charWidth * LemmFont.getWidth();
     int dx = (clipWidth - w) / 2;
     int dy = (height / 2) + scrollY;
     screenBuffer

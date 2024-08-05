@@ -57,16 +57,16 @@ public class Level {
   private static final int TEMPLATE_COLOR = 0xffff00ff;
 
   /** array of normal sprite objects - no transparency, drawn behind background image */
-  private SpriteObject sprObjBehind[];
+  private ArrayList<SpriteObject> sprObjBehind;
 
   /** array of special sprite objects - with transparency, drawn above background image */
-  private SpriteObject sprObjFront[];
+  private ArrayList<SpriteObject> sprObjFront;
 
   /** array of all sprite objects (in front and behind) */
-  private SpriteObject sprObjects[];
+  private ArrayList<SpriteObject> sprObjects;
 
   /** array of level entries */
-  private Entry entries[];
+  private ArrayList<Entry> entries;
 
   /** release rate : 0 is slowest, 0x0FA (250) is fastest */
   private int releaseRate;
@@ -132,10 +132,10 @@ public class Level {
   private ArrayList<LvlObject> objects;
 
   /** background tiles - every pixel in them is interpreted as brick in the stencil */
-  private Image tiles[];
+  private ArrayList<Image> tiles;
 
   /** sprite objects of all sprite objects available in this style */
-  private SpriteObject sprObjAvailable[];
+  private ArrayList<SpriteObject> sprObjAvailable;
 
   /** terrain the Lemmings walk on etc. - originally 400 tiles, 4 bytes each */
   private ArrayList<Terrain> terrain;
@@ -267,7 +267,7 @@ public class Level {
     // paint terrain
     for (int n = 0; n < terrain.size(); n++) {
       Terrain t = terrain.get(n);
-      Image i = tiles[t.id];
+      Image i = tiles.get(t.id);
       int width = i.getWidth(null);
       int height = i.getHeight(null);
 
@@ -313,16 +313,16 @@ public class Level {
     }
 
     // now for the animated objects
-    ArrayList<SpriteObject> oCombined = new ArrayList<SpriteObject>(64);
-    ArrayList<SpriteObject> oBehind = new ArrayList<SpriteObject>(64);
-    ArrayList<SpriteObject> oFront = new ArrayList<SpriteObject>(4);
-    ArrayList<Entry> entry = new ArrayList<Entry>(4);
+    sprObjects = new ArrayList<SpriteObject>(64);
+    sprObjBehind = new ArrayList<SpriteObject>(64);
+    sprObjFront = new ArrayList<SpriteObject>(4);
+    entries = new ArrayList<Entry>(4);
     AffineTransform tx;
     for (int n = 0; n < objects.size(); n++) {
       try {
         LvlObject o = objects.get(n);
         // if (sprObjAvailable[o.id].animMode != Sprite.ANIM_NONE) {
-        SpriteObject spr = new SpriteObject(sprObjAvailable[o.id]);
+        SpriteObject spr = new SpriteObject(sprObjAvailable.get(o.id));
         spr.setX(o.xPos);
         spr.setY(o.yPos);
         // affine transform for flipping
@@ -333,8 +333,8 @@ public class Level {
         // check for entries (ignore upside down entries)
         if (spr.getType() == SpriteObject.Type.ENTRY && !o.upsideDown) {
           Entry e = new Entry(o.xPos + spr.getWidth() / 2, o.yPos);
-          e.id = oCombined.size();
-          entry.add(e);
+          e.id = sprObjects.size();
+          entries.add(e);
           spr.setAnimMode(Sprite.Animation.NONE);
         }
         // animated
@@ -343,9 +343,9 @@ public class Level {
         boolean inFront = (drawOnVis || !noOverwrite);
         boolean drawFull = o.paintMode == LvlObject.MODE_FULL;
 
-        if (inFront) oFront.add(spr);
-        else oBehind.add(spr);
-        oCombined.add(spr);
+        if (inFront) sprObjFront.add(spr);
+        else sprObjBehind.add(spr);
+        sprObjects.add(spr);
 
         // draw stencil (only for objects that are not upside down)
         if (!o.upsideDown) {
@@ -429,9 +429,6 @@ public class Level {
       }
     }
 
-    entries = new Entry[entry.size()];
-    entries = entry.toArray(entries);
-
     // paint steel tiles into stencil
     for (int n = 0; n < steel.size(); n++) {
       Steel stl = steel.get(n);
@@ -452,17 +449,6 @@ public class Level {
         }
       }
     }
-    // flush tiles
-    //		if (tiles != null)
-    //			for (int i=0; i < tiles.length; i++)
-    //				tiles[i].flush();
-
-    sprObjects = new SpriteObject[oCombined.size()];
-    sprObjects = oCombined.toArray(sprObjects);
-    sprObjFront = new SpriteObject[oFront.size()];
-    sprObjFront = oFront.toArray(sprObjFront);
-    sprObjBehind = new SpriteObject[oBehind.size()];
-    sprObjBehind = oBehind.toArray(sprObjBehind);
     System.gc();
 
     return stencil;
@@ -478,9 +464,8 @@ public class Level {
   public void drawBehindObjects(final Graphics2D g, final int width, final int xOfs) {
     // draw "behind" objects
     if (sprObjBehind != null) {
-      for (int n = 0; n < sprObjBehind.length; n++) {
+      for (SpriteObject spr : sprObjBehind) {
         try {
-          SpriteObject spr = sprObjBehind[n];
           BufferedImage img = spr.getImage();
           if (spr.getX() + spr.getWidth() > xOfs && spr.getX() < xOfs + width)
             g.drawImage(img, spr.getX() - xOfs, spr.getY(), null);
@@ -501,9 +486,8 @@ public class Level {
   public void drawInFrontObjects(final Graphics2D g, final int width, final int xOfs) {
     // draw "in front" objects
     if (sprObjFront != null) {
-      for (int n = 0; n < sprObjFront.length; n++) {
+      for (SpriteObject spr : sprObjFront) {
         try {
-          SpriteObject spr = sprObjFront[n];
           BufferedImage img = spr.getImage();
           if (spr.getX() + spr.getWidth() > xOfs && spr.getX() < xOfs + width)
             g.drawImage(img, spr.getX() - xOfs, spr.getY(), null);
@@ -528,7 +512,7 @@ public class Level {
    * @return array of images where each image contains one tile
    * @throws ResourceException
    */
-  private Image[] loadTileSet(final String set) throws ResourceException {
+  private ArrayList<Image> loadTileSet(final String set) throws ResourceException {
     ArrayList<Image> images = new ArrayList<Image>(64);
     int tiles = props.get("tiles", 64);
     for (int n = 0; n < tiles; n++) {
@@ -536,10 +520,7 @@ public class Level {
       Image img = Core.loadImage(fName);
       images.add(img);
     }
-    Image ret[] = new Image[images.size()];
-    ret = images.toArray(ret);
-    images = null;
-    return ret;
+    return images;
   }
 
   /**
@@ -549,7 +530,7 @@ public class Level {
    * @return array of images where each image contains one tile
    * @throws ResourceException
    */
-  private SpriteObject[] loadObjects(final String set) throws ResourceException {
+  private ArrayList<SpriteObject> loadObjects(final String set) throws ResourceException {
     // first some global settings
     bgCol = props.get("bgColor", 0x000000) | 0xff000000;
     bgColor = new Color(bgCol);
@@ -611,10 +592,7 @@ public class Level {
 
       sprites.add(sprite);
     }
-    SpriteObject ret[] = new SpriteObject[sprites.size()];
-    ret = sprites.toArray(ret);
-    sprites = null;
-    return ret;
+    return sprites;
   }
 
   /**
@@ -651,9 +629,8 @@ public class Level {
     bgCol = img.getRGB(0, 0);
     // draw "behind" objects
     if (level != null && level.sprObjBehind != null) {
-      for (int n = 0; n < level.sprObjBehind.length; n++) {
+      for (SpriteObject spr : level.sprObjBehind) {
         try {
-          SpriteObject spr = level.sprObjBehind[n];
           BufferedImage sprImg = spr.getImage();
           gx.drawImage(
               sprImg,
@@ -669,9 +646,8 @@ public class Level {
     gx.drawImage(bgImage, 0, 0, width, height, 0, 0, bgImage.getWidth(), bgImage.getHeight(), null);
     // draw "in front" objects
     if (level != null && level.sprObjFront != null) {
-      for (int n = 0; n < level.sprObjFront.length; n++) {
+      for (SpriteObject spr : level.sprObjFront) {
         try {
-          SpriteObject spr = level.sprObjFront[n];
           BufferedImage sprImg = spr.getImage();
           gx.drawImage(
               sprImg,
@@ -714,7 +690,7 @@ public class Level {
    * @return level sprite object
    */
   public SpriteObject getSprObject(final int idx) {
-    return sprObjects[idx];
+    return sprObjects.get(idx);
   }
 
   /**
@@ -724,7 +700,7 @@ public class Level {
    */
   public int getSprObjectNum() {
     if (sprObjects == null) return 0;
-    return sprObjects.length;
+    return sprObjects.size();
   }
 
   /**
@@ -734,7 +710,7 @@ public class Level {
    * @return level Entry
    */
   public Entry getEntry(final int idx) {
-    return entries[idx];
+    return entries.get(idx);
   }
 
   /**
@@ -744,7 +720,7 @@ public class Level {
    */
   public int getEntryNum() {
     if (entries == null) return 0;
-    return entries.length;
+    return entries.size();
   }
 
   /**

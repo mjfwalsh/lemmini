@@ -81,7 +81,7 @@ public class ToolBox {
    * @param transparency {@link java.awt.Transparency}
    * @return an array of buffered images which contain an animation
    */
-  public static BufferedImage[] getAnimation(
+  public static ArrayList<BufferedImage> getAnimation(
       final Image img, final int frames, final int transparency) {
     int width = img.getWidth(null);
     return getAnimation(img, frames, transparency, width);
@@ -96,7 +96,7 @@ public class ToolBox {
    * @param width image width
    * @return an array of buffered images which contain an animation
    */
-  public static BufferedImage[] getAnimation(
+  public static ArrayList<BufferedImage> getAnimation(
       final Image img, final int frames, final int transparency, final int width) {
     int height = img.getHeight(null) / frames;
     // characters stored one above the other - now separate them into single images
@@ -109,8 +109,7 @@ public class ToolBox {
       arrImg.add(frame);
       g.dispose();
     }
-    BufferedImage images[] = new BufferedImage[arrImg.size()];
-    return arrImg.toArray(images);
+    return arrImg;
   }
 
   /**
@@ -171,13 +170,11 @@ public class ToolBox {
    * @param ex exception
    */
   public static void showException(final Throwable ex) {
-    String m;
-    m = "<html>";
-    m += ex.getClass().getName() + "<p>";
-    if (ex.getMessage() != null) m += ex.getMessage() + "<p>";
-    StackTraceElement ste[] = ex.getStackTrace();
-    for (int i = 0; i < ste.length; i++) m += ste[i].toString() + "<p>";
-    m += "</html>";
+    String m = "<html><body>";
+    m += ex.getClass().getName() + "<br>";
+    if (ex.getMessage() != null) m += ex.getMessage() + "<br>";
+    for (StackTraceElement ste : ex.getStackTrace()) m += ste.toString() + "<br>";
+    m += "</body></html>";
     ex.printStackTrace();
     JOptionPane.showMessageDialog(null, m, "Error", JOptionPane.ERROR_MESSAGE);
     ex.printStackTrace();

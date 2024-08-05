@@ -4,8 +4,6 @@ import Tools.Props;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 
 /*
  * Copyright 2009 Volker Oth
@@ -88,13 +86,9 @@ public class Player {
 
   /** Store player's progress. */
   public void store() {
-    Set<String> k = lvlGroup.keySet();
-    Iterator<String> it = k.iterator();
     int idx = 0;
-    while (it.hasNext()) {
-      String s = it.next();
-      BigInteger bf = lvlGroup.get(s);
-      String sout = s + ", " + bf.toString();
+    for (HashMap.Entry<String, BigInteger> e : lvlGroup.entrySet()) {
+      String sout = e.getKey() + ", " + e.getValue().toString();
       props.set("group" + Integer.toString(idx++), sout);
     }
     props.save();

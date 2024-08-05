@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /*
  * Copyright 2009 Volker Oth
@@ -61,7 +62,7 @@ public class LemmCursor {
   private static Type type;
 
   /** array of images - one for each cursor type */
-  private static BufferedImage img[];
+  private static ArrayList<BufferedImage> img;
 
   /** array of AWT cursor Objects */
   private static Cursor cursor[];
@@ -120,7 +121,7 @@ public class LemmCursor {
    * @return image for the given cursor type
    */
   public static BufferedImage getImage(final Type t) {
-    return img[t.ordinal() - 1];
+    return img.get(t.ordinal() - 1);
   }
 
   /**

@@ -35,10 +35,10 @@ public class LevelPack {
   private String codeSeed;
 
   /** array containing names of difficulty levels (easiest first, hardest last) */
-  private String diffLevels[];
+  private ArrayList<String> diffLevels = new ArrayList<String>();
 
   /** array of array of level info - [difficulty][level number] */
-  private LevelInfo lvlInfo[][];
+  private ArrayList<ArrayList<LevelInfo>> lvlInfo = new ArrayList<ArrayList<LevelInfo>>();
 
   /** path of level pack - where the INI files for the level are located */
   private File path;
@@ -57,15 +57,17 @@ public class LevelPack {
     maxFallDistance = 126;
     codeOffset = 0;
 
-    diffLevels = new String[1];
-    diffLevels[0] = "test";
+    diffLevels = new ArrayList<String>(1);
+    diffLevels.add("test");
 
-    lvlInfo = new LevelInfo[1][1];
-    lvlInfo[0][0] = new LevelInfo();
-    // lvlInfo[0][0].code = "..........";
-    lvlInfo[0][0].setMusic("tim1.mod");
-    lvlInfo[0][0].setName("test");
-    lvlInfo[0][0].setFileName("");
+    LevelInfo linfo = new LevelInfo();
+    linfo.setMusic("tim1.mod");
+    linfo.setName("test");
+    linfo.setFileName("");
+
+    ArrayList<LevelInfo> arr = new ArrayList<LevelInfo>();
+    arr.add(linfo);
+    lvlInfo.add(arr);
   }
 
   /**
@@ -93,15 +95,14 @@ public class LevelPack {
     // read max falling distance
     maxFallDistance = props.get("maxFallDistance", 126);
     // read levels of difficulty
-    ArrayList<String> difficulty = new ArrayList<String>(); // <String>
     int idx = 0;
     String diffLevel;
     do {
       diffLevel = props.get("level_" + Integer.toString(idx++), "");
-      if (diffLevel.length() > 0) difficulty.add(diffLevel);
-    } while (diffLevel.length() > 0);
-    diffLevels = new String[difficulty.size()];
-    diffLevels = difficulty.toArray(diffLevels);
+      if (diffLevel.length() > 0) diffLevels.add(diffLevel);
+      else break;
+    } while (true);
+
     // read music files
     ArrayList<String> music = new ArrayList<String>(); // <String>
     String track;
@@ -111,13 +112,12 @@ public class LevelPack {
       if (track.length() > 0) music.add(track);
     } while (track.length() > 0);
     // read levels
-    lvlInfo = new LevelInfo[difficulty.size()][];
     String levelStr[];
     String def[] = {""};
-    for (int diff = 0; diff < difficulty.size(); diff++) {
+    for (int diff = 0; diff < diffLevels.size(); diff++) {
       idx = 0;
       ArrayList<LevelInfo> levels = new ArrayList<LevelInfo>(); // <LevelInfo>
-      diffLevel = difficulty.get(diff);
+      diffLevel = diffLevels.get(diff);
       do {
         levelStr = props.get(diffLevel.toLowerCase() + "_" + Integer.toString(idx), def);
         // filename, music number
@@ -136,8 +136,7 @@ public class LevelPack {
         }
         idx++;
       } while (levelStr.length == 2);
-      lvlInfo[diff] = new LevelInfo[levels.size()];
-      lvlInfo[diff] = levels.toArray(lvlInfo[diff]);
+      lvlInfo.add(levels);
     }
   }
 
@@ -157,7 +156,7 @@ public class LevelPack {
    *
    * @return levels of difficulty as string array
    */
-  public String[] getDiffLevels() {
+  public ArrayList<String> getDiffLevels() {
     return diffLevels;
   }
 
@@ -205,7 +204,7 @@ public class LevelPack {
    * @return LevelInfo for the given level
    */
   public LevelInfo getInfo(final int diffLvl, final int level) {
-    return lvlInfo[diffLvl][level];
+    return lvlInfo.get(diffLvl).get(level);
   }
 
   /**
@@ -216,7 +215,7 @@ public class LevelPack {
    * @return LevelInfo for the given level
    */
   public int getLevelCount(final int diffLvl) {
-    return lvlInfo[diffLvl].length;
+    return lvlInfo.get(diffLvl).size();
   }
 
   /**
@@ -225,9 +224,9 @@ public class LevelPack {
    * @param diffLevel number of difficulty level
    * @return level names as string array
    */
-  public String[] getLevels(final int diffLevel) {
-    String names[] = new String[lvlInfo[diffLevel].length];
-    for (int i = 0; i < lvlInfo[diffLevel].length; i++) names[i] = lvlInfo[diffLevel][i].getName();
+  public ArrayList<String> getLevels(final int diffLevel) {
+    ArrayList<String> names = new ArrayList<String>(lvlInfo.get(diffLevel).size());
+    for (var e : lvlInfo.get(diffLevel)) names.add(e.getName());
     return names;
   }
 }

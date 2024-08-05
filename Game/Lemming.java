@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -1588,7 +1589,7 @@ class LemmingResource {
   int maskStep;
 
   /** array of images to store the animation [Direction][AnimationFrame] */
-  private BufferedImage img[][];
+  private HashMap<Lemming.Direction, ArrayList<BufferedImage>> img;
 
   /** array of removal masks used for digging/bashing/mining/explosions etc. [Direction] */
   private Mask mask[];
@@ -1604,7 +1605,7 @@ class LemmingResource {
    * @param directions number of directions (1 or 2)
    */
   LemmingResource(final BufferedImage sourceImg, final int animFrames, final int directions) {
-    img = new BufferedImage[directions][];
+    img = new HashMap<Lemming.Direction, ArrayList<BufferedImage>>();
     mask = new Mask[directions];
     iMask = new Mask[directions];
     frames = animFrames;
@@ -1612,11 +1613,12 @@ class LemmingResource {
     height = sourceImg.getHeight(null) / animFrames;
     dirs = directions;
     animMode = Lemming.Animation.NONE;
-    img[Lemming.Direction.RIGHT.ordinal()] =
-        ToolBox.getAnimation(sourceImg, animFrames, Transparency.BITMASK);
+    img.put(
+        Lemming.Direction.RIGHT, ToolBox.getAnimation(sourceImg, animFrames, Transparency.BITMASK));
     if (dirs > 1)
-      img[Lemming.Direction.LEFT.ordinal()] =
-          ToolBox.getAnimation(ToolBox.flipImageX(sourceImg), animFrames, Transparency.BITMASK);
+      img.put(
+          Lemming.Direction.LEFT,
+          ToolBox.getAnimation(ToolBox.flipImageX(sourceImg), animFrames, Transparency.BITMASK));
   }
 
   /**
@@ -1671,8 +1673,8 @@ class LemmingResource {
    * @return specific animation frame
    */
   BufferedImage getImage(final Lemming.Direction dir, final int frame) {
-    if (dirs > 1) return img[dir.ordinal()][frame];
-    else return img[0][frame];
+    if (dirs > 1) return img.get(dir).get(frame);
+    else return img.get(Lemming.Direction.RIGHT).get(frame);
   }
 }
 
@@ -1700,9 +1702,9 @@ class ExplodeFont {
    * @return
    */
   BufferedImage getImage(final int num) {
-    return img[num];
+    return img.get(num);
   }
 
   /** array of images for each counter value */
-  private BufferedImage img[];
+  private ArrayList<BufferedImage> img;
 }

@@ -482,7 +482,7 @@ public class GameController {
     LevelPack lpack = levelPack.get(lvlPack);
     // calculate absolute level number
     int absLvl = level;
-    for (int i = 0; i < diffLevel; i++) absLvl += lpack.getLevels(i).length;
+    for (int i = 0; i < diffLevel; i++) absLvl += lpack.getLevelCount(i);
     return absLvl;
   }
 
@@ -496,14 +496,14 @@ public class GameController {
   public static synchronized int[] relLevelNum(final int lvlPack, final int lvlAbs) {
     int retval[] = new int[2];
     LevelPack lpack = levelPack.get(lvlPack);
-    int diffLevels = lpack.getDiffLevels().length;
+    int diffLevels = lpack.getDiffLevels().size();
     int lvl = 0;
     int diffLvl = 0;
     int maxLevels = 30;
     for (int i = 0, ls = 0; i < diffLevels; i++) {
       int ls_old = ls;
       // add number of levels existing in this diff level
-      maxLevels = lpack.getLevels(i).length;
+      maxLevels = lpack.getLevelCount(i);
       ls += maxLevels;
       if (lvlAbs < ls) {
         diffLvl = i;
@@ -518,7 +518,7 @@ public class GameController {
 
   /** Proceed to next level. */
   public static synchronized void nextLevel() {
-    if (curLevelNumber < (levelPack.get(curLevelPack).getLevels(curDiffLevel).length - 1)) {
+    if (curLevelNumber < (levelPack.get(curLevelPack).getLevelCount(curDiffLevel) - 1)) {
       curLevelNumber++;
       requestChangeLevel(curLevelPack, curDiffLevel, curLevelNumber, false);
     }
@@ -531,7 +531,7 @@ public class GameController {
     if (p == null || p[0] == null) {
       int ln =
           Core.player.getCompletedLevelNum(
-              levelPack.get(1).getName(), levelPack.get(1).getDiffLevels()[0]);
+              levelPack.get(1).getName(), levelPack.get(1).getDiffLevels().get(0));
       requestChangeLevel(1, 0, ln, false);
       return;
     }
@@ -542,9 +542,9 @@ public class GameController {
     // search for the indexes for the pack and diff levels
     for (int i = 1; /* skip dummp */ i < levelPack.size(); i++) {
       if (p[0].equalsIgnoreCase(levelPack.get(i).getName())) {
-        String diffs[] = levelPack.get(i).getDiffLevels();
-        for (int j = 0; j < diffs.length; j++) {
-          if (p[1].equalsIgnoreCase(diffs[j])) {
+        ArrayList<String> diffs = levelPack.get(i).getDiffLevels();
+        for (int j = 0; j < diffs.size(); j++) {
+          if (p[1].equalsIgnoreCase(diffs.get(j))) {
             int total = levelPack.get(i).getLevelCount(j);
             if (ln >= total) ln = total - 1;
 
@@ -566,12 +566,12 @@ public class GameController {
     int clp = curLevelPack;
     int cdl = curDiffLevel;
 
-    if (curLevelNumber < (levelPack.get(clp).getLevels(cdl).length - 1)) {
+    if (curLevelNumber < (levelPack.get(clp).getLevelCount(cdl) - 1)) {
       return;
     }
 
     // current difficulty level has completed
-    if (cdl < (levelPack.get(clp).getDiffLevels().length - 1)) {
+    if (cdl < (levelPack.get(clp).getDiffLevels().size() - 1)) {
       cdl++;
     } else if (clp < (levelPack.size() - 1)) {
       cdl = 0;
@@ -583,14 +583,14 @@ public class GameController {
 
     // remember pack and difficulty level for next time
     String pack = levelPack.get(clp).getName();
-    String diff = levelPack.get(clp).getDiffLevels()[cdl];
+    String diff = levelPack.get(clp).getDiffLevels().get(cdl);
     Core.player.setCurDifLevel(pack, diff);
   }
 
   /** Remember this difficulty level */
   public static synchronized void rememberThisDifficultyLevel() {
     String pack = levelPack.get(curLevelPack).getName();
-    String diff = levelPack.get(curLevelPack).getDiffLevels()[curDiffLevel];
+    String diff = levelPack.get(curLevelPack).getDiffLevels().get(curDiffLevel);
     Core.player.setCurDifLevel(pack, diff);
   }
 
@@ -612,10 +612,10 @@ public class GameController {
       if (GameController.getCurLevelPackIdx() != 0) { // 0 is the dummy pack
         LevelPack lvlPack = GameController.getLevelPack(GameController.getCurLevelPackIdx());
         String pack = lvlPack.getName();
-        String diff = lvlPack.getDiffLevels()[GameController.getCurDiffLevel()];
+        String diff = lvlPack.getDiffLevels().get(GameController.getCurDiffLevel());
         // get next level
         int num = GameController.getCurLevelNumber() + 1;
-        if (num >= lvlPack.getLevels(GameController.getCurDiffLevel()).length)
+        if (num >= lvlPack.getLevelCount(GameController.getCurDiffLevel()))
           num = GameController.getCurLevelNumber();
         // set next level as available
         BigInteger bf = Core.player.setAvailable(pack, diff, num);
@@ -1061,9 +1061,7 @@ public class GameController {
     // nuking
     if (nukeTemp && ((updateCtr & 1) == 1)) {
       synchronized (lemmings) {
-        Iterator<Lemming> it = lemmings.iterator();
-        while (it.hasNext()) {
-          Lemming l = it.next();
+        for (Lemming l : lemmings) {
           if (!l.nuke() && !l.hasDied() && !l.hasLeft()) {
             l.setSkill(Lemming.Type.NUKE);
             // System.out.println("nuked!");
@@ -1391,9 +1389,7 @@ public class GameController {
   public static synchronized void drawExplosions(
       final Graphics2D g, final int width, final int height, final int xOfs) {
     synchronized (explosions) {
-      Iterator<Explosion> it = explosions.iterator();
-      while (it.hasNext()) {
-        Explosion e = it.next();
+      for (Explosion e : explosions) {
         e.draw(g, width, height, xOfs);
       }
     }

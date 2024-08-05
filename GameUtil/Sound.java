@@ -88,7 +88,7 @@ public class Sound {
   static int mixerIdx;
 
   /** array of available mixers */
-  static Mixer mixers[];
+  static ArrayList<Mixer> mixers;
 
   /** number of samples to be used */
   static int sampleNum;
@@ -158,15 +158,13 @@ public class Sound {
 
     // get all available mixers
     Mixer.Info[] mixInfo = AudioSystem.getMixerInfo();
-    ArrayList<Mixer> mix = new ArrayList<Mixer>();
+    mixers = new ArrayList<Mixer>();
     for (int i = 0; i < mixInfo.length; i++) {
       Mixer mixer = AudioSystem.getMixer(mixInfo[i]);
       Line.Info info = new Line.Info(Clip.class);
       int num = mixer.getMaxLines(info);
-      if (num != 0) mix.add(mixer);
+      if (num != 0) mixers.add(mixer);
     }
-    mixers = new Mixer[mix.size()];
-    mixers = mix.toArray(mixers);
   }
 
   /**
@@ -174,10 +172,12 @@ public class Sound {
    *
    * @return array of available mixer names
    */
-  public String[] getMixers() {
+  public ArrayList<String> getMixers() {
     if (mixers == null) return null;
-    String s[] = new String[mixers.length];
-    for (int i = 0; i < mixers.length; i++) s[i] = mixers[i].getMixerInfo().getName();
+    ArrayList<String> s = new ArrayList<String>();
+    for (Mixer m : mixers) {
+      s.add(m.getMixerInfo().getName());
+    }
     return s;
   }
 
@@ -187,8 +187,26 @@ public class Sound {
    * @param idx index of mixer
    */
   public void setMixer(final int idx) {
-    if (idx > mixers.length) mixerIdx = 0;
+    if (idx > mixers.size()) mixerIdx = 0;
     else mixerIdx = idx;
+  }
+
+  /**
+   * Set mixer to be used for sound output.
+   *
+   * @param name of mixer
+   */
+  public int setMixer(final String n) {
+    int idx = 0;
+    for (Mixer m : mixers) {
+      if (n.equals(m.getMixerInfo().getName())) {
+        mixerIdx = idx;
+        return idx;
+      }
+      idx++;
+    }
+    mixerIdx = 0;
+    return 0;
   }
 
   /**
@@ -199,7 +217,7 @@ public class Sound {
    */
   public Line getLine(final DataLine.Info info) {
     try {
-      return mixers[mixerIdx].getLine(info);
+      return mixers.get(mixerIdx).getLine(info);
     } catch (Exception ex) {
       return null;
     }
@@ -214,7 +232,7 @@ public class Sound {
     if (!GameController.isSoundOn() || simulSounds >= MAX_SIMUL_SOUNDS) return;
 
     try {
-      Clip c = (Clip) mixers[mixerIdx].getLine(info[idx]);
+      Clip c = (Clip) mixers.get(mixerIdx).getLine(info[idx]);
       // Add a listener for line events
       c.addLineListener(defaultListener);
       c.open(format[idx], soundBuffer[idx], 0, soundBuffer[idx].length);
@@ -328,7 +346,7 @@ public class Sound {
     if (!GameController.isSoundOn() || simulSounds >= MAX_SIMUL_SOUNDS) return;
 
     try {
-      Clip c = (Clip) mixers[mixerIdx].getLine(pitchInfo);
+      Clip c = (Clip) mixers.get(mixerIdx).getLine(pitchInfo);
       // Add a listener for line events
       c.addLineListener(defaultListener);
       c.open(pitchFormat, pitchBuffers[pitch], 0, pitchBuffers[pitch].length);
