@@ -150,7 +150,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   public GraphicsPane(Dimension screen) throws ResourceException {
     requestFocus();
     lemmCursor = new LemmCursor();
-    setCursor(lemmCursor.getCursor());
     addMouseListener(this);
     addMouseMotionListener(this);
 
@@ -191,6 +190,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     double newScale = (float) newSize.height / DRAWHEIGHT;
     if (newScale < 1.0f) newScale = 1.0f;
     scale = newScale;
+    lemmCursor.scaleCursor(scale);
 
     double new_draw_width = (float) newSize.width / scale;
     if (new_draw_width < MINDRAWWIDTH) new_draw_width = MINDRAWWIDTH;
@@ -209,7 +209,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   public synchronized void setCursor(final LemmCursor.Type c) {
     lemmCursor.setType(c);
-    setCursor(lemmCursor.getCursor());
   }
 
   /**
@@ -218,17 +217,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    * @param c Cursor
    */
   public synchronized void setCursorIf(final LemmCursor.Type cond) {
-    if (lemmCursor.getType() == cond) setCursor(LemmCursor.Type.NORMAL);
-  }
-
-  /**
-   * Show/hide Mouse cursor.
-   *
-   * @param en true to show the Mouse cursor, false to hide it
-   */
-  public synchronized void enableCursor(boolean en) {
-    lemmCursor.setEnabled(en);
-    setCursor(lemmCursor.getCursor());
+    if (lemmCursor.getType() == cond) lemmCursor.setType(LemmCursor.Type.NORMAL);
   }
 
   /* (non-Javadoc)
@@ -261,6 +250,21 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     paint(g);
   }
 
+  private boolean cursorShowing = false;
+
+  private void showCursor(final boolean c) {
+    // if(cursorShowing == c && isCursorSet())
+    //  return;
+
+    cursorShowing = c;
+
+    if (cursorShowing) {
+      setCursor(lemmCursor.getDefaultCursor());
+    } else {
+      setCursor(lemmCursor.getInvisibleCursor());
+    }
+  }
+
   /** redraw the offscreen image, then flip buffers and force repaint. */
   private synchronized void redraw() {
     int drawBuffer = (activeBuffer == 0) ? 1 : 0;
@@ -270,6 +274,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case INTRO:
         TextScreen.drawIntro(internalWidth, forceRedraw);
         forceRedraw = false;
+        showCursor(true);
         offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
         break;
 
@@ -281,12 +286,14 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case BRIEFING:
         TextScreen.drawBriefing(internalWidth, forceRedraw);
         forceRedraw = false;
+        showCursor(true);
         offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
         break;
 
       case DEBRIEFING:
         TextScreen.drawDebriefing(internalWidth, forceRedraw);
         forceRedraw = false;
+        showCursor(true);
         TextScreen.getDialog().handleMouseMove(xMouseScreen, yMouseScreen);
         offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
         break;
@@ -449,14 +456,20 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       offGfx.drawImage(
           replayImage, internalWidth - 2 * replayImage.getWidth(), replayImage.getHeight(), null);
     // draw cursor
-    if (lemmUnderCursor != null) {
-      enableCursor(false);
-      BufferedImage cursorImg = lemmCursor.getBoxImage();
+    if (xMouseScreen > 0
+        && xMouseScreen < internalWidth
+        && yMouseScreen > 0
+        && yMouseScreen < DRAWHEIGHT) {
+      showCursor(false);
+      BufferedImage cursorImg =
+          lemmUnderCursor != null ? lemmCursor.getBoxImage() : lemmCursor.getImage();
 
       int lx = xMouseScreen - cursorImg.getWidth() / 2;
       int ly = yMouseScreen - cursorImg.getHeight() / 2;
       offGfx.drawImage(cursorImg, lx, ly, null);
-    } else if (lemmCursor.getEnabled() == false) enableCursor(true);
+    } else {
+      showCursor(true);
+    }
   }
 
   /* (non-Javadoc)
@@ -661,10 +674,16 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case DEBRIEFING:
       case LEVEL:
         xMouseScreen += (int) (mouseDx / scale);
-        xMouse = GameController.getxPos() + clamp(xMouseScreen, internalWidth - 1);
+        xMouse = GameController.getxPos() + clamp(xMouseScreen, internalWidth);
 
         yMouseScreen += (int) (mouseDy / scale);
-        yMouse = clamp(yMouseScreen, Level.HEIGHT - 1);
+        yMouse = clamp(yMouseScreen, Level.HEIGHT);
+
+        // hide the cursor but preserve scroll
+        yMouseScreen = -1;
+
+        if (xMouseScreen < AUTOSCROLL_RANGE) xMouseScreen = -1;
+        else if (xMouseScreen > internalWidth - AUTOSCROLL_RANGE) xMouseScreen = internalWidth + 1;
 
         mouseevent.consume();
         break;
@@ -713,10 +732,10 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
     // LemmCursor
     xMouseScreen = (int) (mouseevent.getX() / scale);
-    xMouse = GameController.getxPos() + clamp(xMouseScreen, internalWidth - 1);
+    xMouse = GameController.getxPos() + clamp(xMouseScreen, internalWidth);
 
     yMouseScreen = (int) (mouseevent.getY() / scale);
-    yMouse = clamp(yMouseScreen, Level.HEIGHT - 1);
+    yMouse = clamp(yMouseScreen, Level.HEIGHT);
 
     if (fullScreen) {
       getParent().getComponent(0).setVisible(yMouseScreen < 5);

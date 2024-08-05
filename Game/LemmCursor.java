@@ -2,6 +2,7 @@ package Game;
 
 import Tools.ToolBox;
 import java.awt.Cursor;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Transparency;
@@ -58,8 +59,10 @@ public class LemmCursor {
   /** array of images - one for each cursor type */
   private ArrayList<BufferedImage> img;
 
-  /** array of AWT cursor Objects */
-  private Cursor cursor[];
+  /** AWT cursor Objects */
+  private Cursor invisibleCursor;
+
+  private Cursor defaultCursor;
 
   /** is Mouse cursor hidden? */
   private boolean enabled;
@@ -71,21 +74,11 @@ public class LemmCursor {
    */
   public LemmCursor() throws ResourceException {
     img = ToolBox.getAnimation(Core.loadImage("misc/cursor.gif"), 8, Transparency.BITMASK);
-    cursor = new Cursor[5];
-    int w = getImage(Type.NORMAL).getWidth() / 2;
-    int h = getImage(Type.NORMAL).getHeight() / 2;
-    cursor[Type.HIDDEN.ordinal()] =
+    invisibleCursor =
         Toolkit.getDefaultToolkit()
             .createCustomCursor(
                 new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "");
-    cursor[Type.NORMAL.ordinal()] =
-        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.NORMAL), new Point(w, h), "");
-    cursor[Type.LEFT.ordinal()] =
-        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.LEFT), new Point(w, h), "");
-    cursor[Type.RIGHT.ordinal()] =
-        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.RIGHT), new Point(w, h), "");
-    cursor[Type.WALKER.ordinal()] =
-        Toolkit.getDefaultToolkit().createCustomCursor(getImage(Type.WALKER), new Point(w, h), "");
+    scaleCursor(1.0);
     type = Type.NORMAL;
     enabled = true;
   }
@@ -145,13 +138,42 @@ public class LemmCursor {
   }
 
   /**
-   * Get current cursor as AWT cursor object.
+   * Get the default current cursor as AWT cursor object.
    *
-   * @return current cursor as AWT cursor object
+   * @return default cursor
    */
-  public Cursor getCursor() {
-    if (enabled) return cursor[type.ordinal()];
-    else return cursor[Type.HIDDEN.ordinal()];
+  public Cursor getDefaultCursor() {
+    return defaultCursor;
+  }
+
+  /**
+   * Get the invisible current cursor as AWT cursor object.
+   *
+   * @return invisible cursor
+   */
+  public Cursor getInvisibleCursor() {
+    return invisibleCursor;
+  }
+
+  /**
+   * Scale the default cursor
+   *
+   * @param scale scaling factor
+   */
+  public void scaleCursor(double scale) {
+    Image img = getImage(Type.NORMAL);
+    if (scale == 1.0) {
+      int w = getImage(Type.NORMAL).getWidth();
+      int h = getImage(Type.NORMAL).getHeight();
+      defaultCursor =
+          Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(w / 2, h / 2), "");
+    } else {
+      int w = (int) ((double) getImage(Type.NORMAL).getWidth() * scale);
+      int h = (int) ((double) getImage(Type.NORMAL).getHeight() * scale);
+      Image scaledImg = img.getScaledInstance(w, h, 0);
+      defaultCursor =
+          Toolkit.getDefaultToolkit().createCustomCursor(scaledImg, new Point(w / 2, h / 2), "");
+    }
   }
 
   /**
