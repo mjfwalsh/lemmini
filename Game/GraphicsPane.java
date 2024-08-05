@@ -148,9 +148,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   private boolean fullScreen = false;
 
   /** Constructor. */
-  public GraphicsPane() {
-    super();
-
+  public GraphicsPane(Dimension screen) {
     drawLock = new ReentrantLock();
     requestFocus();
     setCursor(LemmCursor.getCursor());
@@ -170,10 +168,21 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
     TextScreen.init(MAXDRAWWIDTH, DRAWHEIGHT);
     shiftPressed = false;
+
+    setBackground(Color.BLACK);
+    setDoubleBuffered(false);
+
+    // adjust game so height is about a quarter the size of the screen
+    scale = (float) screen.height / (2 * (float) DRAWHEIGHT);
+
+    // set graphics pane dimensions
+    int width = (int) ((float) internalWidth * scale);
+    int height = (int) ((float) DRAWHEIGHT * scale);
+    setPreferredSize(new Dimension(width, height));
   }
 
   /**
-   * Change the drawWidth and scale based on the window size
+   * Change the width and scale based on the window size
    *
    * @return internal draw width
    */
@@ -195,49 +204,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       double scaledWidth = scale * (double) internalWidth;
       double scaledHeight = scale * (double) DRAWHEIGHT;
       setSize((int) scaledWidth, (int) scaledHeight);
-    } finally {
-      drawLock.unlock();
-    }
-  }
-
-  /**
-   * Get internal Draw Width
-   *
-   * @return internal draw width
-   */
-  public int getDrawWidth() {
-    drawLock.lock();
-    try {
-      return internalWidth;
-    } finally {
-      drawLock.unlock();
-    }
-  }
-
-  /**
-   * Get internal Draw Height
-   *
-   * @return internal draw width
-   */
-  public int getDrawHeight() {
-    drawLock.lock();
-    try {
-      return DRAWHEIGHT;
-    } finally {
-      drawLock.unlock();
-    }
-  }
-
-  /**
-   * Set zoom scale
-   *
-   * @param s zoom scale
-   */
-  public void setScale(double s) {
-    drawLock.lock();
-    try {
-      forceRedraw = true;
-      scale = s;
     } finally {
       drawLock.unlock();
     }
@@ -296,16 +262,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   @Override
   public void update(final Graphics g) {
     paint(g);
-  }
-
-  /** Delete offImage to avoid redraw and force init. */
-  public void shutdown() {
-    drawLock.lock();
-    try {
-      offImage = null;
-    } finally {
-      drawLock.unlock();
-    }
   }
 
   /** redraw the offscreen image, then flip buffers and force repaint. */
@@ -793,21 +749,12 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   }
 
   /**
-   * Get cursor x position in pixels.
+   * Create new lemming at cursor position.
    *
-   * @return cursor x position in pixels
+   * @return lemming
    */
-  public int getCursorX() {
-    return xMouse;
-  }
-
-  /**
-   * Get cursor y position in pixels.
-   *
-   * @return cursor y position in pixels
-   */
-  public int getCursorY() {
-    return yMouse;
+  public Lemming createLemmingAtCursorPosition() {
+    return new Lemming(xMouse, yMouse);
   }
 
   /**
@@ -859,7 +806,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     return internalWidth - 208 - 4;
   }
 
-  private int clamp(int value, int max) {
+  private static int clamp(int value, int max) {
     if (value < 0) return 0;
     if (value > max) return max;
     return value;

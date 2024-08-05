@@ -135,25 +135,10 @@ public class Lemmini extends JFrame implements KeyListener {
     screen = new Dimension(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
 
     // create graphics pane
-    gp = new GraphicsPane();
-    gp.setBackground(Color.BLACK);
-    gp.setDoubleBuffered(false);
-
-    // internal width and height
-    int drawHeight = gp.getDrawHeight();
-    int drawWidth = gp.getDrawWidth();
-
-    // adjust game so height is about a quarter the size of the screen
-    double scale = (float) screen.height / (2 * (float) drawHeight);
-    gp.setScale(scale);
+    gp = new GraphicsPane(screen);
 
     // allow window resize
     setResizable(true);
-
-    // set graphics pane dimensions
-    int width = (int) ((float) drawWidth * scale);
-    int height = (int) ((float) drawHeight * scale);
-    gp.setPreferredSize(new Dimension(width, height));
 
     // Add menu bar
     buildMenuBar();
@@ -168,8 +153,8 @@ public class Lemmini extends JFrame implements KeyListener {
 
     // now that the window has started, we can calculate the margins
     Dimension wholeWindow = getSize();
-    xMargin = wholeWindow.width - width;
-    yMargin = wholeWindow.height - height;
+    xMargin = wholeWindow.width - gp.getWidth();
+    yMargin = wholeWindow.height - gp.getHeight();
 
     // set coords - default to centre of screen
     int posX = Math.max((screen.width / 2) - (wholeWindow.width / 2), 0);
@@ -839,7 +824,7 @@ public class Lemmini extends JFrame implements KeyListener {
           break;
         case KeyEvent.VK_SPACE:
           if (GameController.isCheat()) {
-            Lemming l = new Lemming(gp.getCursorX(), gp.getCursorY());
+            Lemming l = gp.createLemmingAtCursorPosition();
             synchronized (GameController.getLemmings()) {
               GameController.getLemmings().add(l);
             }
