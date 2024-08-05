@@ -95,6 +95,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   // mouse drag length in y direction (pixels)
   private int mouseDy;
 
+  // cursor object
+  private LemmCursor lemmCursor;
+
   // flag: Shift key is pressed
   private boolean shiftPressed;
 
@@ -144,9 +147,10 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   private boolean fullScreen = false;
 
   /** Constructor. */
-  public GraphicsPane(Dimension screen) {
+  public GraphicsPane(Dimension screen) throws ResourceException {
     requestFocus();
-    setCursor(LemmCursor.getCursor());
+    lemmCursor = new LemmCursor();
+    setCursor(lemmCursor.getCursor());
     addMouseListener(this);
     addMouseMotionListener(this);
 
@@ -204,8 +208,17 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    * @param c Cursor
    */
   public synchronized void setCursor(final LemmCursor.Type c) {
-    LemmCursor.setType(c);
-    setCursor(LemmCursor.getCursor());
+    lemmCursor.setType(c);
+    setCursor(lemmCursor.getCursor());
+  }
+
+  /**
+   * Set cursor type.
+   *
+   * @param c Cursor
+   */
+  public synchronized void setCursorIf(final LemmCursor.Type cond) {
+    if (lemmCursor.getType() == cond) setCursor(LemmCursor.Type.NORMAL);
   }
 
   /**
@@ -214,8 +227,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    * @param en true to show the Mouse cursor, false to hide it
    */
   public synchronized void enableCursor(boolean en) {
-    LemmCursor.setEnabled(en);
-    setCursor(LemmCursor.getCursor());
+    lemmCursor.setEnabled(en);
+    setCursor(lemmCursor.getCursor());
   }
 
   /* (non-Javadoc)
@@ -383,7 +396,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
         MiniMap.drawLemming(offGfx, lx, ly, getSmallX());
       }
     }
-    Lemming lemmUnderCursor = GameController.lemmUnderCursor(LemmCursor.getType());
+    Lemming lemmUnderCursor = GameController.lemmUnderCursor(lemmCursor.getType());
 
     // draw explosions
     GameController.drawExplosions(offGfx, internalWidth, Level.HEIGHT, xOfsTemp);
@@ -438,12 +451,12 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     // draw cursor
     if (lemmUnderCursor != null) {
       enableCursor(false);
-      BufferedImage cursorImg = LemmCursor.getBoxImage();
+      BufferedImage cursorImg = lemmCursor.getBoxImage();
 
       int lx = xMouseScreen - cursorImg.getWidth() / 2;
       int ly = yMouseScreen - cursorImg.getHeight() / 2;
       offGfx.drawImage(cursorImg, lx, ly, null);
-    } else if (LemmCursor.getEnabled() == false) enableCursor(true);
+    } else if (lemmCursor.getEnabled() == false) enableCursor(true);
   }
 
   /* (non-Javadoc)
@@ -591,7 +604,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
               GameController.handleIconButton(type);
             }
           } else {
-            Lemming l = GameController.lemmUnderCursor(LemmCursor.getType());
+            Lemming l = GameController.lemmUnderCursor(lemmCursor.getType());
             if (l != null) GameController.requestSkill(l);
           }
           // check minimap mouse move

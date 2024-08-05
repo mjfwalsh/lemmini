@@ -115,20 +115,10 @@ public class Lemmini extends JFrame implements KeyListener {
   private java.awt.event.ActionListener lvlListener;
 
   /** Constructor of the main frame. */
-  Lemmini() {
-    try {
-      Core.init(this); // initialize Core object
-      GameController.init();
-      GameController.setLevelMenuUpdateListener(new LevelMenuUpdateListener());
-    } catch (ResourceException ex) {
-      Core.resourceError(ex.getMessage());
-    } catch (LemmException ex) {
-      JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-      System.exit(1);
-    } catch (Exception | Error ex) {
-      ToolBox.showException(ex);
-      System.exit(1);
-    }
+  Lemmini() throws LemmException, ResourceException {
+    Core.init(this); // initialize Core object
+    GameController.init();
+    GameController.setLevelMenuUpdateListener(new LevelMenuUpdateListener());
 
     // gather screen dimension, window height and scale
     gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -621,16 +611,26 @@ public class Lemmini extends JFrame implements KeyListener {
     }
 
     Toolkit.getDefaultToolkit().setDynamicLayout(true);
-    Lemmini app = new Lemmini();
+    try {
+      final Lemmini app = new Lemmini();
 
-    // setting shutdown hook
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread() {
-              public void run() {
-                app.saveProps();
-              }
-            });
+      // setting shutdown hook
+      Runtime.getRuntime()
+          .addShutdownHook(
+              new Thread() {
+                public void run() {
+                  app.saveProps();
+                }
+              });
+    } catch (ResourceException ex) {
+      Core.resourceError(ex.getMessage());
+    } catch (LemmException ex) {
+      JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+      System.exit(1);
+    } catch (Exception | Error ex) {
+      ToolBox.showException(ex);
+      System.exit(1);
+    }
   }
 
   /** Update the level menus according to the progress of the current player. */
@@ -883,13 +883,13 @@ public class Lemmini extends JFrame implements KeyListener {
           GameController.releaseIcon(Icons.Type.NUKE);
           break;
         case KeyEvent.VK_LEFT:
-          if (LemmCursor.getType() == LemmCursor.Type.LEFT) gp.setCursor(LemmCursor.Type.NORMAL);
+          gp.setCursorIf(LemmCursor.Type.LEFT);
           break;
         case KeyEvent.VK_RIGHT:
-          if (LemmCursor.getType() == LemmCursor.Type.RIGHT) gp.setCursor(LemmCursor.Type.NORMAL);
+          gp.setCursorIf(LemmCursor.Type.RIGHT);
           break;
         case KeyEvent.VK_UP:
-          if (LemmCursor.getType() == LemmCursor.Type.WALKER) gp.setCursor(LemmCursor.Type.NORMAL);
+          gp.setCursorIf(LemmCursor.Type.WALKER);
           break;
       }
     }

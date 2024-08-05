@@ -422,7 +422,6 @@ public class GameController {
 
     LemmFont.init();
     NumFont.init();
-    LemmCursor.init();
     Music.init();
     Music.setGain(musicGain);
     MiscGfx.init();

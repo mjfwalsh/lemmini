@@ -52,30 +52,24 @@ public class LemmCursor {
     BOX_WALKER,
   }
 
-  /** x position in pixels */
-  private static int x;
-
-  /** y position in pixels */
-  private static int y;
-
   /** current cursor type */
-  private static Type type;
+  private Type type;
 
   /** array of images - one for each cursor type */
-  private static ArrayList<BufferedImage> img;
+  private ArrayList<BufferedImage> img;
 
   /** array of AWT cursor Objects */
-  private static Cursor cursor[];
+  private Cursor cursor[];
 
   /** is Mouse cursor hidden? */
-  private static boolean enabled;
+  private boolean enabled;
 
   /**
    * Initialization.
    *
    * @throws ResourceException
    */
-  public static void init() throws ResourceException {
+  public LemmCursor() throws ResourceException {
     img = ToolBox.getAnimation(Core.loadImage("misc/cursor.gif"), 8, Transparency.BITMASK);
     cursor = new Cursor[5];
     int w = getImage(Type.NORMAL).getWidth() / 2;
@@ -101,7 +95,7 @@ public class LemmCursor {
    *
    * @param en true to show, false to hide
    */
-  public static void setEnabled(boolean en) {
+  public void setEnabled(boolean en) {
     enabled = en;
   }
 
@@ -110,7 +104,7 @@ public class LemmCursor {
    *
    * @return true if shows, false if hidden
    */
-  public static boolean getEnabled() {
+  public boolean getEnabled() {
     return enabled;
   }
 
@@ -120,7 +114,7 @@ public class LemmCursor {
    * @param t cursor type
    * @return image for the given cursor type
    */
-  public static BufferedImage getImage(final Type t) {
+  public BufferedImage getImage(final Type t) {
     return img.get(t.ordinal() - 1);
   }
 
@@ -129,7 +123,7 @@ public class LemmCursor {
    *
    * @return image for current cursor type
    */
-  public static BufferedImage getImage() {
+  public BufferedImage getImage() {
     return getImage(type);
   }
 
@@ -138,7 +132,7 @@ public class LemmCursor {
    *
    * @return boxed version of image for the current cursor type
    */
-  public static BufferedImage getBoxImage() {
+  public BufferedImage getBoxImage() {
     Type t =
         switch (type) {
           case NORMAL -> Type.BOX_NORMAL;
@@ -155,7 +149,7 @@ public class LemmCursor {
    *
    * @return current cursor as AWT cursor object
    */
-  public static Cursor getCursor() {
+  public Cursor getCursor() {
     if (enabled) return cursor[type.ordinal()];
     else return cursor[Type.HIDDEN.ordinal()];
   }
@@ -165,7 +159,7 @@ public class LemmCursor {
    *
    * @return current cursor type
    */
-  public static Type getType() {
+  public Type getType() {
     return type;
   }
 
@@ -174,7 +168,7 @@ public class LemmCursor {
    *
    * @param t cursor type
    */
-  public static void setType(final Type t) {
+  public void setType(final Type t) {
     type = t;
   }
 }
