@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import javax.swing.JOptionPane;
 
 /*
@@ -632,14 +631,13 @@ public class GameController {
     replayMode = false;
 
     if (!wasLost()) {
-      if (GameController.getCurLevelPackIdx() != 0) { // 0 is the dummy pack
-        LevelPack lvlPack = GameController.getLevelPack(GameController.getCurLevelPackIdx());
+      if (curLevelPack != 0) { // 0 is the dummy pack
+        LevelPack lvlPack = levelPack.get(curLevelPack);
         String pack = lvlPack.getName();
-        String diff = lvlPack.getDiffLevels().get(GameController.getCurDiffLevel());
+        String diff = lvlPack.getDiffLevels().get(curDiffLevel);
         // get next level
-        int num = GameController.getCurLevelNumber() + 1;
-        if (num >= lvlPack.getLevelCount(GameController.getCurDiffLevel()))
-          num = GameController.getCurLevelNumber();
+        int num = curLevelNumber + 1;
+        if (num >= lvlPack.getLevelCount(curDiffLevel)) num = curLevelNumber;
         // set next level as available
         BigInteger bf = Core.player.setAvailable(pack, diff, num);
         // update the menu
@@ -720,7 +718,7 @@ public class GameController {
     numBashers = level.getNumBashers();
     numMiners = level.getNumMiners();
     numDiggers = level.getMumDiggers();
-    setxPos(level.getXpos());
+    xPos = level.getXpos();
 
     calcReleaseBase();
 
@@ -942,9 +940,9 @@ public class GameController {
           nukeOld = nuke;
         }
         // replay: xPos changed?
-        if (getxPos() != xPosOld) {
-          replay.addXPosEvent(replayFrame, getxPos());
-          xPosOld = getxPos();
+        if (xPos != xPosOld) {
+          replay.addXPosEvent(replayFrame, xPos);
+          xPosOld = xPos;
         }
         // skill changed
         if (lemmSkill != lemmSkillOld) {
@@ -960,11 +958,9 @@ public class GameController {
           case ReplayStream.ASSIGN_SKILL:
             {
               ReplayAssignSkillEvent rs = (ReplayAssignSkillEvent) r;
-              synchronized (lemmings) {
-                Lemming l = lemmings.get(rs.lemming);
-                l.setSkill(rs.skill);
-                l.setSelected();
-              }
+              Lemming l = lemmings.get(rs.lemming);
+              l.setSkill(rs.skill);
+              l.setSelected();
               switch (rs.skill) {
                 case FLOATER:
                   numFloaters -= 1;
@@ -1006,7 +1002,7 @@ public class GameController {
           case ReplayStream.MOVE_XPOS:
             {
               ReplayMoveXPosEvent rx = (ReplayMoveXPosEvent) r;
-              setxPos(rx.xPos);
+              xPos = rx.xPos;
               break;
             }
           case ReplayStream.SELECT_SKILL:
@@ -1073,9 +1069,7 @@ public class GameController {
         if (level.getEntryNum() != 0) {
           Entry e = level.getEntry(TrapDoor.getNext());
           Lemming l = new Lemming(e.xPos + 2, e.yPos + 20);
-          synchronized (lemmings) {
-            lemmings.add(l);
-          }
+          lemmings.add(l);
           numLemmingsOut++;
         }
       } catch (ArrayIndexOutOfBoundsException ex) {
@@ -1083,13 +1077,11 @@ public class GameController {
     }
     // nuking
     if (nukeTemp && ((updateCtr & 1) == 1)) {
-      synchronized (lemmings) {
-        for (Lemming l : lemmings) {
-          if (!l.nuke() && !l.hasDied() && !l.hasLeft()) {
-            l.setSkill(Lemming.Type.NUKE);
-            // System.out.println("nuked!");
-            break;
-          }
+      for (Lemming l : lemmings) {
+        if (!l.nuke() && !l.hasDied() && !l.hasLeft()) {
+          l.setSkill(Lemming.Type.NUKE);
+          // System.out.println("nuked!");
+          break;
         }
       }
     }
@@ -1113,25 +1105,19 @@ public class GameController {
       endLevel();
     }
 
-    synchronized (lemmings) {
-      Iterator<Lemming> it = lemmings.iterator();
-      while (it.hasNext()) {
-        Lemming l = it.next();
-        if (l.hasDied() || l.hasLeft()) {
-          it.remove();
-          continue;
-        }
-        l.animate();
+    for (Iterator<Lemming> it = lemmings.iterator(); it.hasNext(); ) {
+      Lemming l = it.next();
+      if (l.hasDied() || l.hasLeft()) {
+        it.remove();
+        continue;
       }
+      l.animate();
     }
 
-    synchronized (explosions) {
-      Iterator<Explosion> it = explosions.iterator();
-      while (it.hasNext()) {
-        Explosion e = it.next();
-        if (e.isFinished()) it.remove();
-        else e.update();
-      }
+    for (Iterator<Explosion> it = explosions.iterator(); it.hasNext(); ) {
+      Explosion e = it.next();
+      if (e.isFinished()) it.remove();
+      else e.update();
     }
 
     // animate level objects
@@ -1235,11 +1221,9 @@ public class GameController {
       }
       // add to replay stream
       if (!wasCheated)
-        synchronized (lemmings) {
-          for (int i = 0; i < lemmings.size(); i++)
-            if (lemmings.get(i) == lemm) // if 2nd try (delete==true) assign to next frame
-            replay.addAssignSkillEvent(replayFrame + ((delete) ? 1 : 0), lemmSkill, i);
-        }
+        for (int i = 0; i < lemmings.size(); i++)
+          if (lemmings.get(i) == lemm) // if 2nd try (delete==true) assign to next frame
+          replay.addAssignSkillEvent(replayFrame + ((delete) ? 1 : 0), lemmSkill, i);
     } else if (delete) sound.play(SND_TING);
   }
 
@@ -1411,10 +1395,8 @@ public class GameController {
    */
   public static synchronized void drawExplosions(
       final Graphics2D g, final int width, final int height, final int xOfs) {
-    synchronized (explosions) {
-      for (Explosion e : explosions) {
-        e.draw(g, width, height, xOfs);
-      }
+    for (Explosion e : explosions) {
+      e.draw(g, width, height, xOfs);
     }
   }
 
@@ -1426,9 +1408,7 @@ public class GameController {
    */
   public static synchronized void addExplosion(final int x, final int y) {
     // create particle explosion
-    synchronized (explosions) {
-      explosions.add(new Explosion(x, y));
-    }
+    explosions.add(new Explosion(x, y));
   }
 
   /**
@@ -1771,21 +1751,12 @@ public class GameController {
   }
 
   /**
-   * Get list of all Lemmings under the mouse cursor.
+   * Add a lemming.
    *
-   * @return list of all Lemmings under the mouse cursor
+   * @param the lemming to add
    */
-  public static synchronized ArrayList<Lemming> getLemmsUnderCursor() {
-    return lemmsUnderCursor;
-  }
-
-  /**
-   * Get list of all Lemmings in this level.
-   *
-   * @return list of all Lemmings in this level
-   */
-  public static synchronized LinkedList<Lemming> getLemmings() {
-    return lemmings;
+  public static synchronized void addLemming(Lemming l) {
+    lemmings.add(l);
   }
 
   /**
@@ -1925,28 +1896,24 @@ public class GameController {
       int xMouse,
       int yMouse,
       LemmCursor.Type cursorType) {
-    BufferedImage bgImage = GameController.getBgImage();
+    BufferedImage bgImage = getBgImage();
     if (bgImage == null) return;
 
-    GameController.update();
+    update();
     // mouse movement
     if (yMouseScreen < Level.HEIGHT) { // avoid scrolling if menu is selected
       int xOfsTemp;
       if (xMouseScreen > internalWidth - GraphicsPane.AUTOSCROLL_RANGE) {
-        xOfsTemp = GameController.getxPos() + ((shiftPressed) ? X_STEP_FAST : X_STEP);
-        if (xOfsTemp < Level.WIDTH - internalWidth) GameController.setxPos(xOfsTemp);
-        else GameController.setxPos(Level.WIDTH - internalWidth);
+        xOfsTemp = xPos + ((shiftPressed) ? X_STEP_FAST : X_STEP);
+        if (xOfsTemp < Level.WIDTH - internalWidth) xPos = xOfsTemp;
+        else xPos = Level.WIDTH - internalWidth;
       } else if (xMouseScreen < GraphicsPane.AUTOSCROLL_RANGE) {
-        xOfsTemp = GameController.getxPos() - ((shiftPressed) ? X_STEP_FAST : X_STEP);
-        if (xOfsTemp > 0) GameController.setxPos(xOfsTemp);
-        else GameController.setxPos(0);
+        xOfsTemp = xPos - ((shiftPressed) ? X_STEP_FAST : X_STEP);
+        if (xOfsTemp > 0) xPos = xOfsTemp;
+        else xPos = 0;
       }
     }
-    // store local copy of xOfs to avoid sync problems with AWT threads
-    // (scrolling by dragging changes xOfs as well)
-    int xOfsTemp = GameController.getxPos();
 
-    Level level = GameController.getLevel();
     if (level != null) {
 
       // clear screen
@@ -1954,7 +1921,7 @@ public class GameController {
       offGfx.clearRect(0, 0, GraphicsPane.MAXDRAWWIDTH, Level.HEIGHT);
 
       // draw "behind" objects
-      GameController.getLevel().drawBehindObjects(offGfx, internalWidth, xOfsTemp);
+      level.drawBehindObjects(offGfx, internalWidth, xPos);
 
       // draw background
       offGfx.drawImage(
@@ -1963,14 +1930,14 @@ public class GameController {
           0,
           internalWidth,
           Level.HEIGHT,
-          xOfsTemp,
+          xPos,
           0,
-          xOfsTemp + internalWidth,
+          xPos + internalWidth,
           Level.HEIGHT,
           null);
 
       // draw "in front" objects
-      GameController.getLevel().drawInFrontObjects(offGfx, internalWidth, xOfsTemp);
+      level.drawInFrontObjects(offGfx, internalWidth, xPos);
     }
 
     // clear parts of the screen for menu etc.
@@ -1979,52 +1946,49 @@ public class GameController {
         0, Level.HEIGHT, GraphicsPane.MAXDRAWWIDTH, GraphicsPane.DRAWHEIGHT - Level.HEIGHT);
 
     // draw icons, small level pic
-    GameController.drawIcons(offGfx, 0, GraphicsPane.iconsY);
+    drawIcons(offGfx, 0, GraphicsPane.iconsY);
     int smallX = internalWidth - 208 - 4;
     offGfx.drawImage(
         MiscGfx.getImage(MiscGfx.Index.BORDER), smallX - 4, GraphicsPane.smallY - 4, null);
-    MiniMap.draw(offGfx, smallX, GraphicsPane.smallY, xOfsTemp, internalWidth);
+    MiniMap.draw(offGfx, smallX, GraphicsPane.smallY, xPos, internalWidth);
 
     // draw counters
-    GameController.drawCounters(offGfx, GraphicsPane.counterY);
+    drawCounters(offGfx, GraphicsPane.counterY);
 
     // draw lemmings
-    GameController.getLemmsUnderCursor().clear();
-    List<Lemming> lemmings = GameController.getLemmings();
-    synchronized (lemmings) {
-      for (Lemming l : lemmings) {
-        final int lx = l.screenX();
-        final int ly = l.screenY();
-        final int mx = l.midX() - 16;
-        if (lx + l.width() > xOfsTemp && lx < xOfsTemp + internalWidth) {
-          offGfx.drawImage(l.getImage(), lx - xOfsTemp, ly, null);
+    lemmsUnderCursor.clear();
+    for (Lemming l : lemmings) {
+      final int lx = l.screenX();
+      final int ly = l.screenY();
+      final int mx = l.midX() - 16;
+      if (lx + l.width() > xPos && lx < xPos + internalWidth) {
+        offGfx.drawImage(l.getImage(), lx - xPos, ly, null);
 
-          // is lemming under cursor
-          if (Math.abs(l.midX() - xMouse) <= HIT_DISTANCE
-              && Math.abs(l.midY() - yMouse) <= HIT_DISTANCE) {
-            GameController.getLemmsUnderCursor().add(l);
-          }
-
-          BufferedImage cd = l.getCountdown();
-          if (cd != null) offGfx.drawImage(cd, mx - xOfsTemp, ly - cd.getHeight(), null);
-
-          BufferedImage sel = l.getSelectImg();
-          if (sel != null) offGfx.drawImage(sel, mx - xOfsTemp, ly - sel.getHeight(), null);
+        // is lemming under cursor
+        if (Math.abs(l.midX() - xMouse) <= HIT_DISTANCE
+            && Math.abs(l.midY() - yMouse) <= HIT_DISTANCE) {
+          lemmsUnderCursor.add(l);
         }
 
-        // draw lemmings on mini map
-        MiniMap.drawLemming(offGfx, lx, ly, internalWidth - 208 - 4);
+        BufferedImage cd = l.getCountdown();
+        if (cd != null) offGfx.drawImage(cd, mx - xPos, ly - cd.getHeight(), null);
+
+        BufferedImage sel = l.getSelectImg();
+        if (sel != null) offGfx.drawImage(sel, mx - xPos, ly - sel.getHeight(), null);
       }
+
+      // draw lemmings on mini map
+      MiniMap.drawLemming(offGfx, lx, ly, internalWidth - 212);
     }
-    Lemming lemmUnderCursor = GameController.lemmUnderCursor(cursorType);
+    Lemming lemmUnderCursor = lemmUnderCursor(cursorType);
 
     // draw explosions
-    GameController.drawExplosions(offGfx, internalWidth, Level.HEIGHT, xOfsTemp);
+    drawExplosions(offGfx, internalWidth, Level.HEIGHT, xPos);
 
     // draw info string
     outStrGfx.clearRect(0, 0, GraphicsPane.MAXDRAWWIDTH, GraphicsPane.DRAWHEIGHT);
-    if (GameController.isCheat()) {
-      Stencil stencil = GameController.getStencil();
+    if (isCheat()) {
+      Stencil stencil = getStencil();
       if (stencil != null) {
         int pos = xMouse + yMouse * Level.WIDTH;
         int stencilVal = stencil.get(pos);
@@ -2043,20 +2007,20 @@ public class GameController {
     } else {
       StringBuffer sb = new StringBuffer();
       sb.append("OUT ");
-      String s = Integer.toString(GameController.getLemmings().size());
+      String s = Integer.toString(lemmings.size());
       sb.append(s);
       if (s.length() == 1) sb.append(" ");
       sb.append("  IN ");
-      s = Integer.toString(GameController.getNumLeft() * 100 / GameController.getNumLemmingsMax());
+      s = Integer.toString(numLeft * 100 / numLemmingsMax);
       if (s.length() == 1) sb.append(" ");
       sb.append(s);
-      sb.append("%  TIME ").append(GameController.getTimeString());
+      sb.append("%  TIME ").append(getTimeString());
       LemmFont.strImageRight(outStrGfx, sb.toString(), internalWidth - 4);
 
       if (lemmUnderCursor != null) {
         String n = lemmUnderCursor.getName();
         // display also the total number of lemmings under the cursor
-        int num = GameController.getLemmsUnderCursor().size();
+        int num = lemmsUnderCursor.size();
         if (num > 1) n = n + " " + Integer.toString(num);
         LemmFont.strImageLeft(outStrGfx, n, 4);
       }
@@ -2064,7 +2028,7 @@ public class GameController {
       offGfx.drawImage(outStrImg, 0, Level.HEIGHT + 8, null);
     }
     // replay icon
-    BufferedImage replayImage = GameController.getReplayImage();
+    BufferedImage replayImage = getReplayImage();
     if (replayImage != null)
       offGfx.drawImage(
           replayImage, internalWidth - 2 * replayImage.getWidth(), replayImage.getHeight(), null);

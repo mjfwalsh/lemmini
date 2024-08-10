@@ -124,6 +124,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   /** fullscreen boolean */
   private boolean fullScreen = false;
 
+  /** is cursor visible */
+  private boolean cursorShowing = false;
+
   /** Constructor. */
   public GraphicsPane(Dimension screen) throws ResourceException {
     requestFocus();
@@ -223,9 +226,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     paint(g);
   }
 
-  private boolean cursorShowing = false;
-
-  public void showCursor(final boolean c) {
+  private synchronized void showCursor(final boolean c) {
     // if(cursorShowing == c && isCursorSet())
     //  return;
 

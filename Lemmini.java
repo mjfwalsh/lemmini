@@ -829,9 +829,7 @@ public class Lemmini extends JFrame implements KeyListener {
         case KeyEvent.VK_SPACE:
           if (GameController.isCheat()) {
             Lemming l = gp.createLemmingAtCursorPosition();
-            synchronized (GameController.getLemmings()) {
-              GameController.getLemmings().add(l);
-            }
+            GameController.addLemming(l);
           }
           break;
         case KeyEvent.VK_PLUS:
