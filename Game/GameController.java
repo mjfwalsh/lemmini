@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JOptionPane;
 
 /*
@@ -202,6 +203,21 @@ public class GameController {
   /** +/- icons: time for key repeat rate */
   private static final long MICROSEC_KEYREPEAT_REPEAT = 67 * 1000;
 
+  // step size in pixels for horizontal scrolling
+  public static final int X_STEP = 4;
+
+  // step size in pixels for fast horizontal scrolling
+  public static final int X_STEP_FAST = 8;
+
+  /** distance from center of cursor to be used to detect Lemmings under the cursor */
+  private static final int HIT_DISTANCE = 12;
+
+  // image for information string display
+  private static BufferedImage outStrImg;
+
+  // graphics object for information string display
+  private static Graphics2D outStrGfx;
+
   /** sound object */
   public static Sound sound;
 
@@ -228,6 +244,9 @@ public class GameController {
 
   /** flag: fast forward mode is active */
   private static boolean fastForward;
+
+  // flag: Shift key is pressed
+  private static boolean shiftPressed = false;
 
   /** flag: Superlemming mode is active */
   private static boolean superLemming;
@@ -467,6 +486,11 @@ public class GameController {
 
     if (isCheat()) wasCheated = true;
     else wasCheated = false;
+
+    outStrImg =
+        ToolBox.createImage(GraphicsPane.MAXDRAWWIDTH, LemmFont.getHeight(), Transparency.BITMASK);
+    outStrGfx = outStrImg.createGraphics();
+    outStrGfx.setBackground(new Color(0, 0, 0));
   }
 
   /**
@@ -1890,6 +1914,178 @@ public class GameController {
    */
   public static synchronized void addLevelPack(File folder) throws ResourceException {
     levelPack.add(new LevelPack(new File(folder, "levelpack.ini")));
+  }
+
+  /** draw the level */
+  public static synchronized void drawLevel(
+      Graphics2D offGfx,
+      int internalWidth,
+      int xMouseScreen,
+      int yMouseScreen,
+      int xMouse,
+      int yMouse,
+      LemmCursor.Type cursorType) {
+    BufferedImage bgImage = GameController.getBgImage();
+    if (bgImage == null) return;
+
+    GameController.update();
+    // mouse movement
+    if (yMouseScreen < Level.HEIGHT) { // avoid scrolling if menu is selected
+      int xOfsTemp;
+      if (xMouseScreen > internalWidth - GraphicsPane.AUTOSCROLL_RANGE) {
+        xOfsTemp = GameController.getxPos() + ((shiftPressed) ? X_STEP_FAST : X_STEP);
+        if (xOfsTemp < Level.WIDTH - internalWidth) GameController.setxPos(xOfsTemp);
+        else GameController.setxPos(Level.WIDTH - internalWidth);
+      } else if (xMouseScreen < GraphicsPane.AUTOSCROLL_RANGE) {
+        xOfsTemp = GameController.getxPos() - ((shiftPressed) ? X_STEP_FAST : X_STEP);
+        if (xOfsTemp > 0) GameController.setxPos(xOfsTemp);
+        else GameController.setxPos(0);
+      }
+    }
+    // store local copy of xOfs to avoid sync problems with AWT threads
+    // (scrolling by dragging changes xOfs as well)
+    int xOfsTemp = GameController.getxPos();
+
+    Level level = GameController.getLevel();
+    if (level != null) {
+
+      // clear screen
+      offGfx.setBackground(level.getBgColor());
+      offGfx.clearRect(0, 0, GraphicsPane.MAXDRAWWIDTH, Level.HEIGHT);
+
+      // draw "behind" objects
+      GameController.getLevel().drawBehindObjects(offGfx, internalWidth, xOfsTemp);
+
+      // draw background
+      offGfx.drawImage(
+          bgImage,
+          0,
+          0,
+          internalWidth,
+          Level.HEIGHT,
+          xOfsTemp,
+          0,
+          xOfsTemp + internalWidth,
+          Level.HEIGHT,
+          null);
+
+      // draw "in front" objects
+      GameController.getLevel().drawInFrontObjects(offGfx, internalWidth, xOfsTemp);
+    }
+
+    // clear parts of the screen for menu etc.
+    offGfx.setBackground(Color.BLACK);
+    offGfx.clearRect(
+        0, Level.HEIGHT, GraphicsPane.MAXDRAWWIDTH, GraphicsPane.DRAWHEIGHT - Level.HEIGHT);
+
+    // draw icons, small level pic
+    GameController.drawIcons(offGfx, 0, GraphicsPane.iconsY);
+    int smallX = internalWidth - 208 - 4;
+    offGfx.drawImage(
+        MiscGfx.getImage(MiscGfx.Index.BORDER), smallX - 4, GraphicsPane.smallY - 4, null);
+    MiniMap.draw(offGfx, smallX, GraphicsPane.smallY, xOfsTemp, internalWidth);
+
+    // draw counters
+    GameController.drawCounters(offGfx, GraphicsPane.counterY);
+
+    // draw lemmings
+    GameController.getLemmsUnderCursor().clear();
+    List<Lemming> lemmings = GameController.getLemmings();
+    synchronized (lemmings) {
+      for (Lemming l : lemmings) {
+        final int lx = l.screenX();
+        final int ly = l.screenY();
+        final int mx = l.midX() - 16;
+        if (lx + l.width() > xOfsTemp && lx < xOfsTemp + internalWidth) {
+          offGfx.drawImage(l.getImage(), lx - xOfsTemp, ly, null);
+
+          // is lemming under cursor
+          if (Math.abs(l.midX() - xMouse) <= HIT_DISTANCE
+              && Math.abs(l.midY() - yMouse) <= HIT_DISTANCE) {
+            GameController.getLemmsUnderCursor().add(l);
+          }
+
+          BufferedImage cd = l.getCountdown();
+          if (cd != null) offGfx.drawImage(cd, mx - xOfsTemp, ly - cd.getHeight(), null);
+
+          BufferedImage sel = l.getSelectImg();
+          if (sel != null) offGfx.drawImage(sel, mx - xOfsTemp, ly - sel.getHeight(), null);
+        }
+
+        // draw lemmings on mini map
+        MiniMap.drawLemming(offGfx, lx, ly, internalWidth - 208 - 4);
+      }
+    }
+    Lemming lemmUnderCursor = GameController.lemmUnderCursor(cursorType);
+
+    // draw explosions
+    GameController.drawExplosions(offGfx, internalWidth, Level.HEIGHT, xOfsTemp);
+
+    // draw info string
+    outStrGfx.clearRect(0, 0, GraphicsPane.MAXDRAWWIDTH, GraphicsPane.DRAWHEIGHT);
+    if (GameController.isCheat()) {
+      Stencil stencil = GameController.getStencil();
+      if (stencil != null) {
+        int pos = xMouse + yMouse * Level.WIDTH;
+        int stencilVal = stencil.get(pos);
+        String test =
+            "x: "
+                + xMouse
+                + ", y: "
+                + yMouse
+                + ", mask: "
+                + (stencilVal & 0xffff)
+                + " "
+                + Stencil.getObjectID(stencilVal);
+        LemmFont.strImage(outStrGfx, test);
+        offGfx.drawImage(outStrImg, 4, Level.HEIGHT + 8, null);
+      }
+    } else {
+      StringBuffer sb = new StringBuffer();
+      sb.append("OUT ");
+      String s = Integer.toString(GameController.getLemmings().size());
+      sb.append(s);
+      if (s.length() == 1) sb.append(" ");
+      sb.append("  IN ");
+      s = Integer.toString(GameController.getNumLeft() * 100 / GameController.getNumLemmingsMax());
+      if (s.length() == 1) sb.append(" ");
+      sb.append(s);
+      sb.append("%  TIME ").append(GameController.getTimeString());
+      LemmFont.strImageRight(outStrGfx, sb.toString(), internalWidth - 4);
+
+      if (lemmUnderCursor != null) {
+        String n = lemmUnderCursor.getName();
+        // display also the total number of lemmings under the cursor
+        int num = GameController.getLemmsUnderCursor().size();
+        if (num > 1) n = n + " " + Integer.toString(num);
+        LemmFont.strImageLeft(outStrGfx, n, 4);
+      }
+
+      offGfx.drawImage(outStrImg, 0, Level.HEIGHT + 8, null);
+    }
+    // replay icon
+    BufferedImage replayImage = GameController.getReplayImage();
+    if (replayImage != null)
+      offGfx.drawImage(
+          replayImage, internalWidth - 2 * replayImage.getWidth(), replayImage.getHeight(), null);
+  }
+
+  /**
+   * Get flag: Shift key is pressed?
+   *
+   * @return true if Shift key is pressed, false otherwise
+   */
+  public static synchronized boolean isShiftPressed() {
+    return shiftPressed;
+  }
+
+  /**
+   * Set flag: Shift key is pressed.
+   *
+   * @param p true: Shift key is pressed, false otherwise
+   */
+  public static synchronized void setShiftPressed(final boolean p) {
+    shiftPressed = p;
   }
 }
 

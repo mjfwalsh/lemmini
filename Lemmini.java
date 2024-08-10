@@ -796,7 +796,9 @@ public class Lemmini extends JFrame implements KeyListener {
             else {
               int xOfsTemp =
                   GameController.getxPos()
-                      + ((gp.isShiftPressed()) ? GraphicsPane.X_STEP_FAST : GraphicsPane.X_STEP);
+                      + ((GameController.isShiftPressed())
+                          ? GameController.X_STEP_FAST
+                          : GameController.X_STEP);
               if (xOfsTemp < Level.WIDTH - getWidth()) GameController.setxPos(xOfsTemp);
               else GameController.setxPos(Level.WIDTH - getWidth());
             }
@@ -808,7 +810,9 @@ public class Lemmini extends JFrame implements KeyListener {
             else {
               int xOfsTemp =
                   GameController.getxPos()
-                      - ((gp.isShiftPressed()) ? GraphicsPane.X_STEP_FAST : GraphicsPane.X_STEP);
+                      - ((GameController.isShiftPressed())
+                          ? GameController.X_STEP_FAST
+                          : GameController.X_STEP);
               if (xOfsTemp > 0) GameController.setxPos(xOfsTemp);
               else GameController.setxPos(0);
             }
@@ -820,7 +824,7 @@ public class Lemmini extends JFrame implements KeyListener {
             break;
           }
         case KeyEvent.VK_SHIFT:
-          gp.setShiftPressed(true);
+          GameController.setShiftPressed(true);
           break;
         case KeyEvent.VK_SPACE:
           if (GameController.isCheat()) {
@@ -867,7 +871,7 @@ public class Lemmini extends JFrame implements KeyListener {
     if (GameController.getGameState() == GameController.State.LEVEL) {
       switch (code) {
         case KeyEvent.VK_SHIFT:
-          gp.setShiftPressed(false);
+          GameController.setShiftPressed(false);
           break;
         case KeyEvent.VK_PLUS:
         case KeyEvent.VK_ADD:
