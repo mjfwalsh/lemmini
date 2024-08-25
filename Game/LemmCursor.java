@@ -59,13 +59,11 @@ public class LemmCursor {
   /** array of images - one for each cursor type */
   private ArrayList<BufferedImage> img;
 
-  /** AWT cursor Objects */
-  private Cursor invisibleCursor;
+  /** a blank cursor to make it hide it */
+  private final Cursor invisibleCursor;
 
+  /** normal crosshair, appropriately scaled */
   private Cursor defaultCursor;
-
-  /** is Mouse cursor hidden? */
-  private boolean enabled;
 
   /**
    * Initialization.
@@ -80,25 +78,6 @@ public class LemmCursor {
                 new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "");
     scaleCursor(1.0);
     type = Type.NORMAL;
-    enabled = true;
-  }
-
-  /**
-   * Set enable state for Mouse cursor.
-   *
-   * @param en true to show, false to hide
-   */
-  public void setEnabled(boolean en) {
-    enabled = en;
-  }
-
-  /**
-   * Get enable state.
-   *
-   * @return true if shows, false if hidden
-   */
-  public boolean getEnabled() {
-    return enabled;
   }
 
   /**
@@ -142,17 +121,9 @@ public class LemmCursor {
    *
    * @return default cursor
    */
-  public Cursor getDefaultCursor() {
-    return defaultCursor;
-  }
-
-  /**
-   * Get the invisible current cursor as AWT cursor object.
-   *
-   * @return invisible cursor
-   */
-  public Cursor getInvisibleCursor() {
-    return invisibleCursor;
+  public Cursor getCursor(Type c) {
+    if (c == Type.NORMAL) return defaultCursor;
+    else return invisibleCursor;
   }
 
   /**

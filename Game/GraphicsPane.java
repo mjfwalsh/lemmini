@@ -4,6 +4,7 @@ import GameUtil.Fader;
 import Tools.MicrosecondTimer;
 import Tools.ToolBox;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -124,9 +125,6 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   /** fullscreen boolean */
   private boolean fullScreen = false;
 
-  /** is cursor visible */
-  private boolean cursorShowing = false;
-
   /** Constructor. */
   public GraphicsPane(Dimension screen) throws ResourceException {
     requestFocus();
@@ -226,88 +224,84 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     paint(g);
   }
 
-  private synchronized void showCursor(final boolean c) {
-    // if(cursorShowing == c && isCursorSet())
-    //  return;
-
-    cursorShowing = c;
-
-    if (cursorShowing) {
-      setCursor(lemmCursor.getDefaultCursor());
-    } else {
-      setCursor(lemmCursor.getInvisibleCursor());
+  private void showCursor(final LemmCursor.Type c) {
+    Cursor nc;
+    synchronized (this) {
+      nc = lemmCursor.getCursor(c);
     }
+
+    if (getCursor() != nc) setCursor(nc);
   }
 
   /** redraw the offscreen image, then flip buffers and force repaint. */
-  private synchronized void redraw() {
-    int drawBuffer = (activeBuffer == 0) ? 1 : 0;
-    Graphics2D offGfx = offGraphics[drawBuffer];
+  private void redraw() {
+    LemmCursor.Type cursor = LemmCursor.Type.NORMAL;
+    synchronized (this) {
+      int drawBuffer = (activeBuffer == 0) ? 1 : 0;
+      Graphics2D offGfx = offGraphics[drawBuffer];
 
-    switch (GameController.getGameState()) {
-      case INTRO:
-        TextScreen.drawIntro(internalWidth, forceRedraw);
-        forceRedraw = false;
-        showCursor(true);
-        offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
-        break;
+      switch (GameController.getGameState()) {
+        case INTRO:
+          TextScreen.drawIntro(internalWidth, forceRedraw);
+          forceRedraw = false;
+          offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
+          break;
 
-      case START_BRIEFING:
-        forceRedraw = true;
-        GameController.setGameState(GameController.State.BRIEFING);
-        // fall through
+        case START_BRIEFING:
+          forceRedraw = true;
+          GameController.setGameState(GameController.State.BRIEFING);
+          // fall through
 
-      case BRIEFING:
-        TextScreen.drawBriefing(internalWidth, forceRedraw);
-        forceRedraw = false;
-        showCursor(true);
-        offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
-        break;
+        case BRIEFING:
+          TextScreen.drawBriefing(internalWidth, forceRedraw);
+          forceRedraw = false;
+          offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
+          break;
 
-      case DEBRIEFING:
-        TextScreen.drawDebriefing(internalWidth, forceRedraw);
-        forceRedraw = false;
-        showCursor(true);
-        TextScreen.getDialog().handleMouseMove(xMouseScreen, yMouseScreen);
-        offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
-        break;
+        case DEBRIEFING:
+          TextScreen.drawDebriefing(internalWidth, forceRedraw);
+          forceRedraw = false;
 
-      case LEVEL:
-      case LEVEL_END:
-        drawLevel(offGfx);
-        break;
+          TextScreen.getDialog().handleMouseMove(xMouseScreen, yMouseScreen);
+          offGfx.drawImage(TextScreen.getScreen(), 0, 0, null);
+          break;
+
+        case LEVEL:
+        case LEVEL_END:
+          GameController.drawLevel(
+              offGfx,
+              internalWidth,
+              xMouseScreen,
+              yMouseScreen,
+              xMouse,
+              yMouse,
+              lemmCursor.getType());
+
+          // draw cursor
+          if (xMouseScreen > 0
+              && xMouseScreen < internalWidth
+              && yMouseScreen > 0
+              && yMouseScreen < DRAWHEIGHT) {
+            Lemming lemmUnderCursor = GameController.lemmUnderCursor(lemmCursor.getType());
+            BufferedImage cursorImg =
+                lemmUnderCursor != null ? lemmCursor.getBoxImage() : lemmCursor.getImage();
+
+            int lx = xMouseScreen - cursorImg.getWidth() / 2;
+            int ly = yMouseScreen - cursorImg.getHeight() / 2;
+            offGfx.drawImage(cursorImg, lx, ly, null);
+            cursor = LemmCursor.Type.HIDDEN;
+          }
+          break;
+      }
+
+      // fader
+      GameController.fade(offGfx, internalWidth, DRAWHEIGHT);
+      // and all onto screen
+      activeBuffer = drawBuffer;
+
+      repaint();
     }
-
-    // fader
-    GameController.fade(offGfx, internalWidth, DRAWHEIGHT);
-    // and all onto screen
-    activeBuffer = drawBuffer;
-
-    repaint();
-  }
-
-  /** draw the level */
-  private synchronized void drawLevel(Graphics2D offGfx) {
-    GameController.drawLevel(
-        offGfx, internalWidth, xMouseScreen, yMouseScreen, xMouse, yMouse, lemmCursor.getType());
-
-    // draw cursor
-    if (xMouseScreen > 0
-        && xMouseScreen < internalWidth
-        && yMouseScreen > 0
-        && yMouseScreen < DRAWHEIGHT) {
-      showCursor(false);
-
-      Lemming lemmUnderCursor = GameController.lemmUnderCursor(lemmCursor.getType());
-      BufferedImage cursorImg =
-          lemmUnderCursor != null ? lemmCursor.getBoxImage() : lemmCursor.getImage();
-
-      int lx = xMouseScreen - cursorImg.getWidth() / 2;
-      int ly = yMouseScreen - cursorImg.getHeight() / 2;
-      offGfx.drawImage(cursorImg, lx, ly, null);
-    } else {
-      showCursor(true);
-    }
+    showCursor(cursor);
   }
 
   /* (non-Javadoc)
