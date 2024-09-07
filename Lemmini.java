@@ -106,7 +106,6 @@ public class Lemmini extends JFrame implements KeyListener {
   private JCheckBoxMenuItem jMenuItemCursor;
   private JMenuItem jMenuItemFullscreen;
   private JMenuItem jMenuItemManagePlayer;
-  private JMenuItem jMenuItemLoad;
   private JMenuItem jMenuItemReplay;
   private JMenuItem jMenuItemLevelCode;
   private JMenuItem jMenuItemVolume;
@@ -925,7 +924,6 @@ public class Lemmini extends JFrame implements KeyListener {
 
       // disable menus which don't work in fullscreen
       jMenuItemManagePlayer.setEnabled(false);
-      jMenuItemLoad.setEnabled(false);
       jMenuItemReplay.setEnabled(false);
       jMenuItemLevelCode.setEnabled(false);
       jMenuItemVolume.setEnabled(false);
@@ -962,7 +960,6 @@ public class Lemmini extends JFrame implements KeyListener {
 
       // re-enable menus
       jMenuItemManagePlayer.setEnabled(true);
-      jMenuItemLoad.setEnabled(true);
       jMenuItemReplay.setEnabled(true);
       jMenuItemLevelCode.setEnabled(true);
       jMenuItemVolume.setEnabled(true);
