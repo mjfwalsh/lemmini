@@ -114,7 +114,7 @@ public class Lemmini extends JFrame implements KeyListener {
   private java.awt.event.ActionListener lvlListener;
 
   /** Constructor of the main frame. */
-  Lemmini() throws LemmException, ResourceException {
+  Lemmini() throws IOException, LemmException, ResourceException {
     Core.init(this); // initialize Core object
     GameController.init();
     GameController.setLevelMenuUpdateListener(new LevelMenuUpdateListener());

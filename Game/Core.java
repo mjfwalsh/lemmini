@@ -1,8 +1,7 @@
 package Game;
 
 import Extract.Extract;
-import Extract.FolderDialog;
-import GUI.LegalDialog;
+import GUI.StartupDialog;
 import Tools.JFileFilter;
 import Tools.Props;
 import java.awt.Image;
@@ -79,7 +78,7 @@ public class Core {
    * @param frame parent frame
    * @throws LemmException
    */
-  public static synchronized void init(final JFrame frame) throws LemmException {
+  public static synchronized void init(final JFrame frame) throws IOException, LemmException {
     // alias for object
     cmp = frame;
 
@@ -99,44 +98,40 @@ public class Core {
 
     // read main ini file
     programProps = new Props();
-    if (!programProps.load(programPropsFile)) { // might exist or not - if not, it's created
-      LegalDialog ld = new LegalDialog(null, true);
+    File sourcePath = null;
+    String rev;
+    boolean showFileDialog = false;
+    if(programProps.load(programPropsFile)) { // Might exist or not - if not, it's created
+      rev = programProps.get("revision", "");
+
+      sourcePath = getFolder("sourcePath");
+      if(sourcePath == null) showFileDialog = true;
+
+      if (!System.getProperty("os.name").equals("Mac OS X")) {
+        resourcePath = getFolder("resourcePath");
+        if(resourcePath == null) showFileDialog = true;
+      }
+    } else {
+      showFileDialog = true;
+    }
+
+    if(showFileDialog) {
+      StartupDialog ld = new StartupDialog(sourcePath, resourcePath);
       ld.setVisible(true);
       if (!ld.isOk()) System.exit(0);
-    }
-
-    if (!System.getProperty("os.name").equals("Mac OS X")) {
-      resourcePath = getFolder("resourcePath");
-    }
-    File sourcePath = getFolder("sourcePath");
-    String rev = programProps.get("revision", "");
-
-    if (sourcePath == null || resourcePath == null || !REVISION.equalsIgnoreCase(rev)) {
-
-      // start dialog to prompt user for resource and source paths
-      FolderDialog fDiag = new FolderDialog(sourcePath, resourcePath);
-      fDiag.setVisible(true);
-      if (!fDiag.getSuccess()) System.exit(0);
 
       // save them
       if (!System.getProperty("os.name").equals("Mac OS X")) {
-        resourcePath = saveFolder("resourcePath", fDiag.getTarget());
+        resourcePath = saveFolder("resourcePath", ld.getTarget());
       }
-      sourcePath = saveFolder("sourcePath", fDiag.getSource());
+      sourcePath = saveFolder("sourcePath", ld.getSource());
 
       // extract resources
       Extract extract = new Extract(sourcePath, resourcePath);
 
-      if (extract.extractionSuccessful()) {
-        programProps.set("revision", REVISION);
-      } else {
-        programProps.set("revision", "invalid");
+      if (!extract.extractionSuccessful()) {
         System.exit(1);
       }
-    } else {
-      // A little hacky but this saves user from having to a full extract operation for one new file
-      Extract.extractSingleFile(
-          "patch/misc@lemmfontscaled.gif", new File(resourcePath, "misc/lemmfontscaled.gif"));
     }
 
     // load misc settings
