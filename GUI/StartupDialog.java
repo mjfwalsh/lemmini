@@ -48,7 +48,6 @@ public class StartupDialog extends JDialog {
   private static final long serialVersionUID = 1L;
   private boolean ok = false;
   private JTextField jTextFieldSrc = new JTextField();
-  private JTextField jTextFieldTrg = new JTextField();
 
   /**
    * Constructor for modal dialog in parent frame.
@@ -56,7 +55,7 @@ public class StartupDialog extends JDialog {
    * @param srcPath folder with WinLemm
    * @param trgPath installation folder
    */
-  public StartupDialog(final File srcPath, final File trgPath) throws IOException {
+  public StartupDialog(final File srcPath) throws IOException {
     super((JFrame)null, true);
     setSize(675, 480);
     setTitle("Lemmini - Disclaimer");
@@ -71,10 +70,6 @@ public class StartupDialog extends JDialog {
     if (srcPath != null) {
       jTextFieldSrc.setText(srcPath.getAbsolutePath());
     }
-
-    if (trgPath != null && !System.getProperty("os.name").equals("Mac OS X")) {
-      jTextFieldTrg.setText(trgPath.getAbsolutePath());
-    }
   }
 
   /**
@@ -83,13 +78,9 @@ public class StartupDialog extends JDialog {
    * @return javax.swing.JPanel
    */
   private JPanel getJContentPane() throws IOException {
-    boolean isMac = System.getProperty("os.name").equals("Mac OS X");
-
     JScrollPane webView = getJScrollPane();
     JLabel sourceLabel = new JLabel("Source Path (\"WINLEM\" directory)");
     JButton srcButton = getBrowseButton(jTextFieldSrc);
-    JLabel targetLabel = new JLabel("Target Path");
-    JButton trgButton = getBrowseButton(jTextFieldTrg);
     JButton buttonQuit = getJButtonQuit();
     JButton buttonExtract = getJButtonExtract();
   
@@ -99,43 +90,29 @@ public class StartupDialog extends JDialog {
     layout.setAutoCreateContainerGaps(true);
     jContentPane.setLayout(layout);
 
-    GroupLayout.SequentialGroup v = layout.createSequentialGroup()
-      .addComponent(webView)
-      .addComponent(sourceLabel)
-      .addGroup(layout.createParallelGroup()
-        .addComponent(jTextFieldSrc)
-        .addComponent(srcButton));
+    layout.setVerticalGroup(
+      layout.createSequentialGroup()
+        .addComponent(webView)
+        .addComponent(sourceLabel)
+        .addGroup(layout.createParallelGroup()
+          .addComponent(jTextFieldSrc)
+          .addComponent(srcButton))
+        .addGap(10)
+        .addGroup(layout.createParallelGroup()
+          .addComponent(buttonQuit)
+          .addComponent(buttonExtract)));
 
-    if(!isMac)
-      v.addComponent(targetLabel)
-       .addGroup(layout.createParallelGroup()
-        .addComponent(jTextFieldTrg)
-        .addComponent(trgButton));
-
-    v.addGap(10)
-    .addGroup(layout.createParallelGroup()
-      .addComponent(buttonQuit)
-      .addComponent(buttonExtract));
-    layout.setVerticalGroup(v);
-
-    GroupLayout.ParallelGroup h = layout.createParallelGroup()
-      .addComponent(webView)
-      .addComponent(sourceLabel)
-      .addGroup(layout.createSequentialGroup()
-        .addComponent(jTextFieldSrc)
-        .addComponent(srcButton));
-
-    if(!isMac)
-      h.addComponent(targetLabel)
-       .addGroup(layout.createSequentialGroup()
-        .addComponent(jTextFieldTrg)
-        .addComponent(trgButton));
-
-    h.addGroup(layout.createSequentialGroup()
-      .addComponent(buttonQuit)
-      .addGap(0, 999999, 999999)
-      .addComponent(buttonExtract));
-    layout.setHorizontalGroup(h);
+    layout.setHorizontalGroup(
+      layout.createParallelGroup()
+        .addComponent(webView)
+        .addComponent(sourceLabel)
+        .addGroup(layout.createSequentialGroup()
+          .addComponent(jTextFieldSrc)
+          .addComponent(srcButton))
+        .addGroup(layout.createSequentialGroup()
+          .addComponent(buttonQuit)
+          .addGap(0, 999999, 999999)
+          .addComponent(buttonExtract)));
 
     return jContentPane;
   }
@@ -228,15 +205,6 @@ public class StartupDialog extends JDialog {
     jScrollPane.setViewportView(thisEditor); // Generated
 
     return jScrollPane;
-  }
-
-  /**
-   * Get target (Lemmini resource) path for extraction.
-   *
-   * @return target (Lemmini resource) path for extraction
-   */
-  public File getTarget() {
-    return new File(jTextFieldTrg.getText());
   }
 
   /**

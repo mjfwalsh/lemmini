@@ -82,19 +82,19 @@ public class Core {
     // alias for object
     cmp = frame;
 
-    // get ini path
-    File programPropsFile;
+    // get app data dir
+    resourcePath = new File(getAppDataDir(), "Lemmini");
 
-    if (System.getProperty("os.name").equals("Mac OS X")) {
-      // resourcePath and programPropsFileStr are in fixed places on Mac
-      resourcePath =
-          new File(System.getProperty("user.home"), "Library/Application Support/Lemmini");
-
-      // ini path
-      programPropsFile = new File(resourcePath, INI_NAME);
+    if (resourcePath.exists()) {
+      if (!resourcePath.isDirectory())
+        throw new LemmException("Can't create app dir");    
     } else {
-      programPropsFile = new File(getBaseDir(), INI_NAME);
+      if (!resourcePath.mkdirs())
+        throw new LemmException("Failed to create app dir");
     }
+
+    // ini path
+    File programPropsFile = new File(resourcePath, INI_NAME);
 
     // read main ini file
     programProps = new Props();
@@ -106,24 +106,16 @@ public class Core {
 
       sourcePath = getFolder("sourcePath");
       if(sourcePath == null) showFileDialog = true;
-
-      if (!System.getProperty("os.name").equals("Mac OS X")) {
-        resourcePath = getFolder("resourcePath");
-        if(resourcePath == null) showFileDialog = true;
-      }
     } else {
       showFileDialog = true;
     }
 
     if(showFileDialog) {
-      StartupDialog ld = new StartupDialog(sourcePath, resourcePath);
+      StartupDialog ld = new StartupDialog(sourcePath);
       ld.setVisible(true);
       if (!ld.isOk()) System.exit(0);
 
       // save them
-      if (!System.getProperty("os.name").equals("Mac OS X")) {
-        resourcePath = saveFolder("resourcePath", ld.getTarget());
-      }
       sourcePath = saveFolder("sourcePath", ld.getSource());
 
       // extract resources
@@ -159,6 +151,47 @@ public class Core {
       playerProps.set("player_0", "default");
     }
     player = new Player(defaultPlayer);
+  }
+
+  /**
+   * Get the apps data dir
+   *
+   * @return path
+   */
+  private static File getAppDataDir() throws LemmException {
+    String appDataDir;
+    if (System.getProperty("os.name").equals("Mac OS X")) {
+      // Mac
+      appDataDir = System.getProperty("user.home");
+      if (appDataDir != null)
+        appDataDir += "/Library/Application Support";
+
+    } else if (System.getProperty("os.name").startsWith("Windows")) {
+      // Windows
+      appDataDir = System.getenv("LOCALAPPDATA");
+      if (appDataDir == null)
+        appDataDir = System.getenv("APPDATA");
+
+    } else {
+      // Linux and Unix
+      appDataDir = System.getenv("XDG_DATA_HOME");
+      if (appDataDir == null) {
+        appDataDir = System.getProperty("user.home");
+        if (appDataDir != null)
+          appDataDir += "/.local/share";
+      }
+    }
+
+    if (appDataDir != null) {
+      File f = new File(appDataDir);
+      if (f.exists())
+        if (f.isDirectory()) return f;
+      else
+        if (f.mkdirs()) return f;
+    }
+    
+    // when everything else fails
+    return getBaseDir();
   }
 
   /**
