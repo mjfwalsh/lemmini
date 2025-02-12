@@ -132,19 +132,22 @@ public class LemmCursor {
    * @param scale scaling factor
    */
   public void scaleCursor(double scale) {
-    Image img = getImage(Type.NORMAL);
-    if (scale == 1.0) {
-      int w = getImage(Type.NORMAL).getWidth();
-      int h = getImage(Type.NORMAL).getHeight();
-      defaultCursor =
-          Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(w / 2, h / 2), "");
-    } else {
-      int w = (int) ((double) getImage(Type.NORMAL).getWidth() * scale);
-      int h = (int) ((double) getImage(Type.NORMAL).getHeight() * scale);
-      Image scaledImg = img.getScaledInstance(w, h, 0);
-      defaultCursor =
-          Toolkit.getDefaultToolkit().createCustomCursor(scaledImg, new Point(w / 2, h / 2), "");
-    }
+    // Catch some unexplained hotpoint errors
+    try {
+      Image img = getImage(Type.NORMAL);
+      if (scale == 1.0) {
+        int w = getImage(Type.NORMAL).getWidth();
+        int h = getImage(Type.NORMAL).getHeight();
+        defaultCursor =
+            Toolkit.getDefaultToolkit().createCustomCursor(img, new Point(w / 2, h / 2), "");
+      } else {
+        int w = (int) ((double) getImage(Type.NORMAL).getWidth() * scale);
+        int h = (int) ((double) getImage(Type.NORMAL).getHeight() * scale);
+        Image scaledImg = img.getScaledInstance(w, h, 0);
+        defaultCursor =
+            Toolkit.getDefaultToolkit().createCustomCursor(scaledImg, new Point(w / 2, h / 2), "");
+      }
+    } catch(java.lang.IndexOutOfBoundsException ex) {}
   }
 
   /**
