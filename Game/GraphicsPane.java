@@ -125,8 +125,15 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
   /** fullscreen boolean */
   private boolean fullScreen = false;
 
+  /** width of the screen in pixels */
+  private final Dimension screen;
+
+  /** os */
+  private final boolean isMac = System.getProperty("os.name").equals("Mac OS X");
+
   /** Constructor. */
-  public GraphicsPane(Dimension screen) throws ResourceException {
+  public GraphicsPane(Dimension s) throws ResourceException {
+    screen = s;
     requestFocus();
     lemmCursor = new LemmCursor();
     addMouseListener(this);
@@ -160,6 +167,9 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
    */
   public synchronized void adjustSize(Dimension newSize) {
     forceRedraw = true;
+
+    // set fullscreen bool based on window size
+    fullScreen = newSize.width >= screen.width && newSize.height >= screen.height;
 
     double newScale = (float) newSize.height / DRAWHEIGHT;
     if (newScale < 1.0f) newScale = 1.0f;
@@ -275,7 +285,8 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
               yMouseScreen,
               xMouse,
               yMouse,
-              lemmCursor.getType());
+              lemmCursor.getType(),
+              fullScreen);
 
           // draw cursor
           if (xMouseScreen > 0
@@ -505,17 +516,14 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case BRIEFING:
       case DEBRIEFING:
       case LEVEL:
-        xMouseScreen += (int) (mouseDx / scale);
+        xMouseScreen = (int) (mouseevent.getX() / scale);
+        yMouseScreen = (int) (mouseevent.getY() / scale);
         xMouse = GameController.getxPos() + clamp(xMouseScreen, internalWidth);
-
-        yMouseScreen += (int) (mouseDy / scale);
         yMouse = clamp(yMouseScreen, Level.HEIGHT);
 
-        // hide the cursor but preserve scroll
-        yMouseScreen = -1;
-
-        if (xMouseScreen < AUTOSCROLL_RANGE) xMouseScreen = -1;
-        else if (xMouseScreen > internalWidth - AUTOSCROLL_RANGE) xMouseScreen = internalWidth + 1;
+        if (!fullScreen) yMouseScreen = xMouseScreen = -1;
+        else if (xMouseScreen < AUTOSCROLL_RANGE) xMouseScreen = 0;
+        else if (xMouseScreen > internalWidth - AUTOSCROLL_RANGE) xMouseScreen = internalWidth - 1;
 
         mouseevent.consume();
         break;
@@ -569,7 +577,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
     yMouseScreen = (int) (mouseevent.getY() / scale);
     yMouse = clamp(yMouseScreen, Level.HEIGHT);
 
-    if (fullScreen) {
+    if (fullScreen && !isMac) {
       getParent().getComponent(0).setVisible(yMouseScreen < 5);
     }
 

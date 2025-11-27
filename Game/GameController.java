@@ -1895,14 +1895,18 @@ public class GameController {
       int yMouseScreen,
       int xMouse,
       int yMouse,
-      LemmCursor.Type cursorType) {
+      LemmCursor.Type cursorType,
+      boolean fullScreen) {
     BufferedImage bgImage = getBgImage();
     if (bgImage == null) return;
 
     update();
-    // mouse movement
-    if (yMouseScreen < Level.HEIGHT) { // avoid scrolling if menu is selected
+
+    // scrolling
+    if ((fullScreen || (xMouseScreen >= 0 && xMouseScreen <= internalWidth))
+        && yMouseScreen < Level.HEIGHT) {
       int xOfsTemp;
+
       if (xMouseScreen > internalWidth - GraphicsPane.AUTOSCROLL_RANGE) {
         xOfsTemp = xPos + ((shiftPressed) ? X_STEP_FAST : X_STEP);
         if (xOfsTemp < Level.WIDTH - internalWidth) xPos = xOfsTemp;
