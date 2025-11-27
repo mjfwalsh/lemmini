@@ -153,6 +153,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
 
     // adjust game so height is about a quarter the size of the screen
     scale = (float) screen.height / (2 * (float) DRAWHEIGHT);
+    if (scale < 1.0f) scale = 1.0f;
 
     // set graphics pane dimensions
     int width = (int) ((float) internalWidth * scale);
