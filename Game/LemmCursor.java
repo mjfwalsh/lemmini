@@ -147,7 +147,8 @@ public class LemmCursor {
         defaultCursor =
             Toolkit.getDefaultToolkit().createCustomCursor(scaledImg, new Point(w / 2, h / 2), "");
       }
-    } catch(java.lang.IndexOutOfBoundsException ex) {}
+    } catch (java.lang.IndexOutOfBoundsException ex) {
+    }
   }
 
   /**

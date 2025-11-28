@@ -260,7 +260,7 @@ public class Diff {
           case REPLACE:
             out("Replace/");
             src.setIndex(src.getIndex() + len);
-            // $FALL-THROUGH$
+          // $FALL-THROUGH$
           case INSERT:
             out("Insert: " + len);
             for (int r = 0; r < len; r++) trg.setByte((byte) patch.getByte());

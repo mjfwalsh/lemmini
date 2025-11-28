@@ -89,8 +89,8 @@ public class ModMusic implements Runnable {
   /* (non-Javadoc)
    * @see java.lang.Runnable#run()
    *
-   * 	Begin playback.
-   *	This method will return once the song has finished, or stop has been called.
+   *  Begin playback.
+   *  This method will return once the song has finished, or stop has been called.
    */
   @Override
   public void run() {

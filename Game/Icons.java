@@ -182,7 +182,7 @@ public class Icons {
             icons[i].setFrameIdx(0);
             iconGfx.drawImage(icons[i].getImage(), WIDTH * i, 0, null);
           }
-        // $FALL-THROUGH$
+      // $FALL-THROUGH$
       case MINUS:
       case PLUS:
       case NUKE:

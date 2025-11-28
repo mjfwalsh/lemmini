@@ -117,7 +117,7 @@ public class Explosion {
     for (int i = 0; i < PARTICLE_NUM; i++) {
       Particle p = particles[i];
       if (p != null) {
-        //	calculate new position
+        // calculate new position
         p.x += p.dx;
         p.y += p.dy + counter * GRAVITY;
         // check life counter

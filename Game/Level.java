@@ -497,13 +497,13 @@ public class Level {
     }
   }
 
-  //	/**
-  //	 * Debug output.
-  //	 * @param o string to print
-  //	 */
-  //	private static void out(final String o) {
-  //		System.out.println(o);
-  //	}
+  //  /**
+  //   * Debug output.
+  //   * @param o string to print
+  //   */
+  //  private static void out(final String o) {
+  //    System.out.println(o);
+  //  }
 
   /**
    * Load tile set from a styles folder.

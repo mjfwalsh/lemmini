@@ -393,8 +393,8 @@ public class Lemming {
           else {
             y += free;
             counter = free;
-            //					if (free == 0)
-            //						counter = 0; // reset fall counter
+            // if (free == 0)
+            //   counter = 0; // reset fall counter
           }
           int levitation = aboveGround();
           // check for flip direction
@@ -446,7 +446,7 @@ public class Lemming {
           default:
             type = Type.FLOATER;
         }
-        // $FALL-THROUGH$
+      // $FALL-THROUGH$
       case FLOATER:
         if (explode) {
           explode();
@@ -529,7 +529,7 @@ public class Lemming {
             case 4 * TIME_SCALE:
             case 5 * TIME_SCALE:
               {
-                //	bash mask should have the same height as the lemming
+                // bash mask should have the same height as the lemming
                 m = lemRes.getMask(dir);
                 int sx = screenX();
                 int sy = screenY();
@@ -557,7 +557,7 @@ public class Lemming {
             case 20 * TIME_SCALE:
             case 21 * TIME_SCALE:
               {
-                //	bash mask should have the same height as the lemming
+                // bash mask should have the same height as the lemming
                 m = lemRes.getMask(dir);
                 ;
                 int sx = screenX();
@@ -639,7 +639,7 @@ public class Lemming {
               if (idx == 15 * TIME_SCALE) y += 4;
               break;
               // case 23*TIME_SCALE:
-              //	break;
+              // break;
           }
           break;
         }
@@ -732,7 +732,7 @@ public class Lemming {
           type = Type.BOMBER;
           // fall through
         } else break;
-        // $FALL-THROUGH$
+      // $FALL-THROUGH$
       case BOMBER:
         free = freeBelow(FLOATER_STEP);
         if (free == FALL_DISTANCE_FORCE_FALL) y += FALLER_STEP;
@@ -832,7 +832,7 @@ public class Lemming {
               Mask m = lemmings[getOrdinal(Type.STOPPER)].getMask(dir);
               m.clearType(maskX, maskY, 0, Stencil.MSK_STOPPER);
             }
-            // $FALL-THROUGH$
+          // $FALL-THROUGH$
           case BOMBER:
             explode();
             break;
@@ -847,7 +847,7 @@ public class Lemming {
             break;
           case FLOATER_START:
             type = Type.FLOATER; // should never happen
-            // $FALL-THROUGH$
+          // $FALL-THROUGH$
           case FLOATER:
             frameIdx -= 5 * TIME_SCALE; // rewind 5 frames
             break;
@@ -936,7 +936,7 @@ public class Lemming {
       // some types can't change the skill - check this
       switch (newType) {
         case WALKER:
-          // insideStopper = (stencilMid()&Stencil.MSK_STOPPER) != 0;
+        // insideStopper = (stencilMid()&Stencil.MSK_STOPPER) != 0;
         case BASHER:
         case BUILDER:
         case BUILDER_END:
@@ -963,8 +963,8 @@ public class Lemming {
     int sy = y + 1;
     if (x > 0 && x < Level.WIDTH && sy > 0 && sy < Level.HEIGHT)
       m.eraseMask(x - m.getWidth() / 2, midY() - m.getHeight() / 2 + 3, 0, Stencil.MSK_STEEL);
-    //			if ((Core.stencil.get(x + sy*Level.width) & Stencil.MSK_STEEL) == 0)
-    //				m.eraseMask(x-m.width/2,midY()-m.height/2,0,0);
+    // if ((Core.stencil.get(x + sy*Level.width) & Stencil.MSK_STEEL) == 0)
+    //   m.eraseMask(x-m.width/2,midY()-m.height/2,0,0);
   }
 
   /**
@@ -1331,7 +1331,7 @@ public class Lemming {
       case NUKE: // special case:  nuke request
         if (nuke) return false;
         nuke = true;
-        // $FALL-THROUGH$
+      // $FALL-THROUGH$
       case BOMBER:
         if (explodeNumCtr == 0) {
           explodeNumCtr = 5;
@@ -1361,7 +1361,7 @@ public class Lemming {
           changeType(type, skill);
           counter = 0;
           return true;
-          // } else return false;
+        // } else return false;
         case BUILDER:
           {
             // int fa = freeAbove(4);

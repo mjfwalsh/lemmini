@@ -41,7 +41,7 @@ public class ExtractLevel {
   /** number of Lemmings to rescue : should be less than or equal to number of Lemmings */
   private static int numToRescue;
 
-  static int timeLimit; // Time Limit		: max 0x00FF, 0x0001 to 0x0009 works best
+  static int timeLimit; // Time Limit : max 0x00FF, 0x0001 to 0x0009 works best
 
   /** number of climbers in this level : max 0xfa (250) */
   private static int numClimbers;
@@ -330,7 +330,7 @@ class LvlObject {
     paintMode =
         switch (b[6] & 0xff) {
           case 0x80 -> MODE_NO_OVERWRITE;
-            // bug in original level 36: overwrite AND visible on terrain: impossible
+          // bug in original level 36: overwrite AND visible on terrain: impossible
           case 0x40, 0xc0 -> MODE_VIS_ON_TERRAIN;
           default -> MODE_FULL;
         };

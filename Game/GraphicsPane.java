@@ -261,7 +261,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
         case START_BRIEFING:
           forceRedraw = true;
           GameController.setGameState(GameController.State.BRIEFING);
-          // fall through
+        // fall through
 
         case BRIEFING:
           TextScreen.drawBriefing(internalWidth, forceRedraw);
@@ -587,7 +587,7 @@ public class GraphicsPane extends JPanel implements Runnable, MouseListener, Mou
       case BRIEFING:
       case DEBRIEFING:
         TextScreen.getDialog().handleMouseMove(xMouseScreen, yMouseScreen);
-        // $FALL-THROUGH$
+      // $FALL-THROUGH$
       case LEVEL:
         mouseDx = (xMouse - oldX);
         mouseDy = (yMouse - oldY);

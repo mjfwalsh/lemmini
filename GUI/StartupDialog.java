@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import javax.swing.event.HyperlinkEvent;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -15,11 +14,11 @@ import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.event.HyperlinkEvent;
 
 /*
  * Copyright 2009 Volker Oth
@@ -56,7 +55,7 @@ public class StartupDialog extends JDialog {
    * @param trgPath installation folder
    */
   public StartupDialog(final File srcPath) throws IOException {
-    super((JFrame)null, true);
+    super((JFrame) null, true);
     setSize(675, 480);
     setTitle("Lemmini - Disclaimer");
     setContentPane(getJContentPane());
@@ -83,7 +82,7 @@ public class StartupDialog extends JDialog {
     JButton srcButton = getBrowseButton(jTextFieldSrc);
     JButton buttonQuit = getJButtonQuit();
     JButton buttonExtract = getJButtonExtract();
-  
+
     javax.swing.JPanel jContentPane = new javax.swing.JPanel();
     GroupLayout layout = new GroupLayout(jContentPane);
     layout.setAutoCreateGaps(true);
@@ -91,28 +90,29 @@ public class StartupDialog extends JDialog {
     jContentPane.setLayout(layout);
 
     layout.setVerticalGroup(
-      layout.createSequentialGroup()
-        .addComponent(webView)
-        .addComponent(sourceLabel)
-        .addGroup(layout.createParallelGroup()
-          .addComponent(jTextFieldSrc)
-          .addComponent(srcButton))
-        .addGap(10)
-        .addGroup(layout.createParallelGroup()
-          .addComponent(buttonQuit)
-          .addComponent(buttonExtract)));
+        layout
+            .createSequentialGroup()
+            .addComponent(webView)
+            .addComponent(sourceLabel)
+            .addGroup(
+                layout.createParallelGroup().addComponent(jTextFieldSrc).addComponent(srcButton))
+            .addGap(10)
+            .addGroup(
+                layout.createParallelGroup().addComponent(buttonQuit).addComponent(buttonExtract)));
 
     layout.setHorizontalGroup(
-      layout.createParallelGroup()
-        .addComponent(webView)
-        .addComponent(sourceLabel)
-        .addGroup(layout.createSequentialGroup()
-          .addComponent(jTextFieldSrc)
-          .addComponent(srcButton))
-        .addGroup(layout.createSequentialGroup()
-          .addComponent(buttonQuit)
-          .addGap(0, 999999, 999999)
-          .addComponent(buttonExtract)));
+        layout
+            .createParallelGroup()
+            .addComponent(webView)
+            .addComponent(sourceLabel)
+            .addGroup(
+                layout.createSequentialGroup().addComponent(jTextFieldSrc).addComponent(srcButton))
+            .addGroup(
+                layout
+                    .createSequentialGroup()
+                    .addComponent(buttonQuit)
+                    .addGap(0, 999999, 999999)
+                    .addComponent(buttonExtract)));
 
     return jContentPane;
   }
@@ -132,7 +132,6 @@ public class StartupDialog extends JDialog {
         });
     return button;
   }
-  
 
   /**
    * This method creates a browse button
@@ -143,17 +142,16 @@ public class StartupDialog extends JDialog {
     JButton button = new JButton();
     button.setText("Browse");
     button.addActionListener(
-      (java.awt.event.ActionEvent e) -> {
-        JFileChooser jf = new JFileChooser(textField.getText());
-        jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int returnVal = jf.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-          textField.setText(jf.getSelectedFile().getAbsolutePath());
-        }
-      });
+        (java.awt.event.ActionEvent e) -> {
+          JFileChooser jf = new JFileChooser(textField.getText());
+          jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+          int returnVal = jf.showOpenDialog(this);
+          if (returnVal == JFileChooser.APPROVE_OPTION) {
+            textField.setText(jf.getSelectedFile().getAbsolutePath());
+          }
+        });
     return button;
   }
-
 
   /**
    * This creates a proceed button

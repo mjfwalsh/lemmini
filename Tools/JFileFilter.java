@@ -36,7 +36,7 @@ package Tools;
  */
 
 /*
- * @(#)JFileFilter.java	1.14 03/01/23
+ * @(#)JFileFilter.java 1.14 03/01/23
  */
 
 import java.io.File;

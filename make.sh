@@ -18,82 +18,82 @@
 
 compile_java()
 {
-	echo Running Java Compiler...
-	mkdir -p build && javac -d ./build Lemmini.java
+    echo Running Java Compiler...
+    mkdir -p build && javac -d ./build Lemmini.java
 
-	if [ "$?" != "0" ]; then
-		echo Build Failed
-		exit 1
-	fi
+    if [ "$?" != "0" ]; then
+        echo Build Failed
+        exit 1
+    fi
 }
 
 make_jar()
 {
-	if [ -f Lemmini.jar ]; then
-		rm Lemmini.jar
-	fi
+    if [ -f Lemmini.jar ]; then
+        rm Lemmini.jar
+    fi
 
-	if ! [ -d build ]; then
-		compile_java
-	fi
+    if ! [ -d build ]; then
+        compile_java
+    fi
 
-	echo Making Jar File...
-	jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png LemminiIcon.png patch
+    echo Making Jar File...
+    jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png LemminiIcon.png patch
 
-	if [ "$?" != "0" ]; then
-		echo Failed to make jar
-		exit 1
-	fi
+    if [ "$?" != "0" ]; then
+        echo Failed to make jar
+        exit 1
+    fi
 }
 
 run_java()
 {
-	if ! [ -d build ]; then
-		compile_java
-	fi
+    if ! [ -d build ]; then
+        compile_java
+    fi
 
-	echo Running Java Code...
-	java -cp ".:build" Lemmini
+    echo Running Java Code...
+    java -cp ".:build" Lemmini
 }
 
 make_mac_app()
 {
-	if [ -d Lemmini.app ]; then
-		rm -fR Lemmini.app
-	fi
+    if [ -d Lemmini.app ]; then
+        rm -fR Lemmini.app
+    fi
 
-	if [ -d tmpapp ]; then
-		rm -fR tmpapp
-	fi
+    if [ -d tmpapp ]; then
+        rm -fR tmpapp
+    fi
 
-	if ! [ -f Lemmini.jar ]; then
-		if ! [ -f build/Lemmini.class ]; then
-			compile_java
-		fi
-		make_jar
-	fi
+    if ! [ -f Lemmini.jar ]; then
+        if ! [ -f build/Lemmini.class ]; then
+            compile_java
+        fi
+        make_jar
+    fi
 
-	echo Making Mac App...
+    echo Making Mac App...
 
-	mkdir -p tmpapp/Contents/MacOS
-	mkdir tmpapp/Contents/Resources
-	cp Info.plist tmpapp/Contents/
-	cp Lemmini.icns tmpapp/Contents/Resources/
-	mv Lemmini.jar tmpapp/Contents/Resources/
+    mkdir -p tmpapp/Contents/MacOS
+    mkdir tmpapp/Contents/Resources
+    cp Info.plist tmpapp/Contents/
+    cp Lemmini.icns tmpapp/Contents/Resources/
+    mv Lemmini.jar tmpapp/Contents/Resources/
 
-	cat <<'EOF' > tmpapp/Contents/MacOS/Lemmini
+    cat <<'EOF' > tmpapp/Contents/MacOS/Lemmini
 #!/bin/sh
 FOO=$(dirname "$0")
 cd "$FOO/../Resources"
 msg=$(java "-Xdock:icon=Lemmini.icns" -jar Lemmini.jar 2>&1 )
 if [ $? -eq 0 ]
 then
-	exit 0
+    exit 0
 fi
 
 osascript - "$msg" <<'EOS'
 on run argv
-	display alert (item 1 of argv) as critical buttons {"Ok"}
+    display alert (item 1 of argv) as critical buttons {"Ok"}
 end run
 EOS
 
@@ -101,33 +101,33 @@ exit 1
 
 EOF
 
-	chmod 755 tmpapp/Contents/MacOS/Lemmini
+    chmod 755 tmpapp/Contents/MacOS/Lemmini
 
-	mv tmpapp Lemmini.app
+    mv tmpapp Lemmini.app
 }
 
 install_mac_app()
 {
-	if ! [ -d Lemmini.app ]; then
-		make_mac_app
-	fi
+    if ! [ -d Lemmini.app ]; then
+        make_mac_app
+    fi
 
-	echo Installing Mac App...
-	mv Lemmini.app /Applications/ || echo Failed to move app to /Applications/
+    echo Installing Mac App...
+    mv Lemmini.app /Applications/ || echo Failed to move app to /Applications/
 }
 
 make_clean()
 {
-	echo Cleaning Install directory...
-	if [ -d build ]; then rm -fR build; fi
-	if [ -f Lemmini.jar ]; then rm Lemmini.jar; fi
-	if [ -d Lemmini.app ]; then rm -fR Lemmini.app; fi
-	if [ -d tmpapp ]; then rm -fR tmpapp; fi
+    echo Cleaning Install directory...
+    if [ -d build ]; then rm -fR build; fi
+    if [ -f Lemmini.jar ]; then rm Lemmini.jar; fi
+    if [ -d Lemmini.app ]; then rm -fR Lemmini.app; fi
+    if [ -d tmpapp ]; then rm -fR tmpapp; fi
 }
 
 print_usage()
 {
-		cat << EOF
+        cat << EOF
 
 Usage: ./make.sh command
 
@@ -157,35 +157,35 @@ EOF
 system=`uname`
 
 if [ "$#" = "0" ]; then
-	print_usage
-	exit 0
+    print_usage
+    exit 0
 fi
 
 if [ "$1" = "run" ]; then
-	run_java
+    run_java
 elif [ "$1" = "jar" ]; then
-	make_jar
+    make_jar
 elif [ "$1" = "app" ]; then
-	if [ "$system" = "Darwin" ]; then
-		make_mac_app
-	else
-		echo This function is only supported on Mac
-	fi
+    if [ "$system" = "Darwin" ]; then
+        make_mac_app
+    else
+        echo This function is only supported on Mac
+    fi
 elif [ "$1" = "compile" ]; then
-	compile_java
+    compile_java
 elif [ "$1" = "test" ]; then
-	compile_java
-	run_java
+    compile_java
+    run_java
 elif [ "$1" = "clean" ]; then
-	make_clean
+    make_clean
 elif [ "$1" = "install" ]; then
-	if [ "$system" = "Darwin" ]; then
-		install_mac_app
-	else
-		echo This function is only supported on Mac
-	fi
+    if [ "$system" = "Darwin" ]; then
+        install_mac_app
+    else
+        echo This function is only supported on Mac
+    fi
 else
-	print_usage
+    print_usage
 fi
 
 

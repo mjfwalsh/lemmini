@@ -86,11 +86,9 @@ public class Core {
     resourcePath = new File(getAppDataDir(), "Lemmini");
 
     if (resourcePath.exists()) {
-      if (!resourcePath.isDirectory())
-        throw new LemmException("Can't create app dir");    
+      if (!resourcePath.isDirectory()) throw new LemmException("Can't create app dir");
     } else {
-      if (!resourcePath.mkdirs())
-        throw new LemmException("Failed to create app dir");
+      if (!resourcePath.mkdirs()) throw new LemmException("Failed to create app dir");
     }
 
     // ini path
@@ -101,16 +99,16 @@ public class Core {
     File sourcePath = null;
     String rev;
     boolean showFileDialog = false;
-    if(programProps.load(programPropsFile)) { // Might exist or not - if not, it's created
+    if (programProps.load(programPropsFile)) { // Might exist or not - if not, it's created
       rev = programProps.get("revision", "");
 
       sourcePath = getFolder("sourcePath");
-      if(sourcePath == null) showFileDialog = true;
+      if (sourcePath == null) showFileDialog = true;
     } else {
       showFileDialog = true;
     }
 
-    if(showFileDialog) {
+    if (showFileDialog) {
       StartupDialog ld = new StartupDialog(sourcePath);
       ld.setVisible(true);
       if (!ld.isOk()) System.exit(0);
@@ -163,22 +161,19 @@ public class Core {
     if (System.getProperty("os.name").equals("Mac OS X")) {
       // Mac
       appDataDir = System.getProperty("user.home");
-      if (appDataDir != null)
-        appDataDir += "/Library/Application Support";
+      if (appDataDir != null) appDataDir += "/Library/Application Support";
 
     } else if (System.getProperty("os.name").startsWith("Windows")) {
       // Windows
       appDataDir = System.getenv("LOCALAPPDATA");
-      if (appDataDir == null)
-        appDataDir = System.getenv("APPDATA");
+      if (appDataDir == null) appDataDir = System.getenv("APPDATA");
 
     } else {
       // Linux and Unix
       appDataDir = System.getenv("XDG_DATA_HOME");
       if (appDataDir == null) {
         appDataDir = System.getProperty("user.home");
-        if (appDataDir != null)
-          appDataDir += "/.local/share";
+        if (appDataDir != null) appDataDir += "/.local/share";
       }
     }
 
@@ -186,10 +181,9 @@ public class Core {
       File f = new File(appDataDir);
       if (f.exists())
         if (f.isDirectory()) return f;
-      else
-        if (f.mkdirs()) return f;
+        else if (f.mkdirs()) return f;
     }
-    
+
     // when everything else fails
     return getBaseDir();
   }
