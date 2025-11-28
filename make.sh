@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#  Copyright 2019 Michael J. Walsh
+#  Copyright 2025 Michael J. Walsh
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -14,66 +14,63 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-# Functions
+set -e
 
 compile_java()
 {
-    echo Running Java Compiler...
-    mkdir -p build && javac -d ./build Lemmini.java
+    echo 'Running Java Compiler...'
 
-    if [ "$?" != "0" ]; then
-        echo Build Failed
+    if ! mkdir -p build || ! javac -d ./build Lemmini.java
+    then
+        echo 'Build Failed'
         exit 1
     fi
 }
 
 make_jar()
 {
-    if [ -f Lemmini.jar ]; then
-        rm Lemmini.jar
-    fi
+    rm -f Lemmini.jar
 
-    if ! [ -d build ]; then
+    if ! test -d build
+    then
         compile_java
     fi
 
-    echo Making Jar File...
-    jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini disclaimer.htm extract.ini lemmini.png LemminiIcon.png patch
+    echo 'Making Jar File...'
 
-    if [ "$?" != "0" ]; then
-        echo Failed to make jar
+    if ! jar cfe Lemmini.jar Lemmini -C build . -C . background.gif crc.ini \
+            disclaimer.htm extract.ini lemmini.png LemminiIcon.png patch
+    then
+        echo 'Failed to make jar'
         exit 1
     fi
 }
 
 run_java()
 {
-    if ! [ -d build ]; then
+    if ! test -d build
+    then
         compile_java
     fi
 
-    echo Running Java Code...
+    echo 'Running Java Code...'
     java -cp ".:build" Lemmini
 }
 
 make_mac_app()
 {
-    if [ -d Lemmini.app ]; then
-        rm -fR Lemmini.app
-    fi
+    rm -fR Lemmini.app tmpapp
 
-    if [ -d tmpapp ]; then
-        rm -fR tmpapp
-    fi
-
-    if ! [ -f Lemmini.jar ]; then
-        if ! [ -f build/Lemmini.class ]; then
+    if ! test -f Lemmini.jar
+    then
+        if ! test -f build/Lemmini.class
+        then
             compile_java
         fi
         make_jar
     fi
 
-    echo Making Mac App...
+    echo 'Making Mac App...'
 
     mkdir -p tmpapp/Contents/MacOS
     mkdir tmpapp/Contents/Resources
@@ -83,10 +80,13 @@ make_mac_app()
 
     cat <<'EOF' > tmpapp/Contents/MacOS/Lemmini
 #!/bin/sh
-FOO=$(dirname "$0")
-cd "$FOO/../Resources"
-msg=$(java "-Xdock:icon=Lemmini.icns" -jar Lemmini.jar 2>&1 )
-if [ $? -eq 0 ]
+
+macos_dir=$(dirname "$0")
+
+cd "$macos_dir/../Resources" || exit 1
+
+msg=$(java "-Xdock:icon=Lemmini.icns" -jar Lemmini.jar 2>&1)
+if test $? -eq 0
 then
     exit 0
 fi
@@ -102,27 +102,33 @@ exit 1
 EOF
 
     chmod 755 tmpapp/Contents/MacOS/Lemmini
-
     mv tmpapp Lemmini.app
 }
 
 install_mac_app()
 {
-    if ! [ -d Lemmini.app ]; then
+    if ! test -d Lemmini.app
+    then
         make_mac_app
     fi
 
-    echo Installing Mac App...
-    mv Lemmini.app /Applications/ || echo Failed to move app to /Applications/
+    echo 'Installing Mac App...'
+    mv Lemmini.app /Applications/ || echo 'Failed to move app to /Applications/'
 }
 
 make_clean()
 {
-    echo Cleaning Install directory...
-    if [ -d build ]; then rm -fR build; fi
-    if [ -f Lemmini.jar ]; then rm Lemmini.jar; fi
-    if [ -d Lemmini.app ]; then rm -fR Lemmini.app; fi
-    if [ -d tmpapp ]; then rm -fR tmpapp; fi
+    echo 'Cleaning Install directory...'
+    rm -fr build Lemmini.jar Lemmini.app tmpapp
+}
+
+mac_only_func()
+{
+    if test "$(uname)" != "Darwin"
+    then
+        echo 'This function is only supported on Mac'
+        exit 1
+    fi
 }
 
 print_usage()
@@ -154,38 +160,40 @@ EOF
 }
 
 # main
-system=`uname`
 
-if [ "$#" = "0" ]; then
-    print_usage
-    exit 0
-fi
+case "$1" in
+    run)
+        run_java
+        ;;
 
-if [ "$1" = "run" ]; then
-    run_java
-elif [ "$1" = "jar" ]; then
-    make_jar
-elif [ "$1" = "app" ]; then
-    if [ "$system" = "Darwin" ]; then
+    jar)
+        make_jar
+        ;;
+
+    app)
+        mac_only_func
         make_mac_app
-    else
-        echo This function is only supported on Mac
-    fi
-elif [ "$1" = "compile" ]; then
-    compile_java
-elif [ "$1" = "test" ]; then
-    compile_java
-    run_java
-elif [ "$1" = "clean" ]; then
-    make_clean
-elif [ "$1" = "install" ]; then
-    if [ "$system" = "Darwin" ]; then
+        ;;
+
+    compile)
+        compile_java
+        ;;
+
+    test)
+        compile_java
+        run_java
+        ;;
+
+    clean)
+        make_clean
+        ;;
+
+    install)
+        mac_only_func
         install_mac_app
-    else
-        echo This function is only supported on Mac
-    fi
-else
-    print_usage
-fi
+        ;;
 
-
+    *)
+        print_usage
+        ;;
+esac
