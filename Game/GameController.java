@@ -540,10 +540,22 @@ public class GameController {
 
   /** Proceed to next level. */
   public static synchronized void nextLevel() {
-    if (curLevelNumber < (levelPack.get(curLevelPack).getLevelCount(curDiffLevel) - 1)) {
+    if (curLevelNumber < levelPack.get(curLevelPack).getLevelCount(curDiffLevel) - 1) {
       curLevelNumber++;
-      requestChangeLevel(curLevelPack, curDiffLevel, curLevelNumber, false);
+    } else if (curDiffLevel < levelPack.get(curLevelPack).getDiffLevels().size() - 1) {
+      curLevelNumber = 0;
+      curDiffLevel++;
+    } else if (curLevelPack < levelPack.size() - 1) {
+      curDiffLevel = 0;
+      curLevelNumber = 0;
+      curLevelPack++;
+    } else {
+      curDiffLevel = 0;
+      curLevelNumber = 0;
+      curLevelPack = 1; // avoid dummy
     }
+
+    requestChangeLevel(curLevelPack, curDiffLevel, curLevelNumber, false);
   }
 
   /** Plays the highest available level in the remembered diff level */

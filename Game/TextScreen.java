@@ -341,7 +341,6 @@ public class TextScreen {
 
             textDialog.printCentered("Your access code for level " + (ln + 2), 2, BROWN);
             textDialog.printCentered("is " + code, 3, BROWN);
-            textDialog.addTextButton(9, 5, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
           } else {
             textDialog.printCentered("Congratulations!", 2, BROWN);
             textDialog.printCentered(
@@ -351,6 +350,7 @@ public class TextScreen {
                 3,
                 GREEN);
           }
+          textDialog.addTextButton(9, 5, BUTTON_CONTINUE, "Next", "Next", BLUE, BROWN);
         }
         textDialog.copyToBackBuffer(); // though not really needed
         textDialog.addTextButton(-12, 5, BUTTON_REPLAY, "Replay", "Replay", BLUE, BROWN);
